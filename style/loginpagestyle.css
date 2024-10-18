@@ -1,0 +1,313 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+*{
+    padding: 0;
+    margin: 0;
+}
+
+body{
+  display: flexbox;
+  position: absolute;
+  top: 15rem;
+  left: 45rem;
+}
+body::before{
+  content: "";
+  background: linear-gradient(to bottom left, rgba(3, 63, 192, 0.521), rgba(172, 147, 7, 0.514)); 
+}
+
+.page-header {
+  color: rgb(20, 20, 20);
+  padding: 20px;
+  text-align: center;
+  font-size: 24px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%; 
+  background-color: transparent; 
+  z-index: 1000; 
+}
+
+.page-header h2 {
+  margin: 0;
+  font-weight: bold;
+  font-size: 40px;
+}
+
+
+
+.cards {
+    width: 450px;
+    height: 400px;
+    border-radius: 20px;
+    background-color: #ffffff;
+    padding: 50px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-bodies {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: transparent;
+  }
+  
+  /* Placeholder Styling */
+  ::placeholder {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+  
+  /* Button Alignment */
+  .form button {
+    align-self: flex-end;
+  }
+  
+  /* Input Field Styling */
+  .inputForm {
+    border: 1.5px solid #ecedec;
+    border-radius: 10px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    transition: 0.2s ease-in-out;
+  }
+  
+  .input {
+    margin-left: 10px;
+    border-radius: 10px;
+    border: none;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .input:focus {
+    outline: none;
+  }
+  
+  .inputForm:focus-within {
+    border: 1.5px solid #2d79f3;
+  }
+  
+  /* Label Styling */
+  .flex-column > label {
+    color: #151717;
+    font-weight: 300;
+  }
+  
+  /* Row Flexbox */
+
+  .container {
+    display: flex; /* Change to flex for horizontal alignment */
+    align-items: center; /* Center items vertically */
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  
+  .checkmark {
+    position: relative; /* Change to relative to keep it inline */
+    height: 25px;
+    width: 25px;
+    background-color: #ffffff;
+    border: solid rgb(0, 0, 0) 1px;
+    border-radius: 4px;
+    margin-right: 8px; /* Add margin to create gap */
+  }
+  
+  .container input:checked ~ .checkmark {
+    background-color: #ffffff;
+  }
+  
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  
+  .container input:checked ~ .checkmark:after {
+    display: block;
+  }
+  
+  .checkmark:after {
+    left: 0.5rem;
+    top: 0.3rem;
+    width: 7px;
+    height: 12px;
+    border: solid rgb(0, 195, 255);
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+  }
+  
+  
+  
+  /* Button Styling */
+  .loginbutton {
+    background-color: #2a2f3b;
+    border: none;
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 15px;
+    height: 50px;
+    width: 100%;
+    cursor: pointer;
+    transition: 0.3s ease;
+  }
+  
+  .loginbutton:hover {
+    background-color: #ffffff;
+    transform: scale(1.01);
+    color: black;
+    border: 1px black solid;
+  }
+  
+  
+  /* Paragraph Text Styling */
+  .p {
+    text-align: center;
+    color: black;
+    font-size: 14px;
+    margin: 5px 0;
+  }
+  .input-group {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 18px;
+    color: #070707;
+    margin-bottom: 10px;
+    border: none;
+    border-bottom: 1px solid #000000;
+    outline: none;
+    background-color: transparent; 
+    font-weight: 500;
+}
+
+.input-group .input-group-text {
+    background: transparent;
+    border: none;
+    color: #fff;
+}
+
+.input-group label {
+    position: absolute;
+    top: 10px;
+    left: 0;
+    padding: 10px 0;
+    font-size: 15px;
+    color: #8d8d8d;
+    pointer-events: none;
+    transition: 0.5s;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 100;
+}
+
+.input-group input:focus + label,
+.input-group input:not(:placeholder-shown) + label {
+    top: -20px;
+    left: 0;
+    color: #000000;
+    font-size: 12px;
+}
+
+.input-group input:focus,
+.input-group input:not(:placeholder-shown) {
+    border-bottom-color: #000000;
+    background-color: transparent;
+}
+
+.input-group .input-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8d8d8d;
+  pointer-events: none;
+}
+
+/*------------------------------------*/
+.select {
+  width: 100%; 
+  cursor: pointer;
+  position: relative;
+  transition: 300ms;
+}
+
+.selected {
+  background-color: #2a2f3b;
+  width: 100%;
+  height: 45px;
+  padding: 10px;
+  margin-bottom: 3px;
+  border-radius: 5px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  color: white;
+}
+
+
+.options {
+  display: none;
+  flex-direction: column;
+  border-radius: 5px;
+  padding: 5px;
+  background-color: #2a2f3b;
+  position: absolute; 
+  top: 100%; 
+  left: 0;
+  z-index: 1000; 
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.select:hover > .options {
+  display: flex;
+  width: 100%;
+  margin-top: 2px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.option {
+  border-radius: 5px;
+  padding: 5px;
+  transition: background-color 0.3s ease;
+  background-color: #2a2f3b;
+  font-size: 15px;
+  font-weight: 100;
+}
+
+.option:hover {
+  background-color: #323741;
+}
+
+.options input[type="radio"] {
+  display: none; 
+}
+
+.options label {
+  display: block; 
+  padding: 5px;
+  color: #fff; 
+}

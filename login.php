@@ -19,55 +19,63 @@ header("location:index.php?page=home");
 
 ?>
 <?php include 'header.php' ?>
-<body class="hold-transition login-page bg-black">
-  <h2><b><?php echo $_SESSION['system']['name'] ?> - Admin</b></h2>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style/loginpagestyle.css">
+  <title>Document</title>
+</head>
+
+<body style="background: linear-gradient(to bottom left, rgba(3, 63, 192, 0.521), rgba(172, 147, 7, 0.514)), url('assets/uploads/Lyceum2.jpg');">
+<header class="page-header">
+    <h2><b>STUDENT-FACULTY EVALUATION SYSTEM</b></h2>
+  </header>
 <div class="login-box">
   <div class="login-logo">
     <a href="#" class="text-white"></a>
   </div>
   <!-- /.login-logo -->
-  <div class="card">
-    <div class="card-body login-card-body">
+  <div class="cards">
+    <div class="card-bodies">
       <form action="" id="login-form">
         <div class="input-group mb-3">
-          <input type="email" class="form-control" name="email" required placeholder="Email">
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-envelope"></span>
+          <input type="email"  name="email" required placeholder="">
+          <label for="email">Email</label>
+          
+            <div class="input-iconies">
+              <span class="fas fa-envelope input-icon"></span>
             </div>
-          </div>
+          
         </div>
         <div class="input-group mb-3">
-          <input type="password" class="form-control" name="password" required placeholder="Password">
-          <div class="input-group-append">
-            <div class="input-group-text">
-              <span class="fas fa-lock"></span>
-            </div>
+          <input type="password" name="password" required placeholder="">
+          <label for="password">Password</label>
+          
+            <div class="input-iconies">
+              <span class="fas fa-lock input-icon"></span>
+            
           </div>
         </div>
-        <div class="form-group mb-3">
-          <label for="">Login As</label>
-          <select name="login" id="" class="custom-select custom-select-sm">
-            <option value="3">Student</option>
-            <option value="2">Faculty</option>
-            <option value="1">Admin</option>
-          </select>
-        </div>
-        <div class="row">
-          <div class="col-8">
-            <div class="icheck-primary">
-              <input type="checkbox" id="remember">
-              <label for="remember">
-                Remember Me
-              </label>
-            </div>
-          </div>
-          <!-- /.col -->
-          <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-          </div>
-          <!-- /.col -->
-        </div>
+        <div class="select">
+  <div class="selected">Login As</div>
+  <div class="options">
+    <input type="radio" id="student" name="login" value="3" checked>
+    <label for="student" class="option">Student</label>
+    <input type="radio" id="faculty" name="login" value="2">
+    <label for="faculty" class="option">Faculty</label>
+    <input type="radio" id="admin" name="login" value="1">
+    <label for="admin" class="option">Admin</label>
+  </div>
+</div>
+<div class="rows">
+<label class="container">
+    <input type="checkbox" id="remember">
+    <span class="checkmark"></span>
+    Remember Me
+  </label>
+    <button type="submit" class="loginbutton">Sign In</button>
+</div>
+
       </form>
     </div>
     <!-- /.login-card-body -->
@@ -101,6 +109,20 @@ header("location:index.php?page=home");
     })
   })
   })
+
+  document.querySelector('.selected').addEventListener('click', function() {
+    const options = document.querySelector('.options');
+    options.style.display = options.style.display === 'flex' ? 'none' : 'flex'; // Toggle visibility
+  });
+
+  document.querySelectorAll('.option').forEach(option => {
+    option.addEventListener('click', function() {
+      const selectedText = this.textContent; // Get the text of the selected option
+      document.querySelector('.selected').textContent = selectedText; // Update the displayed text
+      document.querySelector('.options').style.display = 'none'; // Hide options after selection
+    });
+  });
+
 </script>
 <?php include 'footer.php' ?>
 
