@@ -89,8 +89,11 @@ function ordinal_suffix($num){
 					<?php endwhile; ?>
 			</div>
 		</div>
+		
+</div>
 	</div>
 </div>
+
 <style>
 	.list-group-item:hover{
 		color: black !important;
@@ -181,45 +184,57 @@ function ordinal_suffix($num){
 			$(this).addClass('active')
 		})
 	}
-	function load_report($faculty_id, $subject_id,$class_id){
-		if($('#preloader2').length <= 0)
-		start_load()
-		$.ajax({
-			url:'ajax.php?action=get_report',
-			method:"POST",
-			data:{faculty_id: $faculty_id,subject_id:$subject_id,class_id:$class_id},
-			error:function(err){
-				console.log(err)
-				alert_toast("An Error Occured.","error");
-				end_load()
-			},
-			success:function(resp){
-				if(resp){
-					resp = JSON.parse(resp)
-					if(Object.keys(resp).length <= 0){
-						$('.rates').text('')
-						$('#tse').text('')
-						$('#print-btn').hide()
-					}else{
-						$('#print-btn').show()
-						$('#tse').text(resp.tse)
-						$('.rates').text('-')
-						var data = resp.data
-						Object.keys(data).map(q=>{
-							Object.keys(data[q]).map(r=>{
-								console.log($('.rate_'+r+'_'+q),data[q][r])
-								$('.rate_'+r+'_'+q).text(data[q][r]+'%')
-							})
-						})
-					}
-					
-				}
-			},
-			complete:function(){
-				end_load()
-			}
-		})
-	}
+	function load_report($faculty_id, $subject_id, $class_id){
+    if($('#preloader2').length <= 0)
+    start_load()
+    $.ajax({
+        url:'ajax.php?action=get_report',
+        method:"POST",
+        data:{faculty_id: $faculty_id,subject_id:$subject_id,class_id:$class_id},
+        error:function(err){
+            console.log(err)
+            alert_toast("An Error Occured.","error");
+            end_load()
+        },
+        success:function(resp){
+            if(resp){
+                resp = JSON.parse(resp)
+                if(Object.keys(resp).length <= 0){
+                    $('.rates').text('')
+                    $('#tse').text('')
+                    $('#print-btn').hide()
+                }else{
+                    $('#print-btn').show()
+                    $('#tse').text(resp.tse)
+                    $('.rates').text('-')
+                    var data = resp.data
+                    var totalSum = 0;
+                    var totalQuestions = 0;
+                    Object.keys(data).map(q=>{
+                        var average_q = 0;
+                        Object.keys(data[q]).map(r=>{
+                            console.log($('.rate_'+r+'_'+q),data[q][r])
+                            $('.rate_'+r+'_'+q).text(data[q][r]+'%')
+                            var percentage = data[q][r]; // percentage as a number
+                            var rating = parseInt(r);
+                            average_q += (percentage / 100) * rating;
+                        })
+                        totalSum += average_q;
+                        totalQuestions++;
+                    })
+                    var totalAverage = totalSum / totalQuestions;
+                    // Display total average
+                    $('#total-average').remove(); // Remove if already exists
+                    $('#printable').append('<div id="total-average" style="margin-top:20px;"><h4><b>Total Average:</b> ' + totalAverage.toFixed(2) + '</h4></div>');
+                }
+                
+            }
+        },
+        complete:function(){
+            end_load()
+        }
+    })
+}
 	$('#print-btn').click(function(){
 		start_load()
 		var ns =$('noscript').clone()
