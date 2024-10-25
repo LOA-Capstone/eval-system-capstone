@@ -18,8 +18,8 @@ if(isset($_GET['action']) && $_GET['action'] == 'test_sentiment'){
         $comment_escaped = escapeshellarg($comment);
 
         // Paths to Python executable and script
-        $pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe'; // Update this path
-        $scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py'; // Update this path
+        $pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe'; // To be changed
+        $scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py'; // To be changed
 
         // Build the command
         $command = "\"$pythonExecutable\" \"$scriptPath\" $comment_escaped";
@@ -189,69 +189,135 @@ if($action == 'save_restriction'){
 	if($save)
 		echo $save;
 }
-if($action == 'save_evaluation'){
-    // First, save the evaluation
-    $save = $crud->save_evaluation();
-    if($save){
-        // After saving, get the evaluation_id
-        // Assuming $crud->save_evaluation() returns the evaluation_id
-        $evaluation_id = $save;
 
-        // Alternatively, if save_evaluation() doesn't return the evaluation_id,
-        // you can use $conn->insert_id to get the last inserted ID.
-        // Uncomment the following line if needed:
-        // $evaluation_id = $conn->insert_id;
-
-        // Now process the comment if provided
-        if(isset($_POST['comment']) && !empty(trim($_POST['comment']))){
-            $comment = $_POST['comment'];
-            // Escape the comment to prevent shell injection
-            $comment_escaped = escapeshellarg($comment);
-
-            // Execute the Python script
-            $command = "python3 sentiment_analysis.py $comment_escaped";
-            $output = shell_exec($command);
-
-            // Decode the JSON result
-            $result = json_decode($output, true);
-
-            // Check if the result is valid
-            if($result && isset($result['sentiment'])){
-                // Retrieve sentiment analysis results
-                $sentiment = $conn->real_escape_string($result['sentiment']);
-                $polarity = $conn->real_escape_string($result['polarity']);
-                $subjectivity = $conn->real_escape_string($result['subjectivity']);
-                $positive_percentage = $conn->real_escape_string($result['positive_percentage']);
-                $negative_percentage = $conn->real_escape_string($result['negative_percentage']);
-
-                // Insert the comment and sentiment results into the database
-                $sql = "INSERT INTO evaluation_comments (evaluation_id, comment, sentiment, polarity, subjectivity, positive_percentage, negative_percentage) VALUES ('$evaluation_id', '$comment', '$sentiment', '$polarity', '$subjectivity', '$positive_percentage', '$negative_percentage')";
-                $conn->query($sql) or die($conn->error);
-            } else {
-                // Handle error if sentiment analysis failed
-                // Optionally, save the comment without sentiment results
-                $sql = "INSERT INTO evaluation_comments (evaluation_id, comment) VALUES ('$evaluation_id', '$comment')";
-                $conn->query($sql) or die($conn->error);
-            }
-        }
-        // Finally, echo the result to indicate success
-        echo $save;
-    } else {
-        // Handle error if saving evaluation failed
-        echo 0;
-    }
-}
-
+if ($_GET['action'] == 'save_evaluation') {
+	$conn->begin_transaction();
+	try {
+	  // Insert into evaluation_list
+	  $academic_id = $_POST['academic_id'];
+	  $class_id = $_POST['class_id'];
+	  $student_id = $_SESSION['login_id'];
+	  $subject_id = $_POST['subject_id'];
+	  $faculty_id = $_POST['faculty_id'];
+	  $restriction_id = $_POST['restriction_id'];
+  
+	  $stmt = $conn->prepare("INSERT INTO evaluation_list (academic_id, class_id, student_id, subject_id, faculty_id, restriction_id) VALUES (?, ?, ?, ?, ?, ?)");
+	  $stmt->bind_param("iiiiii", $academic_id, $class_id, $student_id, $subject_id, $faculty_id, $restriction_id);
+	  $stmt->execute();
+  
+	  $evaluation_id = $conn->insert_id;
+  
+	  // Insert into evaluation_answers
+	  foreach ($_POST['qid'] as $qid) {
+		$rate = $_POST['rate'][$qid];
+		$stmt = $conn->prepare("INSERT INTO evaluation_answers (evaluation_id, question_id, rate) VALUES (?, ?, ?)");
+		$stmt->bind_param("iii", $evaluation_id, $qid, $rate);
+		$stmt->execute();
+	  }
+  
+	  // Get the comment
+	  $comment = isset($_POST['comment']) ? $_POST['comment'] : '';
+  
+	  if (!empty(trim($comment))) {
+		// Perform sentiment analysis
+		$escapedComment = escapeshellarg($comment);
+		$pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe'; //To be changed
+		$scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py'; // To be changed
+		$command = "\"$pythonExecutable\" \"$scriptPath\" $escapedComment";
+		$output = shell_exec($command);
+		$sentimentResult = json_decode($output, true);
+  
+		if ($sentimentResult === null) {
+		  // Handle error
+		  $sentiment = 'Unknown';
+		  $polarity = 0;
+		  $subjectivity = 0;
+		} else {
+		  $sentiment = $sentimentResult['sentiment'];
+		  $polarity = $sentimentResult['score'];
+		  $subjectivity = $sentimentResult['subjectivity'];
+		}
+  
+		// Insert into evaluation_comments
+		$stmt = $conn->prepare("INSERT INTO evaluation_comments (evaluation_id, comment, sentiment, polarity, subjectivity) VALUES (?, ?, ?, ?, ?)");
+		$stmt->bind_param("issdd", $evaluation_id, $comment, $sentiment, $polarity, $subjectivity);
+		$stmt->execute();
+	  }
+  
+	  $conn->commit();
+	  echo 1;
+	} catch (Exception $e) {
+	  $conn->rollback();
+	  echo 0;
+	}
+	exit;
+  }
+  
 
 if($action == 'get_class'){
 	$get = $crud->get_class();
 	if($get)
 		echo $get;
 }
-if($action == 'get_report'){
-	$get = $crud->get_report();
-	if($get)
-		echo $get;
+
+// ajax.php
+
+if ($_GET['action'] == 'get_report') {
+    $faculty_id = $_POST['faculty_id'];
+    $subject_id = $_POST['subject_id'];
+    $class_id = $_POST['class_id'];
+    $academic_id = $_SESSION['academic']['id'];
+
+    // Get total number of students evaluated
+    $qry = $conn->query("SELECT COUNT(DISTINCT student_id) as tse FROM evaluation_list WHERE faculty_id = $faculty_id AND subject_id = $subject_id AND class_id = $class_id AND academic_id = $academic_id");
+    $tse = 0;
+    if ($qry->num_rows > 0) {
+        $tse = $qry->fetch_assoc()['tse'];
+    }
+
+    // Get evaluation answers
+    $data = array();
+    $questions = $conn->query("SELECT id FROM question_list WHERE academic_id = $academic_id");
+    while ($row = $questions->fetch_assoc()) {
+        $qid = $row['id'];
+        $rates = array_fill(1, 5, 0);
+        $total = 0;
+        $answers = $conn->query("SELECT rate, COUNT(rate) as count FROM evaluation_answers ea INNER JOIN evaluation_list el ON ea.evaluation_id = el.evaluation_id WHERE ea.question_id = $qid AND el.faculty_id = $faculty_id AND el.subject_id = $subject_id AND el.class_id = $class_id AND el.academic_id = $academic_id GROUP BY rate");
+        while ($arow = $answers->fetch_assoc()) {
+            $rate = $arow['rate'];
+            $count = $arow['count'];
+            $rates[$rate] = $count;
+            $total += $count;
+        }
+        // Calculate percentage
+        foreach ($rates as $rate => $count) {
+            $rates[$rate] = $total > 0 ? round(($count / $total) * 100, 2) : 0;
+        }
+        $data[$qid] = $rates;
+    }
+
+    // Get average polarity and subjectivity from evaluation_comments
+    $comment_query = $conn->query("SELECT AVG(polarity) as avg_polarity, AVG(subjectivity) as avg_subjectivity FROM evaluation_comments ec INNER JOIN evaluation_list el ON ec.evaluation_id = el.evaluation_id WHERE el.faculty_id = $faculty_id AND el.subject_id = $subject_id AND el.class_id = $class_id AND el.academic_id = $academic_id");
+    $avg_polarity = 0;
+    $avg_subjectivity = 0;
+    if ($comment_query->num_rows > 0) {
+        $row = $comment_query->fetch_assoc();
+        $avg_polarity = $row['avg_polarity'];
+        $avg_subjectivity = $row['avg_subjectivity'];
+    }
+
+    // Prepare response data
+    $response = array(
+        'tse' => $tse,
+        'data' => $data,
+        'avg_polarity' => $avg_polarity,
+        'avg_subjectivity' => $avg_subjectivity
+    );
+
+    echo json_encode($response);
+    exit;
 }
+
+
 ob_end_flush();
 ?>

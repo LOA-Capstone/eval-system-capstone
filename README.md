@@ -48,3 +48,26 @@ The sentiment analysis script relies on the `TextBlob` library. Follow these ste
    ```bash
    python -m textblob.download_corpora
 
+#### 4. Configure PHP Scripts
+
+You need to configure the PHP scripts to point to the correct Python executable and the sentiment analysis script.
+
+1. **Locate the Files:**
+    - Open `ajax.php` and `student/evaluate.php` files in your project directory.
+
+2. **Search for Placeholder Comments:**
+    - Look for the comment `//To be changed` in both files.
+
+3. **Update Paths:**
+    - Replace the placeholder paths with the actual paths on your system.
+
+##### Example Configuration:
+
+```php
+<?php
+// Path to the Python executable
+$pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe'; //To be changed
+
+// Path to the sentiment analysis script
+$scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py'; // To be changed
+?>
