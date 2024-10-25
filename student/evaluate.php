@@ -114,14 +114,16 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
     <div id="sentiment-result" class="mt-3">
         <h4>Sentiment Analysis Result:</h4>
         <p><strong>Sentiment:</strong> <?php echo htmlspecialchars($sentimentResult['sentiment']); ?></p>
-        <p><strong>Polarity:</strong> <?php echo htmlspecialchars($sentimentResult['polarity']); ?></p>
+        <p><strong>Polarity:</strong> <?php echo htmlspecialchars($sentimentResult['score']); ?></p>
         <p><strong>Subjectivity:</strong> <?php echo htmlspecialchars($sentimentResult['subjectivity']); ?></p>
+        <p><strong>Subjectivity Label:</strong> <?php echo htmlspecialchars($sentimentResult['subjectivity_label']); ?></p>
     </div>
 <?php elseif (isset($error)): ?>
     <div class="error-message">
         <p><?php echo htmlspecialchars($error); ?></p>
     </div>
 <?php endif; ?>
+
 
 
 				</div>
@@ -176,11 +178,14 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
         success: function(resp){
             if(resp && !resp.error){
                 var sentiment = resp.sentiment;
-                var polarity = resp.polarity;
+                var score = resp.score;
                 var subjectivity = resp.subjectivity;
-                var resultHtml = '<p><strong>Sentiment:</strong> '+sentiment+'</p>';
-                resultHtml += '<p><strong>Polarity:</strong> '+polarity+'</p>';
-                resultHtml += '<p><strong>Subjectivity:</strong> '+subjectivity+'</p>';
+                var subjectivity_label = resp.subjectivity_label;
+                var resultHtml = '<h4>Sentiment Analysis Result:</h4>';
+                resultHtml += '<p><strong>Sentiment:</strong> '+sentiment+'</p>';
+                resultHtml += '<p><strong>Sentiment Score:</strong> '+score.toFixed(2)+'</p>';
+                resultHtml += '<p><strong>Subjectivity:</strong> '+subjectivity.toFixed(2)+'</p>';
+                resultHtml += '<p><strong>Subjectivity Level:</strong> '+subjectivity_label+'</p>';
                 $('#sentiment-result').html(resultHtml);
             } else {
                 $('#sentiment-result').html('<p>'+ (resp.error || 'Error in sentiment analysis.') +'</p>');
@@ -197,7 +202,39 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
     });
 });
 
-	
+	// Function to calculate the score
+function calculateScore() {
+    var totalScore = 0;
+    var maxScore = 0;
+
+    // For each question, the maximum score is 5
+    var numQuestions = $('input[name^="rate["][value="5"]').length;
+    maxScore = numQuestions * 5;
+
+    // Sum up the selected ratings
+    $('input[name^="rate["]:checked').each(function(){
+        totalScore += parseInt($(this).val());
+    });
+
+    // Calculate percentage
+    var percentage = (totalScore / maxScore) * 100;
+
+    // Update the results
+    $('#total-score').text(totalScore);
+    $('#max-score').text(maxScore);
+    $('#percentage-score').text(percentage.toFixed(2));
+}
+
+// Call calculateScore on page load
+$(document).ready(function(){
+    calculateScore();
+
+    // Call calculateScore whenever a radio button is changed
+    $('input[name^="rate["]').change(function(){
+        calculateScore();
+    });
+});
+
 </script>
 <?php
 // ... existing PHP code ...
@@ -206,42 +243,36 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
 $sentimentResult = null;
 $error = null;
 
-// Check if the form has been submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get the comment from the form
+// ajax.php
+if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
     $comment = $_POST['comment'];
+    if (!empty(trim($comment))) {
+        // Escape the comment to prevent command injection
+        $escapedComment = escapeshellarg($comment);
 
-    if (isset($_POST['test_sentiment'])) {
-        // Process the sentiment analysis
-        if (!empty(trim($comment))) {
-            // Escape the comment to prevent command injection
-            $escapedComment = escapeshellarg($comment);
+        // Paths to Python executable and script
+        $pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe';
+        $scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py';
 
-            // Paths to Python executable and script
-            $pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe';
-            $scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py'; // Update this path
+        // Build the command
+        $command = "\"$pythonExecutable\" \"$scriptPath\" $escapedComment";
 
-            // Build the command
-            $command = "\"$pythonExecutable\" \"$scriptPath\" $escapedComment";
+        // Execute the command and capture the output
+        $output = shell_exec($command);
 
-            // Execute the command and capture the output
-            $output = shell_exec($command);
+        // Decode the JSON output
+        $sentimentResult = json_decode($output, true);
 
-            // Decode the JSON output
-            $sentimentResult = json_decode($output, true);
-
-            // Handle cases where the output is not valid JSON
-            if ($sentimentResult === null) {
-                $error = "Error processing sentiment analysis. Output: $output";
-            }
+        // Handle cases where the output is not valid JSON
+        if ($sentimentResult === null) {
+            echo json_encode(['error' => 'Error processing sentiment analysis.']);
         } else {
-            $error = "Please enter a comment to analyze.";
+            echo json_encode($sentimentResult);
         }
-    } elseif (isset($_POST['submit_evaluation'])) {
-        // Handle the evaluation submission
-        // ... existing evaluation submission code ...
+    } else {
+        echo json_encode(['error' => 'Please enter a comment to analyze.']);
     }
+    exit;
 }
-
 // ... rest of your PHP code ...
 ?>
