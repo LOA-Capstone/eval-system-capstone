@@ -47,6 +47,7 @@ The sentiment analysis script relies on the `TextBlob` library. Follow these ste
 ```
    ```bash
    python -m textblob.download_corpora
+```
 
 #### 4. Configure PHP Scripts
 
