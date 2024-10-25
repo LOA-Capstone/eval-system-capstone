@@ -193,7 +193,7 @@ function ordinal_suffix($num){
         data:{faculty_id: $faculty_id,subject_id:$subject_id,class_id:$class_id},
         error:function(err){
             console.log(err)
-            alert_toast("An Error Occured.","error");
+            alert_toast("An Error Occurred.","error");
             end_load()
         },
         success:function(resp){
@@ -213,7 +213,6 @@ function ordinal_suffix($num){
                     Object.keys(data).map(q=>{
                         var average_q = 0;
                         Object.keys(data[q]).map(r=>{
-                            console.log($('.rate_'+r+'_'+q),data[q][r])
                             $('.rate_'+r+'_'+q).text(data[q][r]+'%')
                             var percentage = data[q][r]; // percentage as a number
                             var rating = parseInt(r);
@@ -226,8 +225,68 @@ function ordinal_suffix($num){
                     // Display total average
                     $('#total-average').remove(); // Remove if already exists
                     $('#printable').append('<div id="total-average" style="margin-top:20px;"><h4><b>Total Average:</b> ' + totalAverage.toFixed(2) + '</h4></div>');
+                    
+                    // Now display average polarity and subjectivity
+                    var avg_polarity = parseFloat(resp.avg_polarity);
+                    var avg_subjectivity = parseFloat(resp.avg_subjectivity);
+
+                    // Determine sentiment label based on avg_polarity
+                    var sentimentLabel = '';
+                    var score = avg_polarity; // avg_polarity ranges from -1 to 1
+                    // Normalize polarity to 0 - 1
+                    var normalized_polarity = (score + 1) / 2;
+
+                    if (0.0 <= normalized_polarity && normalized_polarity < 0.1) {
+                        sentimentLabel = 'Very Strong (Negative)';
+                    } else if (0.1 <= normalized_polarity && normalized_polarity < 0.3) {
+                        sentimentLabel = 'Strong (Negative)';
+                    } else if (0.3 <= normalized_polarity && normalized_polarity < 0.4) {
+                        sentimentLabel = 'Moderate (Negative)';
+                    } else if (0.4 <= normalized_polarity && normalized_polarity < 0.6) {
+                        sentimentLabel = 'Neutral';
+                    } else if (0.6 <= normalized_polarity && normalized_polarity < 0.7) {
+                        sentimentLabel = 'Moderate (Positive)';
+                    } else if (0.7 <= normalized_polarity && normalized_polarity < 0.9) {
+                        sentimentLabel = 'Strong (Positive)';
+                    } else if (0.9 <= normalized_polarity && normalized_polarity <= 1.0) {
+                        sentimentLabel = 'Very Strong (Positive)';
+                    } else {
+                        sentimentLabel = 'Unknown';
+                    }
+
+                    // Similarly for subjectivity
+                    var subjectivityLabel = '';
+                    var subj_score = avg_subjectivity;
+
+                    if (0.0 <= subj_score && subj_score < 0.10) {
+                        subjectivityLabel = 'Highly Objective';
+                    } else if (0.10 <= subj_score && subj_score < 0.30) {
+                        subjectivityLabel = 'Objective';
+                    } else if (0.30 <= subj_score && subj_score < 0.45) {
+                        subjectivityLabel = 'Slightly Objective';
+                    } else if (0.45 <= subj_score && subj_score < 0.55) {
+                        subjectivityLabel = 'Neutral';
+                    } else if (0.55 <= subj_score && subj_score < 0.70) {
+                        subjectivityLabel = 'Slightly Subjective';
+                    } else if (0.70 <= subj_score && subj_score < 0.85) {
+                        subjectivityLabel = 'Subjective';
+                    } else if (0.85 <= subj_score && subj_score <= 1.0) {
+                        subjectivityLabel = 'Highly Subjective';
+                    } else {
+                        subjectivityLabel = 'Unknown';
+                    }
+
+                    $('#average-sentiment').remove(); // Remove if already exists
+                    $('#printable').append(
+                        '<div id="average-sentiment" style="margin-top:20px;">' +
+                        '<h4><b>Average Sentiment Scores:</b></h4>' +
+                        '<p><b>Average Polarity:</b> ' + avg_polarity.toFixed(2) + '</p>' +
+                        '<p><b>Sentiment Label:</b> ' + sentimentLabel + '</p>' +
+                        '<p><b>Average Subjectivity:</b> ' + avg_subjectivity.toFixed(2) + '</p>' +
+                        '<p><b>Subjectivity Label:</b> ' + subjectivityLabel + '</p>' +
+                        '</div>'
+                    );
                 }
-                
             }
         },
         complete:function(){
@@ -235,6 +294,7 @@ function ordinal_suffix($num){
         }
     })
 }
+
 	$('#print-btn').click(function(){
 		start_load()
 		var ns =$('noscript').clone()

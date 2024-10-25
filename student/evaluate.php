@@ -101,13 +101,13 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
 					</table>
 					<?php endwhile; ?>
 					 <!-- Comment Textarea -->
-
-					</form>
-					<div class="form-group">
-					<div class="form-group">
+					 <div class="form-group">
     <label for="comment">Comments:</label>
     <textarea name="comment" id="comment" class="form-control" placeholder="Enter your comments here..."></textarea>
 </div>
+					</form>
+					<div class="form-group">
+	
 <button type="button" id="test-sentiment" class="btn btn-secondary">Test Sentiment</button>
 <div id="sentiment-result" class="mt-3"></div>
 <?php if (isset($sentimentResult)): ?>
@@ -147,22 +147,27 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
 			uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>done.php")
 	})
 	$('#manage-evaluation').submit(function(e){
-		e.preventDefault();
-		start_load()
-		$.ajax({
-			url:'ajax.php?action=save_evaluation',
-			method:'POST',
-			data:$(this).serialize(),
-			success:function(resp){
-				if(resp == 1){
-					alert_toast("Data successfully saved.","success");
-					setTimeout(function(){
-						location.reload()	
-					},1750)
-				}
-			}
-		})
-	})
+  e.preventDefault();
+  start_load();
+  var commentText = $('#comment').val().trim();
+
+  $.ajax({
+    url:'ajax.php?action=save_evaluation',
+    method:'POST',
+    data:$(this).serialize(),
+    success:function(resp){
+      if(resp == 1){
+        alert_toast("Data successfully saved.","success");
+        setTimeout(function(){
+          location.reload();
+        },1750);
+      } else {
+        alert_toast("An error occurred.","error");
+      }
+      end_load();
+    }
+  });
+});
 	$('#test-sentiment').click(function(){
     var commentText = $('#comment').val().trim();
     if(commentText == ''){
@@ -251,8 +256,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
         $escapedComment = escapeshellarg($comment);
 
         // Paths to Python executable and script
-        $pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe';
-        $scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py';
+        $pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe'; // To be changed
+        $scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py'; // To be changed
 
         // Build the command
         $command = "\"$pythonExecutable\" \"$scriptPath\" $escapedComment";
