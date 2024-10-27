@@ -17,28 +17,41 @@ Class Action {
 
 	function login(){
 		extract($_POST);
-		$type = array("","users","faculty_list","student_list");
-		$type2 = array("","admin","faculty","student");
-			$qry = $this->db->query("SELECT *,concat(firstname,' ',lastname) as name FROM {$type[$login]} where email = '".$email."' and password = '".md5($password)."'  ");
+		$type = array("","users","faculty_list","student_list", "users");
+		$type2 = array("","admin","faculty","student", "guidance");
+	
+		if($login == 1 || $login == 4){
+			// For admin or guidance, check 'users' table with 'type'
+			$user_type = ($login == 1) ? 1 : 2; // 1 for admin, 2 for guidance
+			$qry = $this->db->query("SELECT *,concat(firstname,' ',lastname) as name FROM users WHERE email = '".$email."' AND password = '".md5($password)."' AND type = ".$user_type);
+		}else{
+			// For faculty and student
+			$qry = $this->db->query("SELECT *,concat(firstname,' ',lastname) as name FROM {$type[$login]} WHERE email = '".$email."' AND password = '".md5($password)."'");
+		}
+	
 		if($qry->num_rows > 0){
 			foreach ($qry->fetch_array() as $key => $value) {
 				if($key != 'password' && !is_numeric($key))
 					$_SESSION['login_'.$key] = $value;
 			}
-					$_SESSION['login_type'] = $login;
-					$_SESSION['login_view_folder'] = $type2[$login].'/';
-		$academic = $this->db->query("SELECT * FROM academic_list where is_default = 1 ");
-		if($academic->num_rows > 0){
-			foreach($academic->fetch_array() as $k => $v){
-				if(!is_numeric($k))
-					$_SESSION['academic'][$k] = $v;
+			$_SESSION['login_type'] = $login;
+			$_SESSION['login_view_folder'] = $type2[$login].'/';
+	
+			// Load academic settings
+			$academic = $this->db->query("SELECT * FROM academic_list where is_default = 1 ");
+			if($academic->num_rows > 0){
+				foreach($academic->fetch_array() as $k => $v){
+					if(!is_numeric($k))
+						$_SESSION['academic'][$k] = $v;
+				}
 			}
-		}
-				return 1;
+			return 1;
 		}else{
 			return 2;
 		}
 	}
+	
+	
 	function logout(){
 		session_destroy();
 		foreach ($_SESSION as $key => $value) {
@@ -72,30 +85,28 @@ Class Action {
 			}
 		}
 		if(!empty($password)){
-					$data .= ", password=md5('$password') ";
-
+			$data .= ", password=md5('$password') ";
 		}
-		$check = $this->db->query("SELECT * FROM users where email ='$email' ".(!empty($id) ? " and id != {$id} " : ''))->num_rows;
+		$check = $this->db->query("SELECT * FROM users WHERE email ='$email' ".(!empty($id) ? " AND id != {$id} " : ''))->num_rows;
 		if($check > 0){
 			return 2;
 			exit;
 		}
 		if(isset($_FILES['img']) && $_FILES['img']['tmp_name'] != ''){
 			$fname = strtotime(date('y-m-d H:i')).'_'.$_FILES['img']['name'];
-			$move = move_uploaded_file($_FILES['img']['tmp_name'],'assets/uploads/'. $fname);
+			move_uploaded_file($_FILES['img']['tmp_name'],'assets/uploads/'. $fname);
 			$data .= ", avatar = '$fname' ";
-
 		}
 		if(empty($id)){
-			$save = $this->db->query("INSERT INTO users set $data");
+			$save = $this->db->query("INSERT INTO users SET $data");
 		}else{
-			$save = $this->db->query("UPDATE users set $data where id = $id");
+			$save = $this->db->query("UPDATE users SET $data WHERE id = $id");
 		}
-
 		if($save){
 			return 1;
 		}
 	}
+	
 	function signup(){
 		extract($_POST);
 		$data = "";

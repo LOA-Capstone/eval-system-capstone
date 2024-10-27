@@ -65,6 +65,8 @@ header("location:index.php?page=home");
     <label for="faculty" class="option">Faculty</label>
     <input type="radio" id="admin" name="login" value="1">
     <label for="admin" class="option">Admin</label>
+    <input type="radio" id="guidance" name="login" value="4">
+    <label for="guidance" class="option">Guidance</label>
   </div>
 </div>
 <div class="rows">
