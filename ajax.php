@@ -18,8 +18,8 @@ if(isset($_GET['action']) && $_GET['action'] == 'test_sentiment'){
         $comment_escaped = escapeshellarg($comment);
 
         // Paths to Python executable and script
-        $pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe'; // To be changed
-        $scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py'; // To be changed
+        $pythonExecutable = 'C:\Users\xyrel\AppData\Local\Programs\Python\Python39\python.exe'; //To be changed
+		$scriptPath = 'c:\xampp\htdocs\eval-system-capstone\sentiment_analysis.py'; // To be changed
 
         // Build the command
         $command = "\"$pythonExecutable\" \"$scriptPath\" $comment_escaped";
@@ -221,8 +221,8 @@ if ($_GET['action'] == 'save_evaluation') {
 	  if (!empty(trim($comment))) {
 		// Perform sentiment analysis
 		$escapedComment = escapeshellarg($comment);
-		$pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe'; //To be changed
-		$scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py'; // To be changed
+		$pythonExecutable = 'C:\Users\xyrel\AppData\Local\Programs\Python\Python39\python.exe'; //To be changed
+		$scriptPath = 'c:\xampp\htdocs\eval-system-capstone\sentiment_analysis.py'; // To be changed
 		$command = "\"$pythonExecutable\" \"$scriptPath\" $escapedComment";
 		$output = shell_exec($command);
 		$sentimentResult = json_decode($output, true);

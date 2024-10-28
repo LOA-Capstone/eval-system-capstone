@@ -1,4 +1,3 @@
-
 <?php $faculty_id = $_SESSION['login_id'] ?>
 <?php 
 function ordinal_suffix($num){
@@ -286,6 +285,106 @@ function ordinal_suffix($num){
                         '<p><b>Subjectivity Label:</b> ' + subjectivityLabel + '</p>' +
                         '</div>'
                     );
+					$('#average-sentiment').remove(); // Remove if already exists
+
+					// Calculate percentages
+					var avg_polarity_percent = avg_polarity * 100;
+					var avg_subjectivity_percent = avg_subjectivity * 100;
+
+					// Append the new content with canvas elements for charts
+					$('#printable').append(
+						'<div id="average-sentiment" style="margin-top:20px;">' +
+						'<h4><b>Average Sentiment Scores:</b></h4>' +
+						'<div style="display:flex; justify-content: space-around; align-items: center;">' +
+							'<div>' +
+								'<p><b>Average Polarity:</b> ' + avg_polarity.toFixed(2) + '</p>' +
+								'<canvas id="polarityChart" width="200" height="200"></canvas>' +
+								'<p><b>Sentiment Label:</b> ' + sentimentLabel + '</p>' +
+							'</div>' +
+							'<div>' +
+								'<p><b>Average Subjectivity:</b> ' + avg_subjectivity.toFixed(2) + '</p>' +
+								'<canvas id="subjectivityChart" width="200" height="200"></canvas>' +
+								'<p><b>Subjectivity Label:</b> ' + subjectivityLabel + '</p>' +
+							'</div>' +
+						'</div>' +
+						'</div>'
+					);
+					
+					// Create the Polarity Chart
+					var ctxP = document.getElementById('polarityChart').getContext('2d');
+					var polarityChart = new Chart(ctxP, {
+						type: 'doughnut',
+						data: {
+							datasets: [{
+								data: [Math.abs(avg_polarity_percent), 100 - Math.abs(avg_polarity_percent)],
+								backgroundColor: [
+									avg_polarity >= 0 ? 'green' : 'red',
+									'lightgray'
+								]
+							}]
+						},
+						options: {
+							cutoutPercentage: 80, // Adjust the thickness of the donut
+							rotation: -Math.PI / 2,
+							circumference: Math.PI * 2,
+							tooltips: { enabled: false },
+							plugins: {
+								datalabels: {
+									color: '#000',
+									font: {
+										size: 24,
+										weight: 'bold'
+									},
+									formatter: function(value, context) {
+										if (context.dataIndex === 0) {
+											return Math.abs(avg_polarity_percent).toFixed(2) + '%';
+										} else {
+											return '';
+										}
+									}
+								}
+							}
+						}
+					});
+
+					// Create the Subjectivity Chart
+					var ctxS = document.getElementById('subjectivityChart').getContext('2d');
+					var subjectivityChart = new Chart(ctxS, {
+						type: 'doughnut',
+						data: {
+							datasets: [{
+								data: [avg_subjectivity_percent, 100 - avg_subjectivity_percent],
+								backgroundColor: [
+									'orange',
+									'lightgray'
+								]
+							}]
+						},
+						options: {
+							cutoutPercentage: 80,
+							rotation: -Math.PI / 2,
+							circumference: Math.PI * 2,
+							tooltips: { enabled: false },
+							plugins: {
+								datalabels: {
+									color: '#000',
+									font: {
+										size: 24,
+										weight: 'bold'
+									},
+									formatter: function(value, context) {
+										if (context.dataIndex === 0) {
+											return avg_subjectivity_percent.toFixed(2) + '%';
+										} else {
+											return '';
+										}
+									}
+								}
+							}
+						}
+					});
+
+
                 }
             }
         },
