@@ -106,10 +106,17 @@
           <li class="nav-item dropdown">
             <a href="./index.php?page=report" class="nav-link nav-report">
               <i class="nav-icon fas fa-list-alt"></i>
+              
               <p>
                 Evaluation Report
               </p>
             </a>
+            <li class="nav-item dropdown">
+                    <a href="./index.php?page=batch_upload" class="nav-link nav-batch_upload">
+                        <i class="nav-icon fas fa-upload"></i>
+                        <p>Batch Upload</p>
+                    </a>
+                </li>
           </li>
           <!-- <li class="nav-item">
             <a href="#" class="nav-link nav-edit_user">
@@ -138,6 +145,7 @@
       </nav>
     </div>
   </aside>
+  
   <script>
   	$(document).ready(function(){
       var page = '<?php echo isset($_GET['page']) ? $_GET['page'] : 'home' ?>';
@@ -157,4 +165,6 @@
   		}
      
   	})
+    
   </script>
+  
