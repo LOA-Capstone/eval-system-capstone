@@ -305,6 +305,7 @@ if ($_GET['action'] == 'get_report') {
         $avg_polarity = $row['avg_polarity'];
         $avg_subjectivity = $row['avg_subjectivity'];
     }
+	
 
     // Prepare response data
     $response = array(
@@ -319,5 +320,25 @@ if ($_GET['action'] == 'get_report') {
 }
 
 
+
 ob_end_flush();
+
+if ($_GET['action'] == 'upload_batch') {
+    if (isset($_FILES['file']['name'])) {
+        $file_name = $_FILES['file']['name'];
+        $uploaded_by = $_SESSION['login_name'];  // Assuming you store the user's name in session
+        $target_dir = "uploads/";
+        $target_file = $target_dir . basename($file_name);
+
+        if (move_uploaded_file($_FILES['file']['tmp_name'], $target_file)) {
+            $conn->query("INSERT INTO batch_uploads (file_name, uploaded_by) VALUES ('$file_name', '$uploaded_by')");
+            echo 1;
+        } else {
+            echo 0;
+        }
+    }
+    exit;
+}
+
+
 ?>
