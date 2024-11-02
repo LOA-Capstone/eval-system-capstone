@@ -13,6 +13,11 @@ function ordinal_suffix($num){
     return $num.'th';
 }
 ?>
+<style>
+#polarityChart, #subjectivityChart {
+    width: 200px !important;
+    height: 200px !important;
+}</style>
 <div class="col-lg-12">
 	<div class="callout callout-info">
 		<div class="d-flex w-100 justify-content-center align-items-center">

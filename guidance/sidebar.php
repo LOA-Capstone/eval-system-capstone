@@ -37,7 +37,7 @@
             <a href="./index.php?page=academic_list" class="nav-link nav-academic_list">
               <i class="nav-icon fas fa-calendar"></i>
               <p>
-                Acadamic Year
+                Academic Year
               </p>
             </a>
           </li> 
@@ -53,7 +53,7 @@
             <a href="./index.php?page=criteria_list" class="nav-link nav-criteria_list">
               <i class="nav-icon fas fa-list-alt"></i>
               <p>
-                Evaluation Critria
+                Evaluation Criteria
               </p>
             </a>
           </li> 
