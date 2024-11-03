@@ -62,6 +62,9 @@ You need to configure the PHP scripts to point to the correct Python executable 
 3. **Update Paths:**
     - Replace the placeholder paths with the actual paths on your system.
 
+4. **Correct Paths:**
+    - Go to cmd and type "where python" to know that path for your python executable.
+
 ##### Example Configuration:
 
 ```php
