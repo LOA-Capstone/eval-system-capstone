@@ -193,13 +193,13 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
                 resultHtml += '<p><strong>Subjectivity Level:</strong> '+subjectivity_label+'</p>';
                 $('#sentiment-result').html(resultHtml);
             } else {
-                $('#sentiment-result').html('<p>'+ (resp.error || 'Error in sentiment analysis.') +'</p>');
+                $('#sentiment-result').html('<p>'+ (resp.error || 'Error in sentiment analysis.1') +'</p>');
             }
         },
         error: function(jqXHR, textStatus, errorThrown){
             console.log("AJAX Error:", textStatus, errorThrown);
             console.log("Response Text:", jqXHR.responseText);
-            $('#sentiment-result').html('<p>Error in sentiment analysis.</p>');
+            $('#sentiment-result').html('<p>Error in sentiment analysis.2</p>');
         },
         complete: function(){
             end_load(); // Function to hide the loading indicator
@@ -256,8 +256,9 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
         $escapedComment = escapeshellarg($comment);
 
         // Paths to Python executable and script
-        $pythonExecutable = 'C:\Users\xyrel\AppData\Local\Programs\Python\Python39\python.exe'; //To be changed
-		$scriptPath = 'c:\xampp\htdocs\eval-system-capstone\sentiment_analysis.py'; // To be changed
+        $pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe'; // Update this path
+        $scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py'; // Update this path
+
         // Build the command
         $command = "\"$pythonExecutable\" \"$scriptPath\" $escapedComment";
 
