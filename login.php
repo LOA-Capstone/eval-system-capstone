@@ -26,7 +26,8 @@ header("location:index.php?page=home");
   <title>Document</title>
 </head>
 
-<body style="background: linear-gradient(to bottom left, rgba(3, 63, 192, 0.521), rgba(172, 147, 7, 0.514)), url('assets/uploads/Lyceum2.jpg');">
+<body style="background: linear-gradient(to bottom left, rgba(3, 63, 192, 0.521), rgba(172, 147, 7, 0.514)), url('assets/uploads/Lyceum2.jpg'); background-size: cover;">
+
 <header class="page-header">
   </header>
 <div class="login-box">
