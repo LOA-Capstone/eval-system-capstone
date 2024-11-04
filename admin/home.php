@@ -114,6 +114,48 @@ $astat = array("Not Yet Started","On-going","Closed");
 }
 
 
+/* ----- */
+
+.custom-box {
+  max-width: auto;
+  height: 130px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-radius: 0.5rem;
+  background:#1C204B;
+  background: -webkit-linear-gradient(to right, #3f4c6b, #1C204B; );
+  background: linear-gradient(to right top, #3f4c6b,#1C204B; );
+  padding: 2rem;
+  margin: 0.5rem;
+  color: rgb(107, 114, 128);
+  box-shadow: 0px 30px 78px -39px rgba(0, 0, 0, 0.4);
+}
+
+.inner {
+  flex-grow: 1;
+}
+
+.inner h3 {
+  margin-bottom: 0.25rem;
+  font-size: 1.5rem; /* Adjust size as needed */
+  line-height: 1.25rem;
+  font-weight: 600;
+  color: rgb(255, 255, 255);
+}
+
+.inner p {
+  margin: 0;
+  font-size: 1rem; /* Adjust size as needed */
+  color: rgb(255, 255, 255);
+}
+
+.icon {
+  font-size: 2rem; /* Adjust icon size as needed */
+  color: rgb(255, 255, 255);
+}
+
+
  </style>
  <div class="col-12">
     <div class="card">
@@ -127,53 +169,50 @@ $astat = array("Not Yet Started","On-going","Closed");
       </div>
     </div>
 </div>
-        <div class="row">
-          <div class="col-12 col-sm-6 col-md-4">
-            <div class="small-box bg-light shadow-sm border">
-              <div class="inner">
-                <h3><?php echo $conn->query("SELECT * FROM faculty_list ")->num_rows; ?></h3>
-
-                <p>Total Faculties</p>
-              </div>
-              <div class="icon">
-                <i class="fa fa-user-friends"></i>
-              </div>
-            </div>
-          </div>
-           <div class="col-12 col-sm-6 col-md-4">
-            <div class="small-box bg-light shadow-sm border">
-              <div class="inner">
-                <h3><?php echo $conn->query("SELECT * FROM student_list")->num_rows; ?></h3>
-
-                <p>Total Students</p>
-              </div>
-              <div class="icon">
-                <i class="fa ion-ios-people-outline"></i>
-              </div>
-            </div>
-          </div>
-           <div class="col-12 col-sm-6 col-md-4">
-            <div class="small-box bg-light shadow-sm border">
-              <div class="inner">
-                <h3><?php echo $conn->query("SELECT * FROM users")->num_rows; ?></h3>
-
-                <p>Total Users</p>
-              </div>
-              <div class="icon">
-                <i class="fa fa-users"></i>
-              </div>
-            </div>
-          </div>
-          <div class="col-12 col-sm-6 col-md-4">
-            <div class="small-box bg-light shadow-sm border">
-              <div class="inner">
-                <h3><?php echo $conn->query("SELECT * FROM class_list")->num_rows; ?></h3>
-
-                <p>Total Classes</p>
-              </div>
-              <div class="icon">
-                <i class="fa fa-list-alt"></i>
-              </div>
-            </div>
-          </div>
+<div class="row">
+  <div class="col-12 col-sm-6 col-md-4">
+    <div class="custom-box">
+      <div class="inner">
+        <h3><?php echo $conn->query("SELECT * FROM faculty_list")->num_rows; ?></h3>
+        <p>Total Faculties</p>
       </div>
+      <div class="icon">
+        <i class="fa fa-user-friends"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-md-4">
+    <div class="custom-box">
+      <div class="inner">
+        <h3><?php echo $conn->query("SELECT * FROM student_list")->num_rows; ?></h3>
+        <p>Total Students</p>
+      </div>
+      <div class="icon">
+        <i class="fa ion-ios-people-outline"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-md-4">
+    <div class="custom-box">
+      <div class="inner">
+        <h3><?php echo $conn->query("SELECT * FROM users")->num_rows; ?></h3>
+        <p>Total Users</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-users"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-md-4">
+    <div class="custom-box">
+      <div class="inner">
+        <h3><?php echo $conn->query("SELECT * FROM class_list")->num_rows; ?></h3>
+        <p>Total Classes</p>
+      </div>
+      <div class="icon">
+        <i class="fa fa-list-alt"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
