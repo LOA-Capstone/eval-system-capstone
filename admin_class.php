@@ -22,7 +22,7 @@ Class Action {
 	
 		if($login == 1 || $login == 4){
 			// For admin or guidance, check 'users' table with 'type'
-			$user_type = ($login == 1) ? 1 : 2; // 1 for admin, 2 for guidance
+			$user_type = ($login == 1) ? 1 : 2; 
 			$qry = $this->db->query("SELECT *,concat(firstname,' ',lastname) as name FROM users WHERE email = '".$email."' AND password = '".md5($password)."' AND type = ".$user_type);
 		}else{
 			// For faculty and student
@@ -50,6 +50,34 @@ Class Action {
 			return 2;
 		}
 	}
+
+	function checkLogin($email, $password, $role, $conn) {
+		// Hash the password with MD5 as it matches the stored format
+		$hashed_password = md5($password);
+	
+		// Prepare SQL query based on the role
+		$sql = "";
+		if ($role == "admin") {
+			$sql = "SELECT * FROM admin WHERE email = '$email' AND password = '$hashed_password' AND role = '$role'";
+		} else if ($role == "student") {
+			$sql = "SELECT * FROM student WHERE email = '$email' AND password = '$hashed_password' AND role = '$role'";
+		} else if ($role == "faculty") {
+			$sql = "SELECT * FROM faculty WHERE email = '$email' AND password = '$hashed_password' AND role = '$role'";
+		} else {
+			return false; // Invalid role
+		}
+	
+		// Execute the query
+		$result = mysqli_query($conn, $sql);
+	
+		// Check if a row was returned
+		if (mysqli_num_rows($result) == 1) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	
 	
 	function logout(){
