@@ -22,7 +22,7 @@ $astat = array("Not Yet Started","On-going","Closed");
   position: relative;
   width: auto;
   height: auto; 
-  background: #fef4e2;
+  background: radial-gradient(178.94% 106.41% at 26.42% 106.41%, #FFF7B1 0%, #FFFFFF 71.88%);
   border-radius: 1rem;
   overflow: hidden;
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -58,7 +58,6 @@ $astat = array("Not Yet Started","On-going","Closed");
   flex-direction: column; 
   padding: 1rem; 
 }
-
 .card-body h5, .card-body h6 {
   color: black;
   transition: transform 300ms ease;
@@ -70,15 +69,34 @@ $astat = array("Not Yet Started","On-going","Closed");
 }
 
 .card-body h6 {
-  color: black; 
+  color: #2ECC71;
   padding: 0 1.25rem; 
 }
 
-.card-body h4{
-  color: #32a6ff; 
+.card-body h4 {
+  color: #1C204B;
   padding: 0;
   margin: 0;
   font-weight: 600;
+}
+
+
+.academic-year {
+    color: #2ECC71; 
+    font-weight: bold; 
+    font-size: 1.2em; 
+}
+
+.evaluation-status {
+    color: #2ECC71; 
+    font-weight: bold; 
+    font-size: 1.2em; 
+}
+
+
+.card-body h5 b, .card-body h6 b {
+    color: #1C204B;
+    font-weight: bold;
 }
 
 
@@ -130,6 +148,11 @@ $astat = array("Not Yet Started","On-going","Closed");
   margin: 0.5rem;
   color: rgb(107, 114, 128);
   box-shadow: 0px 30px 78px -39px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s ease; 
+}
+
+.custom-box:hover {
+  transform: scale(1.05); /* Scale up slightly on hover */
 }
 
 .inner {
@@ -138,7 +161,7 @@ $astat = array("Not Yet Started","On-going","Closed");
 
 .inner h3 {
   margin-bottom: 0.25rem;
-  font-size: 1.5rem; /* Adjust size as needed */
+  font-size: 1.5rem; 
   line-height: 1.25rem;
   font-weight: 600;
   color: rgb(255, 255, 255);
@@ -146,12 +169,12 @@ $astat = array("Not Yet Started","On-going","Closed");
 
 .inner p {
   margin: 0;
-  font-size: 1rem; /* Adjust size as needed */
+  font-size: 1rem; 
   color: rgb(255, 255, 255);
 }
 
 .icon {
-  font-size: 2rem; /* Adjust icon size as needed */
+  font-size: 2rem; 
   color: rgb(255, 255, 255);
 }
 
@@ -160,11 +183,18 @@ $astat = array("Not Yet Started","On-going","Closed");
  <div class="col-12">
     <div class="card">
       <div class="card-body">
-        <h4>Welcome <?php echo $_SESSION['login_name'] ?>!</h4> 
+        <h4>&nbsp;Welcome <?php echo $_SESSION['login_name']?>!</h4> 
         <br>
         <div class="col-md-5">
-            <h5><b>Academic Year: <?php echo $_SESSION['academic']['year'].' '.(ordinal_suffix1($_SESSION['academic']['semester'])) ?> Semester</b></h5>
-            <h6><b>Evaluation Status: <?php echo $astat[$_SESSION['academic']['status']] ?></b></h6>
+        <h5>
+    <b>&nbsp;Academic Year:</b>
+    <span class="academic-year"><?php echo $_SESSION['academic']['year'] . ' ' . (ordinal_suffix1($_SESSION['academic']['semester'])); ?></span>
+</h5>
+<h6>
+    <b>&nbsp;Evaluation Status:</b>
+    <span class="evaluation-status"><?php echo $astat[$_SESSION['academic']['status']]; ?></span>
+</h6>
+
         </div>
       </div>
     </div>

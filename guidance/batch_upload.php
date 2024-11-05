@@ -106,110 +106,114 @@ if (!empty($uniqueRows) || !empty($duplicates)) {
     <title>CSV File Upload</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Roboto', sans-serif; 
-            background-color: #e9ecef; 
-            display: flex; 
-            justify-content: center; 
-            padding: 20px; 
-        }
-        .container {
-            background-color: #ffffff; 
-            padding: 30px; 
-            border-radius: 10px; 
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); 
-            width: 100%; 
-            max-width: 900px; 
-            overflow: hidden; 
-        }
-        h2, h3 {
-            color: #333333; 
-            margin-bottom: 20px; 
-            text-align: center; 
-        }
-        form {
-            margin-bottom: 20px; 
-        }
-        input[type="file"] {
-            display: block; 
-            margin: 10px auto; 
-        }
-        input[type="submit"] {
-            background-color: #007bff; 
-            color: #ffffff; 
-            border: none; 
-            border-radius: 5px; 
-            padding: 10px 20px; 
-            cursor: pointer; 
-            font-size: 16px; 
-            transition: background-color 0.3s; 
-        }
-        input[type="submit"]:hover {
-            background-color: #0056b3; 
-        }
-        table {
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 20px; 
-            table-layout: fixed; 
-            border-radius: 8px; 
-            overflow: hidden; 
-            background-color: #f8f9fa; 
-        }
-        th, td {
-            padding: 12px; 
-            text-align: left; 
-            overflow-wrap: break-word; 
-            border-bottom: 1px solid #dee2e6; 
-        }
-        th {
-            background-color: #007bff; 
-            color: #ffffff; 
-            font-weight: 500; 
-        }
-        tr:hover {
-            background-color: #f1f1f1; 
-        }
-        .success { 
-            color: green; 
-            margin-top: 20px; 
-            text-align: center; 
-        }
-        .error { 
-            color: red; 
-            margin-top: 20px; 
-            text-align: center; 
-        }
-        input[type="text"], input[type="email"] {
-            width: 100%; 
-            box-sizing: border-box; 
-            padding: 10px; 
-            border: 1px solid #ced4da; 
-            border-radius: 5px; 
-            margin-bottom: 10px; 
-        }
-        button {
-            padding: 10px 15px; 
-            background-color: #28a745; 
-            color: white; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            transition: background-color 0.3s; 
-        }
-        button:hover {
-            background-color: #218838; 
-        }
-    </style>
+/* Add your previous CSS styles here */
+.form {
+  background-color: #fff;
+  box-shadow: 0 10px 60px rgb(218, 229, 255);
+  border: 1px solid rgb(159, 159, 160);
+  border-radius: 20px;
+  padding: 2rem 0.7rem 0.7rem 0.7rem;
+  text-align: center;
+  font-size: 1.125rem;
+  max-width: 320px;
+  margin: auto; /* Center the form */
+}
+
+.form-title {
+  color: #000000;
+  font-size: 1.8rem;
+  font-weight: 500;
+}
+
+.form-paragraph {
+  margin-top: 10px;
+  font-size: 0.9375rem;
+  color: rgb(105, 105, 105);
+}
+
+.drop-container {
+  background-color: #fff;
+  position: relative;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  margin-top: 2.1875rem;
+  border-radius: 10px;
+  border: 2px dashed rgb(171, 202, 255);
+  color: #444;
+  cursor: pointer;
+  transition: background .2s ease-in-out, border .2s ease-in-out;
+}
+
+.drop-container:hover {
+  background: rgba(0, 140, 255, 0.164);
+  border-color: rgba(17, 17, 17, 0.616);
+}
+
+.drop-title {
+  color: #444;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  transition: color .2s ease-in-out;
+}
+
+#csvFiles {
+  width: 350px;
+  max-width: 100%;
+  color: #444;
+  padding: 2px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid rgba(8, 8, 8, 0.288);
+}
+
+#csvFiles::file-selector-button {
+  margin-right: 20px;
+  border: none;
+  background: #084cdf;
+  padding: 10px 20px;
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  transition: background .2s ease-in-out;
+}
+
+#csvFiles::file-selector-button:hover {
+  background: #0d45a5;
+}
+
+.submit-btn {
+  background: #084cdf;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .2s ease-in-out;
+  margin-top: 1rem;
+}
+
+.submit-btn:hover {
+  background: #0d45a5;
+}
+</style>
 </head>
 <body>
 <div class="container">
     <h2>CSV Upload System</h2>
 
-    <form method="POST" action="" enctype="multipart/form-data">
-        <label for="csvFile">Choose CSV file:</label>
-        <input type="file" id="csvFile" name="csv_file" accept=".csv" required>
-        <input type="submit" value="Upload CSV">
+    <form method="POST" action="" enctype="multipart/form-data" class="form">
+        <div class="form-title">Upload CSV Files</div>
+        <div class="form-paragraph">Please select one or more CSV files to upload.</div>
+        <div class="drop-container">
+            <label for="csvFiles" class="drop-title">Choose CSV files:</label>
+            <input type="file" id="csvFiles" name="csv_file[]" accept=".csv" required multiple>
+        </div>
+        <input type="submit" value="Upload CSV" class="submit-btn">
     </form>
 
     <?php if ($message): ?>

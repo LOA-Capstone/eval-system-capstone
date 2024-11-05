@@ -2,6 +2,7 @@
 .main-sidebar {
     background: radial-gradient(178.94% 106.41% at 26.42% 106.41%, #FFF7B1 0%, #FFFFFF 71.88%);
     box-shadow: 1px 0 15px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
 }
 
 .sidebars p {

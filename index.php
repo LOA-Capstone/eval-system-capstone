@@ -17,7 +17,7 @@
 
 	include 'header.php' 
 ?>
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed style">
 <div class="wrapper">
   <?php include 'topbar.php' ?>
   <?php include $_SESSION['login_view_folder'].'sidebar.php' ?>
@@ -136,4 +136,8 @@
 <!-- Bootstrap -->
 <?php include 'footer.php' ?>
 </body>
+
+
 </html>
+
+

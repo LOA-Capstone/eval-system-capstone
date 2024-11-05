@@ -5,9 +5,52 @@
         width: 25px;
         object-fit: cover;
     }
+
+    .main-header.navbar {
+  height: 79px;
+  background-color: #1e293b;
+  display: flex;
+  align-items: center; /* Centers items vertically */
+}
+
+.nav-link.text-white {
+  font-size: 26px; /* Increase font size moderately */
+  line-height:-100px; /* Match the navbar height to center text vertically */
+  white-space: nowrap; 
+  overflow: hidden;
+  padding: 0 15px; /* Add some padding for spacing */
+}
+
+
+@media (max-width: 743px) {
+  .nav-link.text-white {
+    display: none;
+  }
+}
+
+@media (max-width: 861px) {
+  .nav-link.text-white {
+    font-size: 20px; /* Increase font size moderately */
+  line-height: 43px; /* Match the navbar height to center text vertically */
+  white-space: nowrap; 
+  overflow: hidden;
+  padding: 0 15px; /* Add some padding for spacing */
+  }
+}
+
+@media (min-width: 995px) and (max-width: 1111px){
+  .nav-link.text-white {
+    font-size: 21px; /* Increase font size moderately */
+  line-height: 43px; /* Match the navbar height to center text vertically */
+  white-space: nowrap; 
+  overflow: hidden;
+  padding: 0 15px; /* Add some padding for spacing */
+  }
+}
+
   </style>
 <!-- Navbar -->
-  <nav class="main-header navbar navbar-expand navbar-primary navbar-dark ">
+  <nav class="main-header navbar navbar-expand ">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
       <?php if(isset($_SESSION['login_id'])): ?>
@@ -49,4 +92,6 @@
      $('#manage_account').click(function(){
         uni_modal('Manage Account','manage_user.php?id=<?php echo $_SESSION['login_id'] ?>')
       })
+
+      
   </script>
