@@ -65,7 +65,7 @@ h1 {
   font-family: "Montserrat";
   font-size: 2em;          
   font-weight: 800;        
-  color: #0099FF;
+  color: #1C204B;
   margin: 20px 0;         
 }   
 </style>

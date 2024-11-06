@@ -111,23 +111,11 @@
       </div>
     </div>
   </div>
-  </div>
-  <!-- /.content-wrapper -->
-
-  <!-- Control Sidebar -->
-  <aside class="control-sidebar control-sidebar-dark">
-    <!-- Control sidebar content goes here -->
-  </aside>
-  <!-- /.control-sidebar -->
-
-  <!-- Main Footer -->
-  <footer class="main-footer">
+  <div class="main-footer">
     <strong>Copyright &copy; 2024 <a href="https://lyceumalabang.edu.ph">lyceumalabang.edu.ph</a>.</strong>
     All rights reserved.
-    <div class="float-right d-none d-sm-inline-block">
-      <b><?php echo $_SESSION['system']['name'] ?></b>
-    </div>
-  </footer>
+  </div>
+  </div>
 </div>
 <!-- ./wrapper -->
 
@@ -137,7 +125,27 @@
 <?php include 'footer.php' ?>
 </body>
 
+<style>
+  .content-wrapper{
+    background: radial-gradient(178.94% 106.41% at 26.42% 106.41%, #B1E4FF 0%, #FFFFFF 71.88%);
+    margin-bottom: 0;
+    height: auto;
+  }
 
+  .main-footer {
+    background: transparent;
+    color: black;
+    font-size: 9px;
+    height: auto;
+    width: auto;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    margin-top: 0;
+    border: none;
+}
+
+</style>
 </html>
 
 

@@ -22,7 +22,7 @@ $astat = array("Not Yet Started","On-going","Closed");
   position: relative;
   width: auto;
   height: auto; 
-  background: radial-gradient(178.94% 106.41% at 26.42% 106.41%, #FFF7B1 0%, #FFFFFF 71.88%);
+  background: #B1E4FF;
   border-radius: 1rem;
   overflow: hidden;
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
@@ -44,7 +44,7 @@ $astat = array("Not Yet Started","On-going","Closed");
   width: 0.25rem;
   inset: 0.65rem auto 0.65rem 0.5rem;
   border-radius: 0.125rem;
-  background: linear-gradient(to bottom, #2eadff, #3d83ff, #7e61ff); /* Gradient for the border */
+  background: linear-gradient(to bottom, #2eadff, #3d83ff, #7e61ff);
   transition: transform 300ms ease;
   z-index: 4;
 }
@@ -82,16 +82,25 @@ $astat = array("Not Yet Started","On-going","Closed");
 
 
 .academic-year {
-    color: #2ECC71; 
+    color: yellow; 
     font-weight: bold; 
     font-size: 1.2em; 
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6), 
+                 -2px -2px 4px rgba(0, 0, 0, 0.6),
+                 2px -2px 4px rgba(0, 0, 0, 0.6),
+                 -2px 2px 4px rgba(0, 0, 0, 0.6);  
 }
 
 .evaluation-status {
-    color: #2ECC71; 
-    font-weight: bold; 
-    font-size: 1.2em; 
+    color: yellow;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6), 
+                 -2px -2px 4px rgba(0, 0, 0, 0.6),
+                 2px -2px 4px rgba(0, 0, 0, 0.6),
+                 -2px 2px 4px rgba(0, 0, 0, 0.6); 
 }
+
 
 
 .card-body h5 b, .card-body h6 b {

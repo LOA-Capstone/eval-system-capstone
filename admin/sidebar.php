@@ -1,12 +1,12 @@
 <style>
 .main-sidebar {
-    background: radial-gradient(178.94% 106.41% at 26.42% 106.41%, #FFF7B1 0%, #FFFFFF 71.88%);
+    background: #1C204B;
     box-shadow: 1px 0 15px rgba(0, 0, 0, 0.5);
     overflow: hidden;
 }
 
 .sidebars p {
-    color: black;
+    color: white;
     transition: background-color 0.3s, color 0.3s;
     font-weight: 500;
 }
@@ -18,7 +18,7 @@
 
 .nav-link.active p,
 .nav-link.active .nav-icon {
-    color: #fbca1f;
+    color: yellow;
     transition: color 0.3s ease;
     font-weight: 600;
 }
@@ -28,41 +28,24 @@
 }
 
 .nav-icon {
-    color: black;
+    color: white;
 }
 
+
 .nav-link.active .nav-icon {
-  color: #fbca1f;
+    color: yellow;
     transition: color 0.3s ease;
 }
 
 .nav-link:hover p,
 .nav-link:hover .nav-icon {
-    color: blue;
+    color: yellow;
     transition: color 0.3s ease;
 }
 
 .nav-item {
     margin-top: 0.5rem;
-    transition: background-color 0.3s ease;
-}
-
-.main-sidebar .sidebar .nav-item.active {
-    background-color: red !important; /* Medium gray with 60% opacity */
-    z-index: 999;
-}
-
-
-
-.nav-item.active .nav-link p,
-.nav-item.active .nav-link .nav-icon {
-    color: yellow;
-    transition: color 0.3s ease;
-}
-
-.nav-item.active .nav-link:hover p,
-.nav-item.active .nav-link:hover .nav-icon {
-    color: yellow; 
+    transition: 0.3s ease;
 }
 
 .main-sidebar {
@@ -89,12 +72,15 @@
 .nav-link {
     padding: 10px; 
 }
+.text-center {
+    color: white;
+}
 
 
 </style>
 
 <aside class="main-sidebar">
-    <div class="brand-container"> <!-- Added a wrapper for the logo and title -->
+    <div class="brand-container">
         <a>
             <img src="assets/uploads/LoaLogo.png" alt="Admin Panel Logo" class="brand-logo">
             <h4 class="text-center p-0 m-0"><b>ADMIN PANEL</b></h2>
@@ -232,19 +218,5 @@
      
   	})
 
-    $(document).ready(function() {
-    // Disable pointer events for active navigation links
-    $('.nav-link.active').css('pointer-events', 'none');
-
-    // Disable hover effects for active links
-    $('.nav-link.active').hover(
-        function() {
-            $(this).css('color', 'yellow'); // Ensure color remains yellow when hovered
-        },
-        function() {
-            $(this).css('color', 'yellow'); // Ensure color remains yellow when unhovered
-        }
-    );
-});
 
   </script>
