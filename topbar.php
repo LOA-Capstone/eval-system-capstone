@@ -22,8 +22,7 @@
   line-height:-100px; 
   white-space: nowrap; 
   overflow: hidden;
-  padding: 0 15px; 
-  
+  padding: 0 15px;  
 }
 
 
