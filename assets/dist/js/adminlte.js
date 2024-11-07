@@ -1543,6 +1543,8 @@
   $__default['default'](window).on('load', function () {
     PushMenu._jQueryInterface.call($__default['default'](SELECTOR_TOGGLE_BUTTON));
   });
+  
+  
   /**
    * jQuery API
    * ====================================================
