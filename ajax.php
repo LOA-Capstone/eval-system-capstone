@@ -399,3 +399,15 @@ if ($_GET['action'] == 'upload_batch') {
 	}
 	exit;
 }
+
+
+if ($action == 'save_department') {
+    $save = $crud->save_department();
+    if ($save)
+        echo $save;
+}
+if ($action == 'delete_department') {
+    $delete = $crud->delete_department();
+    if ($delete)
+        echo $delete;
+}

@@ -43,12 +43,26 @@
 							<input type="password" class="form-control form-control-sm" name="cpass" <?php echo !isset($id) ? 'required' : '' ?>>
 							<small id="pass_match" data-status=''></small>
 						</div>
+
+						<!-- Add this inside the form in new_user.php -->
+						<div class="form-group" id="department_select" style="display: none;">
+							<label for="department_id" class="control-label">Department</label>
+							<select name="department_id" class="form-control form-control-sm">
+								<?php
+								$dept = $conn->query("SELECT * FROM department_list ORDER BY name ASC");
+								while ($row = $dept->fetch_assoc()):
+								?>
+									<option value="<?php echo $row['id'] ?>"><?php echo $row['name'] ?></option>
+								<?php endwhile; ?>
+							</select>
+						</div>
+
 						<!-- Add this inside the form in new_user.php -->
 						<div class="form-group">
 							<label for="type" class="control-label">User Type</label>
 							<select name="type" class="form-control form-control-sm" required>
 								<option value="1" <?php echo isset($type) && $type == 1 ? 'selected' : '' ?>>Admin</option>
-								<option value="2" <?php echo isset($type) && $type == 2 ? 'selected' : '' ?>>Guidance</option>
+								<option value="2" <?php echo isset($type) && $type == 2 ? 'selected' : '' ?>>Dean</option>
 							</select>
 						</div>
 
@@ -72,6 +86,14 @@
 	}
 </style>
 <script>
+	$('[name="type"]').change(function() {
+		if ($(this).val() == 2) {
+			$('#department_select').show();
+		} else {
+			$('#department_select').hide();
+		}
+	});
+
 	$('[name="password"],[name="cpass"]').keyup(function() {
 		var pass = $('[name="password"]').val()
 		var cpass = $('[name="cpass"]').val()
