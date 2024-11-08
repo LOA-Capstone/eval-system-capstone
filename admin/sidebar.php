@@ -3,6 +3,8 @@
     background: #1C204B;
     box-shadow: 1px 0 15px rgba(0, 0, 0, 0.5);
     overflow: hidden;
+    display: flex;
+    flex-direction: column; 
 }
 
 .sidebars p {
@@ -31,7 +33,6 @@
     color: white;
 }
 
-
 .nav-link.active .nav-icon {
     color: yellow;
     transition: color 0.3s ease;
@@ -46,11 +47,6 @@
 .nav-item {
     margin-top: 0.5rem;
     transition: 0.3s ease;
-}
-
-.main-sidebar {
-    display: flex;
-    flex-direction: column; 
 }
 
 .brand-container {
@@ -72,18 +68,17 @@
 .nav-link {
     padding: 10px; 
 }
+
 .text-center {
     color: white;
 }
-
-
 </style>
 
 <aside class="main-sidebar">
     <div class="brand-container">
         <a>
             <img src="assets/uploads/LoaLogo.png" alt="Admin Panel Logo" class="brand-logo">
-            <h4 class="text-center p-0 m-0"><b>ADMIN PANEL</b></h2>
+            <h4 class="text-center p-0 m-0"><b>ADMIN PANEL</b></h4>
         </a>
     </div>
     <div class="sidebars">
@@ -171,6 +166,13 @@
                         <p>Evaluation Report</p>
                     </a>
                 </li>
+                <li class="nav-item dropdown">
+                    <a href="./index.php?page=batch_upload" class="nav-link nav-batch_upload">
+                        <i class="nav-icon fas fa-upload"></i>
+                        <p>Batch Upload</p>
+                    </a>
+                </li>
+                <!-- Users Section -->
                 <li class="nav-item">
                     <a href="#" class="nav-link nav-edit_user">
                         <i class="nav-icon fas fa-users"></i>
@@ -196,27 +198,21 @@
     </div>
 </aside>
 
-
-
-  <script>
-  	$(document).ready(function(){
-      var page = '<?php echo isset($_GET['page']) ? $_GET['page'] : 'home' ?>';
-  		var s = '<?php echo isset($_GET['s']) ? $_GET['s'] : '' ?>';
-      if(s!='')
-        page = page+'_'+s;
-  		if($('.nav-link.nav-'+page).length > 0){
-             $('.nav-link.nav-'+page).addClass('active')
-  			if($('.nav-link.nav-'+page).hasClass('tree-item') == true){
-            $('.nav-link.nav-'+page).closest('.nav-treeview').siblings('a').addClass('active')
-  				$('.nav-link.nav-'+page).closest('.nav-treeview').parent().addClass('menu-open')
-  			}
-        if($('.nav-link.nav-'+page).hasClass('nav-is-tree') == true){
-          $('.nav-link.nav-'+page).parent().addClass('menu-open')
+<script>
+    $(document).ready(function(){
+        var page = '<?php echo isset($_GET['page']) ? $_GET['page'] : 'home' ?>';
+        var s = '<?php echo isset($_GET['s']) ? $_GET['s'] : '' ?>';
+        if(s!='')
+            page = page+'_'+s;
+        if($('.nav-link.nav-'+page).length > 0){
+            $('.nav-link.nav-'+page).addClass('active')
+            if($('.nav-link.nav-'+page).hasClass('tree-item') == true){
+                $('.nav-link.nav-'+page).closest('.nav-treeview').siblings('a').addClass('active')
+                $('.nav-link.nav-'+page).closest('.nav-treeview').parent().addClass('menu-open')
+            }
+            if($('.nav-link.nav-'+page).hasClass('nav-is-tree') == true){
+                $('.nav-link.nav-'+page).parent().addClass('menu-open')
+            }
         }
-
-  		}
-     
-  	})
-
-
-  </script>
+    })
+</script>
