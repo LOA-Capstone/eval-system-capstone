@@ -22,8 +22,7 @@
   line-height:-100px; 
   white-space: nowrap; 
   overflow: hidden;
-  padding: 0 15px; 
-  
+  padding: 0 15px;  
 }
 
 
@@ -58,7 +57,7 @@
   <nav class="main-header navbar navbar-expand ">
     <!-- Left navbar links -->
     <ul class="navbar-nav">
-      <?php if(isset($_SESSION['login_id'])): ?>
+    <?php if(isset($_SESSION['login_id'])): ?>
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="" role="button"><i class="fas fa-bars" style="color: #1C204B;"></i></a>
       </li>
