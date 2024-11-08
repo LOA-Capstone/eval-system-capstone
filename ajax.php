@@ -264,98 +264,119 @@ if ($action == 'get_class') {
 
 // ajax.php
 if ($_GET['action'] == 'get_report') {
-	$faculty_id = $_POST['faculty_id'];
-	$subject_id = $_POST['subject_id'];
-	$class_id = $_POST['class_id'];
-	$academic_id = $_SESSION['academic']['id'];
+    $faculty_id = $_POST['faculty_id'];
+    $subject_id = $_POST['subject_id'];
+    $class_id = $_POST['class_id'];
+    $academic_id = $_SESSION['academic']['id'];
 
-	// Get total number of students evaluated
-	$qry = $conn->query("SELECT COUNT(DISTINCT student_id) as tse FROM evaluation_list WHERE faculty_id = $faculty_id AND subject_id = $subject_id AND class_id = $class_id AND academic_id = $academic_id");
-	$tse = 0;
-	if ($qry->num_rows > 0) {
-		$tse = $qry->fetch_assoc()['tse'];
-	}
+    // Get total number of students evaluated
+    $qry = $conn->query("SELECT COUNT(DISTINCT student_id) as tse FROM evaluation_list WHERE faculty_id = $faculty_id AND subject_id = $subject_id AND class_id = $class_id AND academic_id = $academic_id");
+    $tse = 0;
+    if ($qry->num_rows > 0) {
+        $tse = $qry->fetch_assoc()['tse'];
+    }
 
-	// Get evaluation answers
-	$data = array();
-	$questions = $conn->query("SELECT id FROM question_list WHERE academic_id = $academic_id");
-	while ($row = $questions->fetch_assoc()) {
-		$qid = $row['id'];
-		$rates = array_fill(1, 5, 0);
-		$total = 0;
-		$answers = $conn->query("SELECT rate, COUNT(rate) as count FROM evaluation_answers ea INNER JOIN evaluation_list el ON ea.evaluation_id = el.evaluation_id WHERE ea.question_id = $qid AND el.faculty_id = $faculty_id AND el.subject_id = $subject_id AND el.class_id = $class_id AND el.academic_id = $academic_id GROUP BY rate");
-		while ($arow = $answers->fetch_assoc()) {
-			$rate = $arow['rate'];
-			$count = $arow['count'];
-			$rates[$rate] = $count;
-			$total += $count;
-		}
-		// Calculate percentage
-		foreach ($rates as $rate => $count) {
-			$rates[$rate] = $total > 0 ? round(($count / $total) * 100, 2) : 0;
-		}
-		$data[$qid] = $rates;
-	}
+    // Get evaluation answers
+    $data = array();
+    $questions = $conn->query("SELECT id FROM question_list WHERE academic_id = $academic_id");
+    while ($row = $questions->fetch_assoc()) {
+        $qid = $row['id'];
+        $rates = array_fill(1, 5, 0);
+        $total = 0;
+        $answers = $conn->query("SELECT rate, COUNT(rate) as count FROM evaluation_answers ea INNER JOIN evaluation_list el ON ea.evaluation_id = el.evaluation_id WHERE ea.question_id = $qid AND el.faculty_id = $faculty_id AND el.subject_id = $subject_id AND el.class_id = $class_id AND el.academic_id = $academic_id GROUP BY rate");
+        while ($arow = $answers->fetch_assoc()) {
+            $rate = $arow['rate'];
+            $count = $arow['count'];
+            $rates[$rate] = $count;
+            $total += $count;
+        }
+        // Calculate percentage
+        foreach ($rates as $rate => $count) {
+            $rates[$rate] = $total > 0 ? round(($count / $total) * 100, 2) : 0;
+        }
+        $data[$qid] = $rates;
+    }
 
-	// Initialize counts for each sentiment category
-	$sentiment_counts = array(
-		'Very Strong (Negative)' => 0,
-		'Strong (Negative)' => 0,
-		'Moderate (Negative)' => 0,
-		'Neutral' => 0,
-		'Moderate (Positive)' => 0,
-		'Strong (Positive)' => 0,
-		'Very Strong (Positive)' => 0,
-	);
+    // Initialize counts for each sentiment category
+    $sentiment_counts = array(
+        'Very Strong (Negative)' => 0,
+        'Strong (Negative)' => 0,
+        'Moderate (Negative)' => 0,
+        'Neutral' => 0,
+        'Moderate (Positive)' => 0,
+        'Strong (Positive)' => 0,
+        'Very Strong (Positive)' => 0,
+    );
 
-	// Get polarity and subjectivity from evaluation_comments
-	$comment_query = $conn->query("SELECT ec.polarity, ec.subjectivity FROM evaluation_comments ec INNER JOIN evaluation_list el ON ec.evaluation_id = el.evaluation_id WHERE el.faculty_id = $faculty_id AND el.subject_id = $subject_id AND el.class_id = $class_id AND el.academic_id = $academic_id");
+    // Get polarity and subjectivity from evaluation_comments
+    $comment_query = $conn->query("SELECT ec.polarity, ec.subjectivity FROM evaluation_comments ec INNER JOIN evaluation_list el ON ec.evaluation_id = el.evaluation_id WHERE el.faculty_id = $faculty_id AND el.subject_id = $subject_id AND el.class_id = $class_id AND el.academic_id = $academic_id");
 
-	$total_polarity = 0;
-	$total_subjectivity = 0;
-	$total_comments = 0;
+    $total_polarity = 0;
+    $total_subjectivity = 0;
+    $total_comments = 0;
 
-	while ($row = $comment_query->fetch_assoc()) {
-		$polarity = $row['polarity'];
-		$normalized_polarity = ($polarity + 1) / 2; // Normalize to 0-1
-		$total_polarity += $polarity;
-		$subjectivity = $row['subjectivity'];
-		$total_subjectivity += $subjectivity;
-		$total_comments++;
+    while ($row = $comment_query->fetch_assoc()) {
+        $polarity = $row['polarity'];
+        $normalized_polarity = ($polarity + 1) / 2; // Normalize to 0-1
+        $total_polarity += $polarity;
+        $subjectivity = $row['subjectivity'];
+        $total_subjectivity += $subjectivity;
+        $total_comments++;
 
-		// Categorize based on normalized polarity
-		if (0.0 <= $normalized_polarity && $normalized_polarity < 0.1) {
-			$sentiment_counts['Very Strong (Negative)']++;
-		} elseif (0.1 <= $normalized_polarity && $normalized_polarity < 0.3) {
-			$sentiment_counts['Strong (Negative)']++;
-		} elseif (0.3 <= $normalized_polarity && $normalized_polarity < 0.4) {
-			$sentiment_counts['Moderate (Negative)']++;
-		} elseif (0.4 <= $normalized_polarity && $normalized_polarity < 0.6) {
-			$sentiment_counts['Neutral']++;
-		} elseif (0.6 <= $normalized_polarity && $normalized_polarity < 0.7) {
-			$sentiment_counts['Moderate (Positive)']++;
-		} elseif (0.7 <= $normalized_polarity && $normalized_polarity < 0.9) {
-			$sentiment_counts['Strong (Positive)']++;
-		} elseif (0.9 <= $normalized_polarity && $normalized_polarity <= 1.0) {
-			$sentiment_counts['Very Strong (Positive)']++;
-		}
-	}
+        // Categorize based on normalized polarity
+        if (0.0 <= $normalized_polarity && $normalized_polarity < 0.1) {
+            $sentiment_counts['Very Strong (Negative)']++;
+        } elseif (0.1 <= $normalized_polarity && $normalized_polarity < 0.3) {
+            $sentiment_counts['Strong (Negative)']++;
+        } elseif (0.3 <= $normalized_polarity && $normalized_polarity < 0.4) {
+            $sentiment_counts['Moderate (Negative)']++;
+        } elseif (0.4 <= $normalized_polarity && $normalized_polarity < 0.6) {
+            $sentiment_counts['Neutral']++;
+        } elseif (0.6 <= $normalized_polarity && $normalized_polarity < 0.7) {
+            $sentiment_counts['Moderate (Positive)']++;
+        } elseif (0.7 <= $normalized_polarity && $normalized_polarity < 0.9) {
+            $sentiment_counts['Strong (Positive)']++;
+        } elseif (0.9 <= $normalized_polarity && $normalized_polarity <= 1.0) {
+            $sentiment_counts['Very Strong (Positive)']++;
+        }
+    }
 
-	$avg_polarity = $total_comments > 0 ? $total_polarity / $total_comments : 0;
-	$avg_subjectivity = $total_comments > 0 ? $total_subjectivity / $total_comments : 0;
+    $avg_polarity = $total_comments > 0 ? $total_polarity / $total_comments : 0;
+    $avg_subjectivity = $total_comments > 0 ? $total_subjectivity / $total_comments : 0;
 
-	// Prepare response data
-	$response = array(
-		'tse' => $tse,
-		'data' => $data,
-		'avg_polarity' => $avg_polarity,
-		'avg_subjectivity' => $avg_subjectivity,
-		'sentiment_counts' => $sentiment_counts // Include the sentiment counts in the response
-	);
+    // Fetch evaluation IDs
+    $evals = $conn->query("SELECT evaluation_id FROM evaluation_list WHERE faculty_id = $faculty_id AND subject_id = $subject_id AND class_id = $class_id AND academic_id = $academic_id");
 
-	echo json_encode($response);
-	exit;
+    $evaluation_ids = [];
+    while ($row = $evals->fetch_assoc()) {
+        $evaluation_ids[] = $row['evaluation_id'];
+    }
+
+    $evaluation_ids_str = implode(',', $evaluation_ids);
+
+    // Fetch comments associated with these evaluations
+    $comments = [];
+    if (!empty($evaluation_ids_str)) {
+        $comment_res = $conn->query("SELECT comment, sentiment, polarity, subjectivity FROM evaluation_comments WHERE evaluation_id IN ($evaluation_ids_str)");
+        while ($row = $comment_res->fetch_assoc()) {
+            $comments[] = $row;
+        }
+    }
+
+    // Prepare response data
+    $response = array(
+        'tse' => $tse,
+        'data' => $data,
+        'avg_polarity' => $avg_polarity,
+        'avg_subjectivity' => $avg_subjectivity,
+        'sentiment_counts' => $sentiment_counts, // Include the sentiment counts in the response
+        'comments' => $comments // Include comments in the response
+    );
+
+    echo json_encode($response);
+    exit;
 }
+
 
 
 
