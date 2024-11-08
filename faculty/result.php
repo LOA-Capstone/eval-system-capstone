@@ -434,7 +434,7 @@ function ordinal_suffix($num)
                             '#ffffbf', // Neutral
                             '#e0f3f8', // Moderate (Positive)
                             '#91bfdb', // Strong (Positive)
-                            '#4575b4'  // Very Strong (Positive)
+                            '#4575b4' // Very Strong (Positive)
                         ];
 
                         var ctxSentiment = document.getElementById('sentimentChart').getContext('2d');
@@ -469,6 +469,14 @@ function ordinal_suffix($num)
                             }
                         });
                     }
+          
+                        // New code to handle comments
+                        if (resp.comments && resp.comments.length > 0) {
+                            display_comments(resp.comments);
+                        } else {
+                            $('#comments-section').remove();
+                        
+                    }
                 }
             },
             complete: function() {
@@ -491,4 +499,42 @@ function ordinal_suffix($num)
             end_load()
         }, 750)
     })
+
+    function display_comments(comments) {
+    // Remove existing comments section if it exists
+    $('#comments-section').remove();
+
+    // Create a new comments section
+    var commentsHtml = '<div id="comments-section" style="margin-top:20px;">' +
+        '<h4><b>Student Comments:</b></h4>';
+
+    comments.forEach(function(comment) {
+        commentsHtml += '<div class="comment-item" style="border-bottom: 1px solid #ccc; padding: 10px 0;">' +
+            '<p><b>Sentiment:</b> ' + comment.sentiment + '</p>' +
+            '<p><b>Comment:</b> ' + comment.comment + '</p>' +
+            '</div>';
+    });
+
+    commentsHtml += '</div>';
+
+    // Append the comments section to the printable area
+    $('#printable').append(commentsHtml);
+}
+
 </script>
+
+<style>
+    #comments-section {
+    margin-top: 20px;
+}
+
+.comment-item {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+}
+
+.comment-item:last-child {
+    border-bottom: none;
+}
+
+</style>
