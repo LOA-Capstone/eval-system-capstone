@@ -7,7 +7,7 @@
     }
 
     .main-header.navbar {
-  height: 79px;
+  height: 60px;
   background: #B1E4FF;
   display: flex;
   align-items: center; 

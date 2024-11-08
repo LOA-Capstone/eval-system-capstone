@@ -54,6 +54,80 @@
 .col-lg-12{
 	background:
 }
+
+
+.btn.manage_subject, .btn.delete_subject {
+  position: relative;
+  background: rgb(177, 228, 255);
+  color: #000;
+  padding: 15px;
+  margin: 0;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  font-size: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.edit-tooltip {
+  position: absolute;
+  top: 0px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #ffffff;
+  padding: 5px 8px;
+  border-radius: 5px;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  width: 150px;
+}
+
+.edit-tooltip::before {
+  position: absolute;
+  content: "";
+  height: 8px;
+  width: 8px;
+  background: #ffffff;
+  bottom: -3px;
+  left: 50%;
+  transform: translate(-50%) rotate(45deg);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.btn.manage_subject:hover .edit-tooltip,
+.btn.delete_subject:hover .edit-tooltip {
+  top: -45px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.edit-icon {
+  font-size: 20px;
+}
+
+.btn.manage_subject:hover,
+.btn.manage_subject:hover .edit-tooltip,
+.btn.manage_subject:hover .edit-tooltip::before {
+  background: linear-gradient(320deg, rgb(3, 77, 146), rgb(0, 60, 255));
+  color: #ffffff;
+}
+
+.btn.delete_subject:hover,
+.btn.delete_subject:hover .edit-tooltip,
+.btn.delete_subject:hover .edit-tooltip::before {
+  background: linear-gradient(320deg, rgb(246, 68, 68), rgb(255, 0, 0));
+  color: #ffffff;
+}
+
   
 </style>
 <div class="col-lg-12">
@@ -97,12 +171,16 @@
           <td><b><?php echo $row['description'] ?></b></td>
           <td class="text-center">
             <div class="btn-group">
-              <a href="javascript:void(0)" data-id='<?php echo $row['id'] ?>' class="btn btn-primary btn-flat manage_subject">
-                <i class="fas fa-edit"></i>
-              </a>
-              <button type="button" class="btn btn-danger btn-flat delete_subject" data-id="<?php echo $row['id'] ?>">
-                <i class="fas fa-trash"></i>
-              </button>
+            <a href="javascript:void(0)" data-id='<?php echo $row['id'] ?>' class="btn manage_subject">
+  <span class="edit-tooltip">Edit Subject</span>
+  <span class="edit-icon"><i class="fas fa-edit"></i></span>
+</a>
+
+<button type="button" class="btn delete_subject" data-id="<?php echo $row['id'] ?>">
+  <span class="edit-tooltip">Delete Subject</span>
+  <span class="edit-icon"><i class="fas fa-trash"></i></span>
+</button>
+
             </div>
           </td>
         </tr>  
