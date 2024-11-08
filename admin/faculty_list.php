@@ -1,9 +1,67 @@
 <?php include'db_connect.php' ?>
+<style>
+	/* Button base style */
+.btn.new_teacher {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  background-color: #28a745; /* Green color */
+  border: none;
+  border-radius: 5px;
+  text-decoration: none;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Style the icon */
+.btn.new_teacher i {
+  margin-right: 8px;
+  font-size: 16px;
+  color: #fff;
+  transition: transform 0.2s ease;
+}
+
+/* Style the text */
+.btn.new_teacher .text {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Hover effect */
+.btn.new_teacher:hover {
+  transform: scale(1.05); /* Slight enlargement */
+}
+
+/* When hovered, the icon moves to the center */
+.btn.new_teacher:hover i {
+  transform: translateX(55px); /* Move the icon to the center */
+}
+
+/* Hide the text on hover */
+.btn.new_teacher:hover .text {
+  opacity: 0; /* Hide the text */
+}
+
+/* Active effect (on click) */
+.btn.new_teacher:active {
+  transform: scale(1); /* Reset size on click */
+}
+
+</style>
 <div class="col-lg-12">
 	<div class="card card-outline card-success">
 		<div class="card-header">
 			<div class="card-tools">
-				<a class="btn btn-block btn-sm btn-default btn-flat border-primary" href="./index.php?page=new_faculty"><i class="fa fa-plus"></i> Add New Teacher</a>
+			<a class="btn new_teacher" href="./index.php?page=new_faculty">
+  <i class="fa fa-plus"></i>
+  <span class="text">Add New Teacher</span>
+</a>
+
 			</div>
 		</div>
 		<div class="card-body">

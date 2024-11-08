@@ -129,7 +129,7 @@
   .content-wrapper{
     background: radial-gradient(178.94% 106.41% at 26.42% 106.41%, #B1E4FF 0%, #FFFFFF 71.88%);
     margin-bottom: 0;
-    height: auto;
+    min-height: 896px !important;
   }
 
   .main-footer {
@@ -147,5 +147,8 @@
 
 </style>
 </html>
+
+
+
 
 
