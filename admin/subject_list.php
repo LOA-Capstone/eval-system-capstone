@@ -1,6 +1,5 @@
 <?php include'db_connect.php' ?>
 <style>
-  /* Button base style */
   .btn.new_subject {
     display: inline-flex;
     align-items: center;
@@ -54,7 +53,6 @@
 .col-lg-12{
 	background:
 }
-
 
 .btn.manage_subject, .btn.delete_subject {
   position: relative;
@@ -128,7 +126,46 @@
   color: #ffffff;
 }
 
-  
+
+.custom-popup {
+  font-size: 1.1rem;
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.custom-title {
+  color: #d32f2f;
+  font-family: 'Arial', sans-serif;
+}
+
+
+.custom-confirm-btn {
+  background-color: darkred !important; 
+  color: #fff !important;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+.custom-cancel-btn {
+  background-color: gray !important;
+  color: #fff !important;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+.custom-popup .custom-content {
+    color: black;
+}
+
+.custom-popup .swal2-warning {
+    color: #8B0000; /* Dark red */
+}
+
+.custom-content {
+  color: black; 
+}
+
 </style>
 <div class="col-lg-12">
 	<div class="card card-outline card-primary">
@@ -171,16 +208,12 @@
           <td><b><?php echo $row['description'] ?></b></td>
           <td class="text-center">
             <div class="btn-group">
-            <a href="javascript:void(0)" data-id='<?php echo $row['id'] ?>' class="btn manage_subject">
-  <span class="edit-tooltip">Edit Subject</span>
-  <span class="edit-icon"><i class="fas fa-edit"></i></span>
-</a>
-
-<button type="button" class="btn delete_subject" data-id="<?php echo $row['id'] ?>">
-  <span class="edit-tooltip">Delete Subject</span>
-  <span class="edit-icon"><i class="fas fa-trash"></i></span>
-</button>
-
+              <a href="javascript:void(0)" data-id='<?php echo $row['id'] ?>' class="btn btn-primary btn-flat manage_subject">
+                <i class="fas fa-edit"></i>
+              </a>
+              <button type="button" class="btn btn-danger btn-flat delete_subject" data-id="<?php echo $row['id'] ?>">
+                <i class="fas fa-trash"></i>
+              </button>
             </div>
           </td>
         </tr>  
@@ -198,9 +231,36 @@
 		$('.manage_subject').click(function(){
 			uni_modal("Manage subject","<?php echo $_SESSION['login_view_folder'] ?>manage_subject.php?id="+$(this).attr('data-id'))
 		})
-	$('.delete_subject').click(function(){
-	_conf("Are you sure to delete this subject?","delete_subject",[$(this).attr('data-id')])
-	})
+    $('.delete_subject').click(function(){
+  const subjectId = $(this).attr('data-id');
+
+  Swal.fire({
+    title: 'DELETE SUBJECT',
+    text: "Are you sure to delete this subject?",
+    icon: 'error',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Delete',
+    cancelButtonText: 'Cancel',
+    background: '#f2f2f2',
+    color: '#333',
+    padding: '1.5em',
+    width: '400px',
+    customClass: {
+      popup: 'custom-popup',
+      title: 'custom-title',
+      cancelButton: 'custom-cancel-btn',
+      confirmButton: 'custom-confirm-btn',
+      icon: 'custom-icon' ,
+      content: 'custom-content'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      delete_subject(subjectId); 
+    }
+  });
+});
 		$('#list').dataTable()
 	})
 	function delete_subject($id){
