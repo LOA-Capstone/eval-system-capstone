@@ -1,11 +1,11 @@
 <?php
 // Check if session is not already started
 if (session_status() == PHP_SESSION_NONE) {
-    session_start();
+	session_start();
 }
 
 // Include the database connection
-include $_SERVER['DOCUMENT_ROOT'].'/eval/db_connect.php';
+include $_SERVER['DOCUMENT_ROOT'] . '/eval/db_connect.php';
 
 // Rest of your code...
 
@@ -14,32 +14,36 @@ $department_id = $_SESSION['login_department_id']; // Dean's department ID
 
 // Check if the faculty belongs to the Dean's department
 if (!empty($faculty_id)) {
-    $faculty_check = $conn->query("SELECT id FROM faculty_list WHERE id = '$faculty_id' AND department_id = '$department_id'");
-    if ($faculty_check->num_rows == 0) {
-        // Faculty not in Dean's department
-        echo "<h4>You do not have permission to view reports for this faculty.</h4>";
-        exit;
-    }
+	$faculty_check = $conn->query("SELECT id FROM faculty_list WHERE id = '$faculty_id' AND department_id = '$department_id'");
+	if ($faculty_check->num_rows == 0) {
+		// Faculty not in Dean's department
+		echo "<h4>You do not have permission to view reports for this faculty.</h4>";
+		exit;
+	}
 }
 
-function ordinal_suffix($num){
-    $num = $num % 100; // protect against large numbers
-    if($num < 11 || $num > 13){
-         switch($num % 10){
-            case 1: return $num.'st';
-            case 2: return $num.'nd';
-            case 3: return $num.'rd';
-        }
-    }
-    return $num.'th';
+function ordinal_suffix($num)
+{
+	$num = $num % 100; // protect against large numbers
+	if ($num < 11 || $num > 13) {
+		switch ($num % 10) {
+			case 1:
+				return $num . 'st';
+			case 2:
+				return $num . 'nd';
+			case 3:
+				return $num . 'rd';
+		}
+	}
+	return $num . 'th';
 }
 
 $faculty = $conn->query("SELECT *, CONCAT(firstname,' ',lastname) as name FROM faculty_list WHERE department_id = '$department_id' ORDER BY CONCAT(firstname,' ',lastname) ASC");
 $f_arr = array();
 $fname = array();
-while($row = $faculty->fetch_assoc()){
-    $f_arr[$row['id']] = $row;
-    $fname[$row['id']] = ucwords($row['name']);
+while ($row = $faculty->fetch_assoc()) {
+	$f_arr[$row['id']] = $row;
+	$fname[$row['id']] = ucwords($row['name']);
 }
 ?>
 <style>
@@ -47,6 +51,11 @@ while($row = $faculty->fetch_assoc()){
 	#subjectivityChart {
 		width: 200px !important;
 		height: 200px !important;
+	}
+
+	/* Add the rates class styling here */
+	.rates {
+		color: black;
 	}
 </style>
 <div class="col-lg-12">
@@ -138,6 +147,7 @@ while($row = $faculty->fetch_assoc()){
 									<?php for ($c = 1; $c <= 5; $c++): ?>
 										<td class="text-center">
 											<span class="rate_<?php echo $c . '_' . $row['id'] ?> rates"></span>
+											<div id="dynamic-content"></div>
 			</div>
 			</td>
 		<?php endfor; ?>
@@ -191,10 +201,12 @@ while($row = $faculty->fetch_assoc()){
 <script>
 	$(document).ready(function() {
 		$('#faculty_id').change(function() {
-			if ($(this).val() > 0)
-				window.history.pushState({}, null, './index.php?page=report&fid=' + $(this).val());
-			load_class()
-		})
+			if ($(this).val() > 0) {
+				window.location.href = './index.php?page=report&fid=' + $(this).val();
+			} else {
+				window.location.href = './index.php?page=report';
+			}
+		});
 		if ($('#faculty_id').val() > 0)
 			load_class()
 	})
@@ -261,6 +273,13 @@ while($row = $faculty->fetch_assoc()){
 	}
 
 	function load_report($faculty_id, $subject_id, $class_id) {
+		// Clear previous report data
+		$('.rates').text('');
+		$('#tse').text('');
+		$('#print-btn').hide();
+		$('#total-average').remove(); // Remove if already exists
+		$('#average-sentiment').remove(); // Remove if already exists
+
 		if ($('#preloader2').length <= 0)
 			start_load()
 		$.ajax({
@@ -283,6 +302,7 @@ while($row = $faculty->fetch_assoc()){
 						$('.rates').text('')
 						$('#tse').text('')
 						$('#print-btn').hide()
+						alert_toast("No evaluation data available for the selected faculty and class.", 'info');
 					} else {
 						$('#print-btn').show()
 						$('#tse').text(resp.tse)
@@ -390,6 +410,8 @@ while($row = $faculty->fetch_assoc()){
 							'</div>' +
 							'</div>'
 						);
+
+
 
 						// Create the Polarity Chart
 						var ctxP = document.getElementById('polarityChart').getContext('2d');
