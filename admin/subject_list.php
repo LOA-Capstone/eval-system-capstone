@@ -208,12 +208,15 @@
           <td><b><?php echo $row['description'] ?></b></td>
           <td class="text-center">
             <div class="btn-group">
-              <a href="javascript:void(0)" data-id='<?php echo $row['id'] ?>' class="btn btn-primary btn-flat manage_subject">
-                <i class="fas fa-edit"></i>
-              </a>
-              <button type="button" class="btn btn-danger btn-flat delete_subject" data-id="<?php echo $row['id'] ?>">
-                <i class="fas fa-trash"></i>
-              </button>
+            <a href="javascript:void(0)" data-id='<?php echo $row['id'] ?>' class="btn manage_subject">
+  <span class="edit-tooltip">Edit Subject</span>
+  <span class="edit-icon"><i class="fas fa-edit"></i></span>
+</a>
+<button type="button" class="btn delete_subject" data-id="<?php echo $row['id'] ?>">
+  <span class="edit-tooltip">Delete Subject</span>
+  <span class="edit-icon"><i class="fas fa-trash"></i></span>
+</button>
+
             </div>
           </td>
         </tr>  
