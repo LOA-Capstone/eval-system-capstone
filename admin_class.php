@@ -19,44 +19,54 @@ class Action
 	}
 
 	function login()
-	{
-		extract($_POST);
-		// Define role mappings
-		$type = array("", "users", "users", "student_list", "faculty_list");
-		$type2 = array("", "admin", "dean", "student", "faculty");
-	
-		if ($login == 1 || $login == 2) {
-			// For admin or dean, check 'users' table with 'type'
-			$user_type = ($login == 1) ? 1 : 2; // 1 for admin, 2 for dean
-			$qry = $this->db->query("SELECT *, CONCAT(firstname, ' ', lastname) AS name FROM users WHERE email = '$email' AND password = MD5('$password') AND type = $user_type");
-		} elseif ($login == 3 || $login == 4) {
-			// For student or faculty
-			$qry = $this->db->query("SELECT *, CONCAT(firstname, ' ', lastname) AS name FROM {$type[$login]} WHERE email = '$email' AND password = MD5('$password')");
-		} else {
-			return 2; // Invalid login type
-		}
-	
-		if ($qry->num_rows > 0) {
-			foreach ($qry->fetch_array() as $key => $value) {
-				if ($key != 'password' && !is_numeric($key))
-					$_SESSION['login_' . $key] = $value;
-			}
-			$_SESSION['login_type'] = $login;
-			$_SESSION['login_view_folder'] = $type2[$login] . '/';
-	
-			// Load academic settings
-			$academic = $this->db->query("SELECT * FROM academic_list WHERE is_default = 1");
-			if ($academic->num_rows > 0) {
-				foreach ($academic->fetch_array() as $k => $v) {
-					if (!is_numeric($k))
-						$_SESSION['academic'][$k] = $v;
-				}
-			}
-			return 1;
-		} else {
-			return 2;
-		}
-	}
+{
+    extract($_POST);
+    // Define role mappings
+    $type = array("", "users", "users", "student_list", "faculty_list");
+    $type2 = array("", "admin", "dean", "student", "faculty");
+
+    if ($login == 1 || $login == 2) {
+        // For admin or dean, check 'users' table with 'type'
+        $user_type = ($login == 1) ? 1 : 2; // 1 for admin, 2 for dean
+        $qry = $this->db->query("SELECT *, CONCAT(firstname, ' ', lastname) AS name FROM users WHERE email = '$email' AND password = MD5('$password') AND type = $user_type");
+    } elseif ($login == 3 || $login == 4) {
+        // For student or faculty
+        $qry = $this->db->query("SELECT *, CONCAT(firstname, ' ', lastname) AS name FROM {$type[$login]} WHERE email = '$email' AND password = MD5('$password')");
+    } else {
+        return 2; // Invalid login type
+    }
+
+    if ($qry->num_rows > 0) {
+        $user = $qry->fetch_assoc(); // Fetch the user data once
+
+        // Store user data in session
+        foreach ($user as $key => $value) {
+            if ($key != 'password' && !is_numeric($key))
+                $_SESSION['login_' . $key] = $value;
+        }
+        $_SESSION['login_type'] = $login;
+        $_SESSION['login_view_folder'] = $type2[$login] . '/';
+
+        // Store department ID if the user is a Dean
+        if ($login == 2) {
+            $_SESSION['login_department_id'] = $user['department_id'];
+        }
+
+        // Load academic settings
+        $academic = $this->db->query("SELECT * FROM academic_list WHERE is_default = 1");
+        if ($academic->num_rows > 0) {
+            $academic_data = $academic->fetch_assoc();
+            foreach ($academic_data as $k => $v) {
+                if (!is_numeric($k))
+                    $_SESSION['academic'][$k] = $v;
+            }
+        }
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
 	
 
 	function checkLogin($email, $password, $role, $conn)
@@ -523,74 +533,112 @@ class Action
 		}
 	}
 	function save_faculty()
-{
-    extract($_POST);
-    $data = "";
-
-    foreach ($_POST as $k => $v) {
-        if (!in_array($k, array('id', 'cpass', 'password')) && !is_numeric($k)) {
-            // Sanitize the input to prevent SQL injection
-            $v = $this->db->real_escape_string($v);
-
-            if (empty($data)) {
-                $data .= " $k='$v' ";
-            } else {
-                $data .= ", $k='$v' ";
-            }
-        }
-    }
-
-    if (!empty($password)) {
-        $password = $this->db->real_escape_string($password);
-        $data .= ", password=md5('$password') ";
-    }
-
-    // Check for unique email
-    $email = $this->db->real_escape_string($email);
-    $check = $this->db->query("SELECT * FROM faculty_list WHERE email ='$email' " . (!empty($id) ? "AND id != {$id}" : ''))->num_rows;
-    if ($check > 0) {
-        return 2;
-        exit;
-    }
-
-    // Check for unique school ID
-    $school_id = $this->db->real_escape_string($school_id);
-    $check = $this->db->query("SELECT * FROM faculty_list WHERE school_id ='$school_id' " . (!empty($id) ? "AND id != {$id}" : ''))->num_rows;
-    if ($check > 0) {
-        return 3;
-        exit;
-    }
-
-    // Handle file upload
-    if (isset($_FILES['img']) && $_FILES['img']['tmp_name'] != '') {
-        $fname = strtotime(date('y-m-d H:i')) . '_' . $_FILES['img']['name'];
-        $move = move_uploaded_file($_FILES['img']['tmp_name'], 'assets/uploads/' . $fname);
-        if ($move) {
-            $data .= ", avatar = '$fname' ";
-        }
-    }
-
-    if (empty($id)) {
-        $save = $this->db->query("INSERT INTO faculty_list SET $data");
-    } else {
-        $save = $this->db->query("UPDATE faculty_list SET $data WHERE id = $id");
-    }
-
-    if ($save) {
-        return 1;
-    } else {
-        // Log the error or return an error message
-        return 0;
-    }
-}
+	{
+		extract($_POST);
+		$data = "";
+	
+		// Get the current user's role and department
+		$user_type = $_SESSION['login_type'];
+		$user_department_id = isset($_SESSION['login_department_id']) ? $_SESSION['login_department_id'] : null;
+	
+		// If the user is a Dean, set the department_id to their own and prevent changing it
+		if ($user_type == 2) {
+			$department_id = $user_department_id;
+		}
+	
+		// Build the data string
+		foreach ($_POST as $k => $v) {
+			if (!in_array($k, array('id', 'cpass', 'password', 'department_id')) && !is_numeric($k)) {
+				// Sanitize the input to prevent SQL injection
+				$v = $this->db->real_escape_string($v);
+	
+				if (empty($data)) {
+					$data .= " $k='$v' ";
+				} else {
+					$data .= ", $k='$v' ";
+				}
+			}
+		}
+	
+		// Add department_id to data
+		if (isset($department_id)) {
+			$data .= ", department_id='$department_id' ";
+		} elseif (isset($_POST['department_id'])) {
+			// For admin or other roles, use the provided department_id
+			$data .= ", department_id='{$_POST['department_id']}' ";
+		}
+	
+		if (!empty($password)) {
+			$password = $this->db->real_escape_string($password);
+			$data .= ", password=md5('$password') ";
+		}
+	
+		// Check for unique email
+		$email = $this->db->real_escape_string($email);
+		$check = $this->db->query("SELECT * FROM faculty_list WHERE email ='$email' " . (!empty($id) ? "AND id != {$id}" : ''))->num_rows;
+		if ($check > 0) {
+			return 2;
+			exit;
+		}
+	
+		// Check for unique school ID
+		$school_id = $this->db->real_escape_string($school_id);
+		$check = $this->db->query("SELECT * FROM faculty_list WHERE school_id ='$school_id' " . (!empty($id) ? "AND id != {$id}" : ''))->num_rows;
+		if ($check > 0) {
+			return 3;
+			exit;
+		}
+	
+		// Handle file upload
+		if (isset($_FILES['img']) && $_FILES['img']['tmp_name'] != '') {
+			$fname = strtotime(date('y-m-d H:i')) . '_' . $_FILES['img']['name'];
+			$move = move_uploaded_file($_FILES['img']['tmp_name'], 'assets/uploads/' . $fname);
+			if ($move) {
+				$data .= ", avatar = '$fname' ";
+			}
+		}
+	
+		if (empty($id)) {
+			// Insert new faculty
+			$save = $this->db->query("INSERT INTO faculty_list SET $data");
+		} else {
+			// Update existing faculty
+			// If the user is a Dean, ensure they can only update faculties in their department
+			if ($user_type == 2) {
+				$save = $this->db->query("UPDATE faculty_list SET $data WHERE id = $id AND department_id = '$user_department_id'");
+			} else {
+				// Admin or other roles can update any faculty
+				$save = $this->db->query("UPDATE faculty_list SET $data WHERE id = $id");
+			}
+		}
+	
+		if ($save) {
+			return 1;
+		} else {
+			// Log the error or return an error message
+			return 0;
+		}
+	}
+	
 
 	function delete_faculty()
 	{
 		extract($_POST);
-		$delete = $this->db->query("DELETE FROM faculty_list where id = " . $id);
+		$user_type = $_SESSION['login_type'];
+		$user_department_id = isset($_SESSION['login_department_id']) ? $_SESSION['login_department_id'] : null;
+	
+		if ($user_type == 2) {
+			// Dean can only delete faculties in their department
+			$delete = $this->db->query("DELETE FROM faculty_list WHERE id = $id AND department_id = '$user_department_id'");
+		} else {
+			// Admin or other roles can delete any faculty
+			$delete = $this->db->query("DELETE FROM faculty_list WHERE id = $id");
+		}
+	
 		if ($delete)
 			return 1;
 	}
+	
 
 	function save_department(){
         extract($_POST);
@@ -779,19 +827,35 @@ class Action
 		}
 	}
 	function get_class()
-	{
-		extract($_POST);
-		$data = array();
-		$get = $this->db->query("SELECT c.id,concat(c.curriculum,' ',c.level,' - ',c.section) as class,s.id as sid,concat(s.code,' - ',s.subject) as subj FROM restriction_list r inner join class_list c on c.id = r.class_id inner join subject_list s on s.id = r.subject_id where r.faculty_id = {$fid} and academic_id = {$_SESSION['academic']['id']} ");
-		while ($row = $get->fetch_assoc()) {
-			$data[] = $row;
-		}
-		return json_encode($data);
-	}
+{
+    extract($_POST);
+    $department_id = $_SESSION['login_department_id']; // Dean's department ID
+    $data = array();
+    $get = $this->db->query("SELECT c.id, CONCAT(c.curriculum,' ',c.level,' - ',c.section) as class, s.id as sid, CONCAT(s.code,' - ',s.subject) as subj 
+    FROM restriction_list r 
+    INNER JOIN class_list c ON c.id = r.class_id 
+    INNER JOIN subject_list s ON s.id = r.subject_id 
+    INNER JOIN faculty_list f ON f.id = r.faculty_id 
+    WHERE r.faculty_id = {$fid} AND academic_id = {$_SESSION['academic']['id']} AND f.department_id = '$department_id'");
+    while ($row = $get->fetch_assoc()) {
+        $data[] = $row;
+    }
+    return json_encode($data);
+}
+
 	function get_report()
 	{
 		extract($_POST);
+		$department_id = $_SESSION['login_department_id']; // Dean's department ID
 		$data = array();
+	
+		// Verify that the faculty belongs to the Dean's department
+		$faculty_check = $this->db->query("SELECT id FROM faculty_list WHERE id = '$faculty_id' AND department_id = '$department_id'");
+		if ($faculty_check->num_rows == 0) {
+			// Faculty not in Dean's department
+			return json_encode($data);
+		}
+
 		$get = $this->db->query("SELECT * FROM evaluation_answers where evaluation_id in (SELECT evaluation_id FROM evaluation_list where academic_id = {$_SESSION['academic']['id']} and faculty_id = $faculty_id and subject_id = $subject_id and class_id = $class_id ) ");
 		$answered = $this->db->query("SELECT * FROM evaluation_list where academic_id = {$_SESSION['academic']['id']} and faculty_id = $faculty_id and subject_id = $subject_id and class_id = $class_id");
 		$rate = array();
