@@ -1,6 +1,5 @@
 <?php include'db_connect.php' ?>
 <style>
-  /* Button base style */
   .btn.new_subject {
     display: inline-flex;
     align-items: center;
@@ -54,7 +53,124 @@
 .col-lg-12{
 	background:
 }
+<<<<<<< Updated upstream
   
+=======
+
+
+.btn.manage_subject, .btn.delete_subject {
+  position: relative;
+  background: rgb(177, 228, 255);
+  color: #000;
+  padding: 15px;
+  margin: 0;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  font-size: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.edit-tooltip {
+  position: absolute;
+  top: 0px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #ffffff;
+  padding: 5px 8px;
+  border-radius: 5px;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  width: 150px;
+}
+
+.edit-tooltip::before {
+  position: absolute;
+  content: "";
+  height: 8px;
+  width: 8px;
+  background: #ffffff;
+  bottom: -3px;
+  left: 50%;
+  transform: translate(-50%) rotate(45deg);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.btn.manage_subject:hover .edit-tooltip,
+.btn.delete_subject:hover .edit-tooltip {
+  top: -45px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.edit-icon {
+  font-size: 20px;
+}
+
+.btn.manage_subject:hover,
+.btn.manage_subject:hover .edit-tooltip,
+.btn.manage_subject:hover .edit-tooltip::before {
+  background: linear-gradient(320deg, rgb(3, 77, 146), rgb(0, 60, 255));
+  color: #ffffff;
+}
+
+.btn.delete_subject:hover,
+.btn.delete_subject:hover .edit-tooltip,
+.btn.delete_subject:hover .edit-tooltip::before {
+  background: linear-gradient(320deg, rgb(246, 68, 68), rgb(255, 0, 0));
+  color: #ffffff;
+}
+
+
+.custom-popup {
+  font-size: 1.1rem;
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.custom-title {
+  color: #d32f2f;
+  font-family: 'Arial', sans-serif;
+}
+
+
+.custom-confirm-btn {
+  background-color: darkred !important; 
+  color: #fff !important;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+.custom-cancel-btn {
+  background-color: gray !important;
+  color: #fff !important;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
+.custom-popup .custom-content {
+    color: black;
+}
+
+.custom-popup .swal2-warning {
+    color: #8B0000; /* Dark red */
+}
+
+.custom-content {
+  color: black; 
+}
+
+>>>>>>> Stashed changes
 </style>
 <div class="col-lg-12">
 	<div class="card card-outline card-primary">
@@ -120,9 +236,36 @@
 		$('.manage_subject').click(function(){
 			uni_modal("Manage subject","<?php echo $_SESSION['login_view_folder'] ?>manage_subject.php?id="+$(this).attr('data-id'))
 		})
-	$('.delete_subject').click(function(){
-	_conf("Are you sure to delete this subject?","delete_subject",[$(this).attr('data-id')])
-	})
+    $('.delete_subject').click(function(){
+  const subjectId = $(this).attr('data-id');
+
+  Swal.fire({
+    title: 'DELETE SUBJECT',
+    text: "Are you sure to delete this subject?",
+    icon: 'error',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Delete',
+    cancelButtonText: 'Cancel',
+    background: '#f2f2f2',
+    color: '#333',
+    padding: '1.5em',
+    width: '400px',
+    customClass: {
+      popup: 'custom-popup',
+      title: 'custom-title',
+      cancelButton: 'custom-cancel-btn',
+      confirmButton: 'custom-confirm-btn',
+      icon: 'custom-icon' ,
+      content: 'custom-content'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      delete_subject(subjectId); 
+    }
+  });
+});
 		$('#list').dataTable()
 	})
 	function delete_subject($id){

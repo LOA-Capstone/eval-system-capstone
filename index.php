@@ -17,6 +17,76 @@
 
 	include 'header.php' 
 ?>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+  .modal-content{
+    background-color: #1C204B; /* Dark background color */
+  border: 1px solid #ffffff; /* White border */
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1); /* Light shadow */
+  border-radius: 8px;
+  padding: 2rem;
+  color: #ffffff;
+  margin: 0;
+  }
+  .modal-header{
+    border: none;
+    margin: 0;
+    font-family: 'poppins';
+  }
+  .modal-header h5{
+    font-weight: 800 !important;
+    font-size: 30px;
+  }
+  .modal-body{
+    margin: 0;
+  }
+  .modal-footer{
+    border: none;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 15px; 
+  }
+
+  .btn-primary {
+  background-color: green !important;
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+  background-color: darkgreen !important;
+}
+
+.btn-secondary {
+  background-color: gray !important;
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+  background-color: darkgray !important;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+  
+</style>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed style">
 <div class="wrapper">
   <?php include 'topbar.php' ?>
@@ -82,9 +152,9 @@
       </div>
       <div class="modal-body">
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id='submit' onclick="$('#uni_modal form').submit()">Save</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      <div class="modal-footer">  
+          <button type="button" class="btn btn-primary" id='submit' onclick="$('#uni_modal form').submit()">Save Changes</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
       </div>
     </div>

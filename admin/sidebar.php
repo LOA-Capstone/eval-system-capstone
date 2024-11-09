@@ -128,7 +128,7 @@
                 <li class="nav-item">
                     <a href="#" class="nav-link nav-edit_faculty">
                         <i class="nav-icon fas fa-user-friends"></i>
-                        <p>Faculties<i class="right fas fa-angle-left"></i></p>
+                        <p>Teachers<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">

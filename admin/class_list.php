@@ -51,6 +51,129 @@
   .btn.new_class:active {
     transform: scale(1); /* Reset size on click */
   }
+
+  .btn.manage_class, .btn.delete_class {
+  position: relative;
+  background: rgb(177, 228, 255);
+  color: #000;
+  padding: 15px;
+  margin: 0;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  font-size: 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.edit-tooltip {
+  position: absolute;
+  top: 0px;
+  font-size: 14px;
+  background: #ffffff;
+  color: #ffffff;
+  padding: 5px 8px;
+  border-radius: 5px;
+  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  width: 150px;
+}
+
+.edit-tooltip::before {
+  position: absolute;
+  content: "";
+  height: 8px;
+  width: 8px;
+  background: #ffffff;
+  bottom: -3px;
+  left: 50%;
+  transform: translate(-50%) rotate(45deg);
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.btn.manage_class:hover .edit-tooltip,
+.btn.delete_class:hover .edit-tooltip {
+  top: -45px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.edit-icon {
+  font-size: 20px;
+}
+
+.btn.manage_class:hover,
+.btn.manage_class:hover .edit-tooltip,
+.btn.manage_class:hover .edit-tooltip::before {
+  background: linear-gradient(320deg, rgb(3, 77, 146), rgb(0, 60, 255));
+  color: #ffffff;
+}
+
+.btn.delete_class:hover,
+.btn.delete_class:hover .edit-tooltip,
+.btn.delete_class:hover .edit-tooltip::before {
+  background: linear-gradient(320deg, rgb(246, 68, 68), rgb(255, 0, 0));
+  color: #ffffff;
+}
+
+.custom-popup {
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.custom-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: red;
+}
+
+.custom-cancel-btn {
+  background-color: gray !important;
+  color: #333;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.custom-confirm-btn {
+  background-color: #b91c1c;
+  color: #fff;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  border: none;
+}
+
+.swal2-icon.swal2-warning {
+  background-color: #FEE2E2;
+  color: #DC2626;
+}
+
+.custom-cancel-btn:hover {
+  background-color: #c0c0c0;
+  border-color: #aaa;
+}
+
+.custom-confirm-btn:hover {
+  background-color: #991b1b;
+}
+
+.swal2-popup {
+  width: 400px !important;
+  padding: 1.5em;
+}
+.custom-content {
+  color: black; 
+}
 </style>
 <div class="col-lg-12">
 	<div class="card card-outline card-primary">
@@ -86,12 +209,16 @@
 						<td><b><?php echo $row['class'] ?></b></td>
 						<td class="text-center">
 		                    <div class="btn-group">
-		                        <a href="javascript:void(0)" data-id='<?php echo $row['id'] ?>' class="btn btn-primary btn-flat manage_class">
-		                          <i class="fas fa-edit"></i>
-		                        </a>
-		                        <button type="button" class="btn btn-danger btn-flat delete_class" data-id="<?php echo $row['id'] ?>">
-		                          <i class="fas fa-trash"></i>
-		                        </button>
+							<a href="javascript:void(0)" data-id="<?php echo $row['id']; ?>" class="btn manage_class">
+  <span class="edit-tooltip">Edit Class</span>
+  <span class="edit-icon"><i class="fas fa-edit"></i></span>
+</a>
+
+<button type="button" class="btn delete_class" data-id="<?php echo $row['id']; ?>">
+  <span class="edit-tooltip">Delete Class</span>
+  <span class="edit-icon"><i class="fas fa-trash"></i></span>
+</button>
+
 	                      </div>
 						</td>
 					</tr>	
@@ -110,9 +237,34 @@
 		$('.manage_class').click(function(){
 			uni_modal("Manage class","<?php echo $_SESSION['login_view_folder'] ?>manage_class.php?id="+$(this).attr('data-id'))
 		})
-	$('.delete_class').click(function(){
-	_conf("Are you sure to delete this class?","delete_class",[$(this).attr('data-id')])
-	})
+		$('.delete_class').click(function() {
+    _conf("Are you sure to delete this class?", "delete_class", [$(this).attr('data-id')]);
+});
+
+function _conf(message, type, data) {
+    Swal.fire({
+        title: 'DELETE CLASS',
+        text: message,
+        icon: 'error',
+        iconColor: '#b91c1c',
+        showCancelButton: true,
+        confirmButtonColor: '#b91c1c',
+        cancelButtonColor: '#d3d3d3',
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel',
+        background: '#f9fafb',
+        color: '#333',
+        padding: '1.5em',
+        width: '400px',
+        customClass: {
+            popup: 'custom-popup',
+            title: 'custom-title',
+            cancelButton: 'custom-cancel-btn',
+            confirmButton: 'custom-confirm-btn',
+			content: 'custom-content'
+        }
+    });
+}
 	})
 	function delete_class($id){
 		start_load()
