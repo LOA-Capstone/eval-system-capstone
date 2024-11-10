@@ -52,6 +52,70 @@
   }
 }
 
+.custom-nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 5px 15px;
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #1C204B;
+  background: transparent;
+  border: 1px solid #1C204B; 
+  border-radius: 25px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: color 0.3s 0.1s ease-out;
+}
+
+.custom-nav-link span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.custom-nav-link .user-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+
+.custom-nav-link b.text {
+  margin-left: 10px;
+  color: #1C204B;
+  transition: color 0.3s ease-out;
+}
+
+.custom-nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  border-radius: 50%;
+  width: 20em;
+  height: 20em;
+  left: -5em;
+  transition: box-shadow 0.5s ease-out;
+  z-index: -1;
+}
+
+.custom-nav-link:hover {
+  color: #fff;
+  border-color: #1C204B; 
+}
+
+.custom-nav-link:hover .text {
+  color: #fff;
+}
+
+.custom-nav-link:hover::before {
+  box-shadow: inset 0 0 0 10em #1C204B; 
+}
+
   </style>
 <!-- Navbar -->
   <nav class="main-header navbar navbar-expand ">
@@ -75,15 +139,15 @@
         </a>
       </li>
      <li class="nav-item dropdown">
-            <a class="nav-link"  data-toggle="dropdown" aria-expanded="true" href="javascript:void(0)">
-              <span>
-                <div class="d-felx badge-pill">
-                  <span class=""><img src="assets/uploads/<?php echo $_SESSION['login_avatar'] ?>" alt="" class="user-img border "></span>
-                  <span>&nbsp;&nbsp;<b style="color: #1C204B;"><?php echo ucwords($_SESSION['login_firstname']) ?></b></span>
-                  <span class="fa fa-angle-down ml-2" style="color: #1C204B;"></span>
-                </div>
-              </span>
-            </a>
+     <a class="nav-link custom-nav-link" data-toggle="dropdown" aria-expanded="true" href="javascript:void(0)">
+  <span>
+    <img src="assets/uploads/<?php echo $_SESSION['login_avatar'] ?>" alt="" class="user-img">
+    <b class="text"><?php echo ucwords($_SESSION['login_firstname']) ?></b>
+    <span class="fa fa-angle-down"></span>
+  </span>
+</a>
+
+
             <div class="dropdown-menu" aria-labelledby="account_settings" style="left: -2.5em;">
               <a class="dropdown-item" href="javascript:void(0)" id="manage_account"><i class="fa fa-cog"></i>&nbsp; Manage Account</a>
               <a class="dropdown-item" href="ajax.php?action=logout"><i class="fa fa-power-off"></i>&nbsp; Logout</a>
