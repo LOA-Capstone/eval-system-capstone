@@ -79,6 +79,7 @@ if(isset($_GET['id'])){
 
 <div class="container-fluids">
   <form class="form" id="manage-subject">
+  <div id="msg" class="form-group"></div>
     <label for="subject" class="label">
       <span class="title">Subject</span>
       <input
@@ -114,13 +115,11 @@ if(isset($_GET['id'])){
       ><?php echo isset($description) ? $description : '' ?></textarea>
     </label>
     <input type="hidden" name="id" value="<?php echo isset($id) ? $id : '' ?>">
-    <div id="msg" class="form-group"></div>
   </form>
 </div>
 
 <script>
 $(document).ready(function() {
-    // Store initial values of the fields
     let initialValues = {};
     $('#manage-subject input[required], #manage-subject textarea[required]').each(function() {
         initialValues[$(this).attr('name')] = $(this).val().trim();
@@ -130,25 +129,26 @@ $(document).ready(function() {
         e.preventDefault();
         start_load();
         $('#msg').html('');
+        $('#top-msg').html('');  // Clear any previous top messages
 
         let isValid = true;
-        let noChangesMade = true; // Flag to track if any changes were made
+        let noChangesMade = true;
 
         // Check if any required fields are empty
         $('#manage-subject input[required], #manage-subject textarea[required]').each(function() {
             const fieldName = $(this).attr('name');
             const currentValue = $(this).val().trim();
 
-            // If the current value is empty, it's invalid
             if (currentValue === '') {
                 isValid = false;
                 $(this).addClass('is-invalid');
-                $('#msg').html('<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> All fields are required.</div>');
+                const errorMessage = '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> All fields are required.</div>';
+                $('#msg').html(errorMessage);  // Bottom message
+                $('#top-msg').html(errorMessage);  // Top message
             } else {
                 $(this).removeClass('is-invalid');
             }
 
-            // Check if the value has changed
             if (currentValue !== initialValues[fieldName]) {
                 noChangesMade = false; // If any field has changed, set this to false
             }
@@ -159,14 +159,14 @@ $(document).ready(function() {
             return; // Stop further execution if validation fails
         }
 
-        // If no changes were made, show the notification
         if (noChangesMade) {
-            $('#msg').html('<div class="alert alert-warning"><i class="fa fa-info-circle"></i> No changes were made.</div>');
+            const noChangesMessage = '<div class="alert alert-warning"><i class="fa fa-info-circle"></i> No changes were made.</div>';
+            $('#msg').html(noChangesMessage);  // Bottom message
+            $('#top-msg').html(noChangesMessage);  // Top message
             end_load();
             return; // Stop further execution if no changes
         }
 
-        // Proceed with AJAX request if validation passes and changes were made
         $.ajax({
             url: 'ajax.php?action=save_subject',
             method: 'POST',
@@ -178,7 +178,9 @@ $(document).ready(function() {
                         location.reload();
                     }, 1750);
                 } else if (resp == 2) {
-                    $('#msg').html('<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Subject Code already exists.</div>');
+                    const duplicateMessage = '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Subject Code already exists.</div>';
+                    $('#msg').html(duplicateMessage);  // Bottom message
+                    $('#top-msg').html(duplicateMessage);  // Top message
                     end_load();
                 }
             }

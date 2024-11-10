@@ -188,7 +188,15 @@
   width: 400px !important;
   padding: 1.5em;
 }
+.card-body {
+    overflow-x: auto; 
+}
 
+
+.table {
+    width: 100%;
+    table-layout: fixed; 
+}
 
 </style>
 

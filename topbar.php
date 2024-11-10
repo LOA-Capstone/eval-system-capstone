@@ -116,6 +116,76 @@
   box-shadow: inset 0 0 0 10em #1C204B; 
 }
 
+@media (max-width: 743px) {
+  .custom-nav-link {
+    padding: 5px 10px;
+    font-size: 14px;
+  }
+  
+  .custom-nav-link .user-img {
+    width: 25px;
+    height: 25px;
+  }
+
+  .custom-nav-link b.text {
+    font-size: 12px;
+    margin-left: 8px;
+  }
+
+  .custom-nav-link::before {
+    width: 12em;
+    height: 12em;
+    left: -3em;
+  }
+}
+
+/* For medium screens (max-width: 861px) */
+@media (max-width: 861px) {
+  .custom-nav-link {
+    padding: 5px 12px;
+    font-size: 15px;
+  }
+
+  .custom-nav-link .user-img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .custom-nav-link b.text {
+    font-size: 14px;
+    margin-left: 9px;
+  }
+
+  .custom-nav-link::before {
+    width: 16em;
+    height: 16em;
+    left: -4em;
+  }
+}
+
+/* For larger screens (min-width: 995px and max-width: 1111px) */
+@media (min-width: 995px) and (max-width: 1111px) {
+  .custom-nav-link {
+    padding: 5px 15px;
+    font-size: 16px;
+  }
+
+  .custom-nav-link .user-img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .custom-nav-link b.text {
+    font-size: 16px;
+    margin-left: 10px;
+  }
+
+  .custom-nav-link::before {
+    width: 18em;
+    height: 18em;
+    left: -4.5em;
+  }
+}
   </style>
 <!-- Navbar -->
   <nav class="main-header navbar navbar-expand ">
