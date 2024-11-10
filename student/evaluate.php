@@ -86,15 +86,15 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
 									<?php echo $row['question'] ?>
 									<input type="hidden" name="qid[]" value="<?php echo $row['id'] ?>">
 								</td>
-								<?php for($c=1;$c<=5;$c++): ?>
-								<td class="text-center">
-									<div class="icheck-success d-inline">
-				                        <input type="radio" name="rate[<?php echo $row['id'] ?>]" <?php echo $c == 5 ? "checked" : '' ?> id="qradio<?php echo $row['id'].'_'.$c ?>" value="<?php echo $c ?>">
-				                        <label for="qradio<?php echo $row['id'].'_'.$c ?>">
-				                        </label>
-			                      </div>
-								</td>
-								<?php endfor; ?>
+                                <?php for($c=1;$c<=5;$c++): ?>
+    <td class="text-center">
+        <div class="icheck-success d-inline">
+            <input type="radio" name="rate[<?php echo $row['id'] ?>]" id="qradio<?php echo $row['id'].'_'.$c ?>" value="<?php echo $c ?>">
+            <label for="qradio<?php echo $row['id'].'_'.$c ?>"></label>
+        </div>
+    </td>
+<?php endfor; ?>
+
 							</tr>
 							<?php endwhile; ?>
 						</tbody>
@@ -134,113 +134,165 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
 	</div>
 </div>
 <script>
-	$(document).ready(function(){
-		if('<?php echo $_SESSION['academic']['status'] ?>' == 0){
-			uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>not_started.php")
-		}else if('<?php echo $_SESSION['academic']['status'] ?>' == 2){
-			uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>closed.php")
-		}
-		else if('<?php echo $_SESSION['academic']['status'] ?>' == 2){
-			uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>closed.php")
-		}
-		if(<?php echo empty($rid) ? 1 : 0 ?> == 1)
-			uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>done.php")
-	})
-	$('#manage-evaluation').submit(function(e){
-  e.preventDefault();
-  start_load();
-  var commentText = $('#comment').val().trim();
-
-  $.ajax({
-    url:'ajax.php?action=save_evaluation',
-    method:'POST',
-    data:$(this).serialize(),
-    success:function(resp){
-      if(resp == 1){
-        alert_toast("Data successfully saved.","success");
-        setTimeout(function(){
-          location.reload();
-        },1750);
-      } else {
-        alert_toast("An error occurred.","error");
-      }
-      end_load();
-    }
-  });
-});
-	$('#test-sentiment').click(function(){
-    var commentText = $('#comment').val().trim();
-    if(commentText == ''){
-        alert('Please enter a comment to analyze.');
-        return;
-    }
-    start_load(); // Function to show a loading indicator
-    $.ajax({
-        url: 'ajax.php?action=test_sentiment',
-        method: 'POST',
-        data: {comment: commentText},
-        dataType: 'json',
-        success: function(resp){
-            if(resp && !resp.error){
-                var sentiment = resp.sentiment;
-                var score = resp.score;
-                var subjectivity = resp.subjectivity;
-                var subjectivity_label = resp.subjectivity_label;
-                var resultHtml = '<h4>Sentiment Analysis Result:</h4>';
-                resultHtml += '<p><strong>Sentiment:</strong> '+sentiment+'</p>';
-                resultHtml += '<p><strong>Sentiment Score:</strong> '+score.toFixed(2)+'</p>';
-                resultHtml += '<p><strong>Subjectivity:</strong> '+subjectivity.toFixed(2)+'</p>';
-                resultHtml += '<p><strong>Subjectivity Level:</strong> '+subjectivity_label+'</p>';
-                $('#sentiment-result').html(resultHtml);
-            } else {
-                $('#sentiment-result').html('<p>'+ (resp.error || 'Error in sentiment analysis.1') +'</p>');
-            }
-        },
-        error: function(jqXHR, textStatus, errorThrown){
-            console.log("AJAX Error:", textStatus, errorThrown);
-            console.log("Response Text:", jqXHR.responseText);
-            $('#sentiment-result').html('<p>Error in sentiment analysis.2</p>');
-        },
-        complete: function(){
-            end_load(); // Function to hide the loading indicator
+    $(document).ready(function(){
+        if('<?php echo $_SESSION['academic']['status'] ?>' == 0){
+            uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>not_started.php")
+        }else if('<?php echo $_SESSION['academic']['status'] ?>' == 2){
+            uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>closed.php")
         }
-    });
-});
-
-	// Function to calculate the score
-function calculateScore() {
-    var totalScore = 0;
-    var maxScore = 0;
-
-    // For each question, the maximum score is 5
-    var numQuestions = $('input[name^="rate["][value="5"]').length;
-    maxScore = numQuestions * 5;
-
-    // Sum up the selected ratings
-    $('input[name^="rate["]:checked').each(function(){
-        totalScore += parseInt($(this).val());
+        else if('<?php echo $_SESSION['academic']['status'] ?>' == 2){
+            uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>closed.php")
+        }
+        if(<?php echo empty($rid) ? 1 : 0 ?> == 1)
+            uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>done.php")
     });
 
-    // Calculate percentage
-    var percentage = (totalScore / maxScore) * 100;
+    $('#manage-evaluation').submit(function(e){
+        e.preventDefault();
 
-    // Update the results
-    $('#total-score').text(totalScore);
-    $('#max-score').text(maxScore);
-    $('#percentage-score').text(percentage.toFixed(2));
-}
+        // Collect unique question names
+        var questionNames = $('input[name^="rate["]').map(function() {
+            return $(this).attr('name');
+        }).get();
 
-// Call calculateScore on page load
-$(document).ready(function(){
-    calculateScore();
+        var uniqueQuestionNames = [...new Set(questionNames)];
 
-    // Call calculateScore whenever a radio button is changed
-    $('input[name^="rate["]').change(function(){
+        var allAnswered = true;
+        $.each(uniqueQuestionNames, function(index, name) {
+            if (!$('input[name="'+name+'"]:checked').length) {
+                allAnswered = false;
+                return false; // Break out of the loop
+            }
+        });
+
+        var commentText = $('#comment').val().trim();
+        if (commentText == '') {
+            allAnswered = false;
+        }
+
+        if (!allAnswered) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Incomplete Form',
+                text: 'Please answer all the questions and fill in the comment.',
+            });
+            return false; // Prevent form submission
+        }
+
+        // Proceed with AJAX submission
+        start_load();
+        $.ajax({
+            url:'ajax.php?action=save_evaluation',
+            method:'POST',
+            data:$(this).serialize(),
+            success:function(resp){
+                if(resp == 1){
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Evaluation Submitted',
+                        text: 'Data successfully saved.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(function() {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Submission Failed',
+                        text: 'An error occurred while saving your evaluation.',
+                    });
+                }
+                end_load();
+            }
+        });
+    });
+
+    $('#test-sentiment').click(function(){
+        var commentText = $('#comment').val().trim();
+        if(commentText == ''){
+            Swal.fire({
+                icon: 'info',
+                title: 'No Comment Entered',
+                text: 'Please enter a comment to analyze.',
+            });
+            return;
+        }
+        start_load(); // Function to show a loading indicator
+        $.ajax({
+            url: 'ajax.php?action=test_sentiment',
+            method: 'POST',
+            data: {comment: commentText},
+            dataType: 'json',
+            success: function(resp){
+                if(resp && !resp.error){
+                    var sentiment = resp.sentiment;
+                    var score = resp.score;
+                    var subjectivity = resp.subjectivity;
+                    var subjectivity_label = resp.subjectivity_label;
+                    var resultHtml = '<h4>Sentiment Analysis Result:</h4>';
+                    resultHtml += '<p><strong>Sentiment:</strong> '+sentiment+'</p>';
+                    resultHtml += '<p><strong>Sentiment Score:</strong> '+score.toFixed(2)+'</p>';
+                    resultHtml += '<p><strong>Subjectivity:</strong> '+subjectivity.toFixed(2)+'</p>';
+                    resultHtml += '<p><strong>Subjectivity Level:</strong> '+subjectivity_label+'</p>';
+                    $('#sentiment-result').html(resultHtml);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Analysis Failed',
+                        text: resp.error || 'Error in sentiment analysis.',
+                    });
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                console.log("AJAX Error:", textStatus, errorThrown);
+                console.log("Response Text:", jqXHR.responseText);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Analysis Failed',
+                    text: 'Error in sentiment analysis.',
+                });
+            },
+            complete: function(){
+                end_load(); // Function to hide the loading indicator
+            }
+        });
+    });
+
+    // Function to calculate the score
+    function calculateScore() {
+        var totalScore = 0;
+        var maxScore = 0;
+
+        // For each question, the maximum score is 5
+        var numQuestions = $('input[name^="rate["][value="5"]').length;
+        maxScore = numQuestions * 5;
+
+        // Sum up the selected ratings
+        $('input[name^="rate["]:checked').each(function(){
+            totalScore += parseInt($(this).val());
+        });
+
+        // Calculate percentage
+        var percentage = (totalScore / maxScore) * 100;
+
+        // Update the results
+        $('#total-score').text(totalScore);
+        $('#max-score').text(maxScore);
+        $('#percentage-score').text(percentage.toFixed(2));
+    }
+
+    // Call calculateScore on page load
+    $(document).ready(function(){
         calculateScore();
-    });
-});
 
+        // Call calculateScore whenever a radio button is changed
+        $('input[name^="rate["]').change(function(){
+            calculateScore();
+        });
+    });
 </script>
+
 <?php
 // ... existing PHP code ...
 
