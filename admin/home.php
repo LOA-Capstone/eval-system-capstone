@@ -202,6 +202,9 @@ $astat = array("Not Yet Started","On-going","Closed");
 <h6>
     <b>&nbsp;Evaluation Status:</b>
     <span class="evaluation-status"><?php echo $astat[$_SESSION['academic']['status']]; ?></span>
+    <b>&nbsp;Term:</b>
+    <span class="evaluation-status"><?php echo $_SESSION['academic']['term']; ?></span>
+    
 </h6>
 
         </div>
