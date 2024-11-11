@@ -13,18 +13,22 @@ function ordinal_suffix1($num){
 $astat = array("Not Yet Started","Started","Closed");
 ?>
 
+
 <div class="col-12">
     <div class="card">
       <div class="card-body">
-        Welcome <?php echo $_SESSION['login_name'] ?>!
+        <h4>Welcome <?php echo $_SESSION['login_name']; ?>!</h4>
         <br>
         <div class="col-md-5">
-          <div class="callout callout-info">
-            <h5><b>Academic Year: <?php echo $_SESSION['academic']['year'].' '.(ordinal_suffix1($_SESSION['academic']['semester'])) ?> Semester</b></h5>
-            <h6><b>Evaluation Status: <?php echo $astat[$_SESSION['academic']['status']] ?></b></h6>
-            
-            <h7><b>Term: <?php echo $_SESSION['academic']['term']; ?></b></h7>
-          </div>
+          <?php if (isset($_SESSION['academic'])): ?>
+            <div class="callout callout-info">
+              <h5><b>Academic Year: <?php echo $_SESSION['academic']['year'].' '.ordinal_suffix1($_SESSION['academic']['semester']); ?> Semester</b></h5>
+              <h6><b>Evaluation Status: <?php echo $astat[$_SESSION['academic']['status']]; ?></b></h6>
+              <h6><b>Term: <?php echo $_SESSION['academic']['term']; ?></b></h6>
+            </div>
+          <?php else: ?>
+            <h5>No academic data available.</h5>
+          <?php endif; ?>
         </div>
       </div>
     </div>
