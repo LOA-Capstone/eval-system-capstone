@@ -192,19 +192,12 @@ img#cimg {
 
 /* Icon in submit button */
 .form-submit-btn i {
-    font-size: 18px; /* Larger icon size */
     transition: transform 0.3s ease; /* Smooth transition for icon */
 }
 
 /* Rotate icon on hover */
 .form-submit-btn:hover i {
     transform: rotate(90deg);
-}
-
-/* Single Column Layout */
-.row {
-    display: block;
-    width: 100%;
 }
 
 .col-md-12 {
