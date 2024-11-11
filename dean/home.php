@@ -212,18 +212,26 @@ $total_faculty = $conn->query("SELECT * FROM faculty_list WHERE department_id = 
             <h5>&nbsp;Department: <?php echo $dept_name; ?></h5>
             <br>
             <div class="col-md-5">
-                <h5>
-                    <b>&nbsp;Academic Year:</b>
-                    <span class="academic-year">
-                        <?php echo $_SESSION['academic']['year'] . ' ' . ordinal_suffix1($_SESSION['academic']['semester']); ?>
-                    </span>
-                </h5>
-                <h6>
-                    <b>&nbsp;Evaluation Status:</b>
-                    <span class="evaluation-status">
-                        <?php echo $astat[$_SESSION['academic']['status']]; ?>
-                    </span>
-                </h6>
+                <?php if (isset($_SESSION['academic'])): ?>
+                    <h5>
+                        <b>&nbsp;Academic Year:</b>
+                        <span class="academic-year">
+                            <?php echo $_SESSION['academic']['year'] . ' ' . ordinal_suffix1($_SESSION['academic']['semester']); ?>
+                        </span>
+                    </h5>
+                    <h6>
+                        <b>&nbsp;Evaluation Status:</b>
+                        <span class="evaluation-status">
+                            <?php echo $astat[$_SESSION['academic']['status']]; ?>
+                        </span>
+                        <b>&nbsp;Term:</b>
+                        <span class="evaluation-status">
+                            <?php echo $_SESSION['academic']['term']; ?>
+                        </span>
+                    </h6>
+                <?php else: ?>
+                    <h5>No academic data available.</h5>
+                <?php endif; ?>
             </div>
         </div>
     </div>

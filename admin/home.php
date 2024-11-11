@@ -189,72 +189,85 @@ $astat = array("Not Yet Started","On-going","Closed");
 
 
  </style>
- <div class="col-12">
+
+<div class="col-12">
     <div class="card">
-      <div class="card-body">
-        <h4>&nbsp;Welcome <?php echo $_SESSION['login_name']?>!</h4> 
-        <br>
-        <div class="col-md-5">
-        <h5>
-    <b>&nbsp;Academic Year:</b>
-    <span class="academic-year"><?php echo $_SESSION['academic']['year'] . ' ' . (ordinal_suffix1($_SESSION['academic']['semester'])); ?></span>
-</h5>
-<h6>
-    <b>&nbsp;Evaluation Status:</b>
-    <span class="evaluation-status"><?php echo $astat[$_SESSION['academic']['status']]; ?></span>
-    <b>&nbsp;Term:</b>
-    <span class="evaluation-status"><?php echo $_SESSION['academic']['term']; ?></span>
-    
-</h6>
-
+        <div class="card-body">
+            <h4>&nbsp;Welcome <?php echo $_SESSION['login_name']; ?>!</h4> 
+            <br>
+            <div class="col-md-5">
+                <?php if (isset($_SESSION['academic'])): ?>
+                    <h5>
+                        <b>&nbsp;Academic Year:</b>
+                        <span class="academic-year">
+                            <?php echo $_SESSION['academic']['year'] . ' ' . ordinal_suffix1($_SESSION['academic']['semester']); ?>
+                        </span>
+                    </h5>
+                    <h6>
+                        <b>&nbsp;Evaluation Status:</b>
+                        <span class="evaluation-status">
+                            <?php echo $astat[$_SESSION['academic']['status']]; ?>
+                        </span>
+                        <b>&nbsp;Term:</b>
+                        <span class="evaluation-status">
+                            <?php echo $_SESSION['academic']['term']; ?>
+                        </span>
+                    </h6>
+                <?php else: ?>
+                    <h5>No academic data available.</h5>
+                <?php endif; ?>
+            </div>
         </div>
-      </div>
     </div>
-</div>
-<div class="row">
-  <div class="col-12 col-sm-6 col-md-4">
-    <div class="custom-box">
-      <div class="inner">
-        <h3><?php echo $conn->query("SELECT * FROM faculty_list")->num_rows; ?></h3>
-        <p>Total Faculties</p>
-      </div>
-      <div class="icon">
-        <i class="fa fa-user-friends"></i>
-      </div>
-    </div>
-  </div>
-  <div class="col-12 col-sm-6 col-md-4">
-    <div class="custom-box">
-      <div class="inner">
-        <h3><?php echo $conn->query("SELECT * FROM student_list")->num_rows; ?></h3>
-        <p>Total Students</p>
-      </div>
-      <div class="icon">
-        <i class="fa ion-ios-people-outline"></i>
-      </div>
-    </div>
-  </div>
-  <div class="col-12 col-sm-6 col-md-4">
-    <div class="custom-box">
-      <div class="inner">
-        <h3><?php echo $conn->query("SELECT * FROM users")->num_rows; ?></h3>
-        <p>Total Users</p>
-      </div>
-      <div class="icon">
-        <i class="fa fa-users"></i>
-      </div>
-    </div>
-  </div>
-  <div class="col-12 col-sm-6 col-md-4">
-    <div class="custom-box">
-      <div class="inner">
-        <h3><?php echo $conn->query("SELECT * FROM class_list")->num_rows; ?></h3>
-        <p>Total Classes</p>
-      </div>
-      <div class="icon">
-        <i class="fa fa-list-alt"></i>
-      </div>
-    </div>
-  </div>
 </div>
 
+<div class="row">
+    <!-- Total Faculties -->
+    <div class="col-12 col-sm-6 col-md-4">
+        <div class="custom-box">
+            <div class="inner">
+                <h3><?php echo $conn->query("SELECT COUNT(*) as total FROM faculty_list")->fetch_assoc()['total']; ?></h3>
+                <p>Total Faculties</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-user-friends"></i>
+            </div>
+        </div>
+    </div>
+    <!-- Total Students -->
+    <div class="col-12 col-sm-6 col-md-4">
+        <div class="custom-box">
+            <div class="inner">
+                <h3><?php echo $conn->query("SELECT COUNT(*) as total FROM student_list")->fetch_assoc()['total']; ?></h3>
+                <p>Total Students</p>
+            </div>
+            <div class="icon">
+                <i class="fa ion-ios-people-outline"></i>
+            </div>
+        </div>
+    </div>
+    <!-- Total Users -->
+    <div class="col-12 col-sm-6 col-md-4">
+        <div class="custom-box">
+            <div class="inner">
+                <h3><?php echo $conn->query("SELECT COUNT(*) as total FROM users")->fetch_assoc()['total']; ?></h3>
+                <p>Total Users</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-users"></i>
+            </div>
+        </div>
+    </div>
+    <!-- Total Classes -->
+    <div class="col-12 col-sm-6 col-md-4">
+        <div class="custom-box">
+            <div class="inner">
+                <h3><?php echo $conn->query("SELECT COUNT(*) as total FROM class_list")->fetch_assoc()['total']; ?></h3>
+                <p>Total Classes</p>
+            </div>
+            <div class="icon">
+                <i class="fa fa-list-alt"></i>
+            </div>
+        </div>
+    </div>
+</div>
