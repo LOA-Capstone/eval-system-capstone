@@ -228,8 +228,6 @@
   <span class="edit-tooltip">Delete Class</span>
   <span class="edit-icon"><i class="fas fa-trash"></i></span>
 </button>
-
-
 	                      </div>
 						</td>
 					</tr>	

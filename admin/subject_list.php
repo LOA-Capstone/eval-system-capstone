@@ -166,6 +166,7 @@
   color: black; 
 }
 
+
 </style>
 <div class="col-lg-12">
 	<div class="card card-outline card-primary">
