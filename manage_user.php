@@ -9,158 +9,240 @@ if(isset($_GET['id'])){
     }
 }
 ?>
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 <div class="container-fluid">
-    <div class="form-container">
-        <div id="msg"></div>
+    <div id="msg"></div>
+    <form action="" id="manage-user">    
+        <input type="hidden" name="id" value="<?php echo isset($meta['id']) ? $meta['id'] : '' ?>">
 
-        <form action="" id="manage-user">    
-            <input type="hidden" name="id" value="<?php echo isset($meta['id']) ? $meta['id'] : '' ?>">
+        <div class="row">
+            <!-- Single Column -->
+            <div class="col-md-12">
+                <div class="form-group">
+                    <label for="firstname">First Name</label>
+                    <input type="text" name="firstname" id="firstname" class="form-control" value="<?php echo isset($meta['firstname']) ? $meta['firstname'] : '' ?>" required>
+                </div>
 
-            <div class="form-group">
-                <label for="firstname">First Name</label>
-                <input type="text" name="firstname" id="firstname" class="form-control" value="<?php echo isset($meta['firstname']) ? $meta['firstname'] : '' ?>" required>
-            </div>
+                <div class="form-group">
+                    <label for="lastname">Last Name</label>
+                    <input type="text" name="lastname" id="lastname" class="form-control" value="<?php echo isset($meta['lastname']) ? $meta['lastname'] : '' ?>" required>
+                </div>
 
-            <div class="form-group">
-                <label for="lastname">Last Name</label>
-                <input type="text" name="lastname" id="lastname" class="form-control" value="<?php echo isset($meta['lastname']) ? $meta['lastname'] : '' ?>" required>
-            </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="text" name="email" id="email" class="form-control" value="<?php echo isset($meta['email']) ? $meta['email'] : '' ?>" required autocomplete="off">
+                </div>
 
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="text" name="email" id="email" class="form-control" value="<?php echo isset($meta['email']) ? $meta['email'] : '' ?>" required autocomplete="off">
-            </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-group">
+                        <input type="password" name="password" id="password" class="form-control" value="" autocomplete="off">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <small><i>Leave this blank if you don't want to change the password.</i></small>
+                </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" name="password" id="password" class="form-control" value="" autocomplete="off">
-                <small><i>Leave this blank if you don't want to change the password.</i></small>
-            </div>
+                <div class="form-group">
+                    <label for="confirmpassword">Confirm Password</label>
+                    <div class="input-group">
+                        <input type="password" name="confirmpassword" id="confirmpassword" class="form-control" value="" autocomplete="off">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-outline-secondary" id="toggleConfirmPassword">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <small><i>Enter the same password to confirm.</i></small>
+                </div>
 
-            <div class="form-group">
-                <label for="customFile" class="control-label">Avatar</label>
-                <div class="custom-file">
-                    <input type="file" class="custom-file-input rounded-circle" id="customFile" name="img" onchange="displayImg(this,$(this))">
-                    <label class="custom-file-label" for="customFile">Choose file</label>
+                <div class="form-group">
+                    <label for="customFile" class="control-label">Avatar</label>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input rounded-circle" id="customFile" name="img" onchange="displayImg(this,$(this))">
+                        <label class="custom-file-label" for="customFile">Choose file</label>
+                    </div>
+                </div>
+
+                <div class="form-group d-flex justify-content-center">
+                    <img src="<?php echo isset($meta['avatar']) ? 'assets/uploads/' . $meta['avatar'] : '' ?>" alt="" id="cimg" class="img-fluid img-thumbnail">
+                </div>
+
+                <div class="form-group d-flex justify-content-center">
+                    <button type="submit" class="form-submit-btn">Submit</button>
                 </div>
             </div>
-
-            <div class="form-group d-flex justify-content-center">
-                <img src="<?php echo isset($meta['avatar']) ? 'assets/uploads/' . $meta['avatar'] : '' ?>" alt="" id="cimg" class="img-fluid img-thumbnail">
-            </div>
-
-            <div class="form-group d-flex justify-content-center">
-                <button type="submit" class="form-submit-btn">Submit</button>
-            </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 
 <style>
-    img#cimg {
-        height: 15vh;
-        width: 15vh;
-        object-fit: cover;
-        border-radius: 100% 100%;
-        margin-left: 35%;
-    }
+/* Image style (if needed) */
+img#cimg {
+    height: 15vh;
+    width: 15vh;
+    object-fit: cover;
+    border-radius: 100%;
+    margin-left: 30%;
+}
 
-    .form-container {
-        max-width: auto;
-        max-height: 700px;
-        background-color: #fff;
-        font-size: 14px;
-        font-family: inherit;
-        color: #212121;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
+.container-fuild{
+    padding: 0px;
+}
+/* Form group container */
+.form-group {
+    background: #1C204B;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    position: relative;
+    border-radius: 25px;
+}
 
-    .form-container button:active {
-        scale: 0.95;
-    }
+/* Label container styling */
+.form-group .label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    height: fit-content;
+    position: relative;
+}
 
-    .form-container .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
+/* Title inside the label */
+.form-group .label .title {
+    padding: 0px;
+    transition: all 300ms;
+    font-size: 20px;
+    color: white;
+    font-weight: 700;
+    width: fit-content;
+    top: 17px;
+    position: relative;
+    left: 15px;
+    background: #1C204B;
+}
 
-    .form-container .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        color: #313131;
-        transition: color 0.2s ease, transform 0.2s ease;
-    }
+/* Input field inside the form-group */
+.form-group .input-field {
+    width: 100%;
+    height: 50px;
+    border-radius: 15px;
+    outline: none;
+    background-color: transparent;
+    border: 1px solid white;
+    transition: all 0.3s;
+    caret-color: #d17842;
+    color: white;
+}
 
-    .form-container .form-group input {
-        width: 100%;
-        padding: 12px 16px;
-        border-radius: 6px;
-        font-family: inherit;
-        border: 1px solid #ccc;
-        transition: border-color 0.2s ease;
-    }
+/* Hover effect for input field */
+.form-group .input-field:hover {
+    border-color: yellow;
+}
 
-    .form-container .form-group input::placeholder {
-        opacity: 0.5;
-    }
+/* Focus effect for input field */
+.form-group .input-field:focus {
+    border-color: yellow;
+}
 
-    .form-container .form-group input:focus {
-        outline: none;
-        border-color: #1778f2;
-    }
 
-    .form-container .form-group input:focus + label {
-        color: #1778f2;
-        transform: scale(1.05);
-    }
+/* Label moves when input or textarea is filled, focused or has content */
+.form-group .label.filled .title,
+.form-group .label:has(input:focus) .title {
+    top: -10px;
+    color: yellow;
+}
 
-    .form-container .form-group:focus-within label {
-        color: #1778f2;
-        transform: scale(1.05);
-    }
+/* Submit button styling */
+.form-submit-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: inherit;
+    color: #fff;
+    background-color: #1778f2;
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    gap: 8px;
+    cursor: pointer;
+    border-radius: 50px; /* Rounded corners */
+    border: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Smooth transition */
+}
 
-    .form-container .form-submit-btn {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-family: inherit;
-        color: #fff;
-        background-color: #1778f2;
-        width: 100%;
-        padding: 12px 16px;
-        font-size: inherit;
-        gap: 8px;
-        margin: 12px 0;
-        cursor: pointer;
-        border-radius: 6px;
-        border: none;
-    }
+/* Hover effect for submit button */
+.form-submit-btn:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+    transform: translateY(-3px); /* Slightly raise on hover */
+}
 
-    .form-container .form-submit-btn:hover {
-        background-color: #1778f2;
-    }
+/* Active effect for submit button */
+.form-submit-btn:active {
+    background-color: #004085; /* Even darker on click */
+    transform: translateY(1px); /* Slightly lower on click */
+}
 
-    .form-container .form-submit-btn:focus {
-        outline: none;
-    }
+/* Icon in submit button */
+.form-submit-btn i {
+    font-size: 18px; /* Larger icon size */
+    transition: transform 0.3s ease; /* Smooth transition for icon */
+}
+
+/* Rotate icon on hover */
+.form-submit-btn:hover i {
+    transform: rotate(90deg);
+}
+
+/* Single Column Layout */
+.row {
+    display: block;
+    width: 100%;
+}
+
+.col-md-12 {
+    flex: 1 1 100%;
+    padding: 10px;
+}
+
+
 </style>
 
 <script>
-    function displayImg(input, _this) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                $('#cimg').attr('src', e.target.result);
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
+    // Toggle password visibility
+    $('#togglePassword').click(function() {
+        var passwordField = $('#password');
+        var type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+        passwordField.attr('type', type);
+        $(this).children('i').toggleClass('fa-eye fa-eye-slash');
+    });
+
+    $('#toggleConfirmPassword').click(function() {
+        var confirmPasswordField = $('#confirmpassword');
+        var type = confirmPasswordField.attr('type') === 'password' ? 'text' : 'password';
+        confirmPasswordField.attr('type', type);
+        $(this).children('i').toggleClass('fa-eye fa-eye-slash');
+    });
+
+    // Form submission with password validation
     $('#manage-user').submit(function(e) {
         e.preventDefault();
-        start_load()
+        var password = $('#password').val();
+        var confirmPassword = $('#confirmpassword').val();
+
+        if (password !== confirmPassword) {
+            alert("PASSWORD NOT THE SAME");
+            return false;
+        }
+
+        start_load();
         $.ajax({
             url: 'ajax.php?action=update_user',
             data: new FormData($(this)[0]),
@@ -171,15 +253,15 @@ if(isset($_GET['id'])){
             type: 'POST',
             success: function(resp) {
                 if (resp == 1) {
-                    alert_toast("Data successfully saved", 'success')
+                    alert_toast("Data successfully saved", 'success');
                     setTimeout(function() {
-                        location.reload()
-                    }, 1500)
+                        location.reload();
+                    }, 1500);
                 } else {
-                    $('#msg').html('<div class="alert alert-danger">Username already exist</div>')
-                    end_load()
+                    $('#msg').html('<div class="alert alert-danger">Username already exists</div>');
+                    end_load();
                 }
             }
-        })
-    })
+        });
+    });
 </script>

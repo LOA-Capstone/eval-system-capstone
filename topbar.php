@@ -186,6 +186,42 @@
     left: -4.5em;
   }
 }
+
+  .dropdown-menu {
+    background-color: #B1E4FF;
+    border: 1px solid #1C204B;
+    border-radius: 10px;
+    width: auto;
+    padding: 0px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    color: #1C204B;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .dropdown-item:hover {
+    background-color: #1C204B;
+    color: #fff;
+  }
+
+  .dropdown-item i {
+    margin-right: 10px;
+    color: #1C204B;
+    transition: color 0.3s ease;
+  }
+
+  .dropdown-item:hover i {
+    color: #fff;
+  }
   </style>
 <!-- Navbar -->
   <nav class="main-header navbar navbar-expand ">
@@ -216,8 +252,6 @@
     <span class="fa fa-angle-down"></span>
   </span>
 </a>
-
-
             <div class="dropdown-menu" aria-labelledby="account_settings" style="left: -2.5em;">
               <a class="dropdown-item" href="javascript:void(0)" id="manage_account"><i class="fa fa-cog"></i>&nbsp; Manage Account</a>
               <a class="dropdown-item" href="ajax.php?action=logout"><i class="fa fa-power-off"></i>&nbsp; Logout</a>

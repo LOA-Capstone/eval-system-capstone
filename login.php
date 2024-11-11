@@ -46,17 +46,17 @@ if (isset($_SESSION['login_id']))
           <div class="input-group mb-3">
             <input type="email" name="email" required placeholder="">
             <label for="email">Email</label>
-            <div class="input-iconies">
+            <div class="input-iconiess">
               <span class="fas fa-envelope input-icon"></span>
             </div>
           </div>
           <div class="input-group mb-3">
-            <input type="password" name="password" required placeholder="">
-            <label for="password">Password</label>
-            <div class="input-iconies">
-              <span class="fas fa-lock input-icon"></span>
-            </div>
-          </div>
+  <input type="password" id="password" name="password" required placeholder="">
+  <label for="password">Password</label>
+  <div class="input-iconies">
+    <i class="fa-solid fa-eye" id="toggle-password"></i>
+  </div>
+</div>
 
           <!-- Select dropdown -->
           <div class="select">
@@ -147,6 +147,15 @@ if (isset($_SESSION['login_id']))
           document.querySelector('.selected').textContent = selectedText;
           document.querySelector('.options').style.display = 'none';
         });
+      });
+    });
+    
+    $(document).ready(function() {
+      $('#toggle-password').click(function() {
+        const passwordField = $('#password');
+        const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+        passwordField.attr('type', type);
+        $(this).toggleClass('fa-eye fa-eye-slash');
       });
     });
   </script>
