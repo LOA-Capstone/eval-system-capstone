@@ -465,7 +465,7 @@ function ordinal_suffix($num)
                                     intersect: false
                                 },
                                 responsive: true,
-                                maintainAspectRatio: false
+                                maintainAspectRatio: true
                             }
                         });
                     }
@@ -525,16 +525,24 @@ function ordinal_suffix($num)
 
 <style>
     #comments-section {
-    margin-top: 20px;
+        margin-top: 20px;
+    }
+    .comment-item {
+        border-bottom: 1px solid #ccc;
+        padding: 10px 0;
+    }
+    .comment-item:last-child {
+        border-bottom: none;
+    }
+
+	#sentimentChartContainer {
+    max-width: 800px; /* Adjust this value as needed */
+    margin: 0 auto;
 }
 
-.comment-item {
-    border-bottom: 1px solid #ccc;
-    padding: 10px 0;
-}
-
-.comment-item:last-child {
-    border-bottom: none;
+#sentimentChart {
+    width: 100% !important;
+    height: auto !important;
 }
 
 </style>
