@@ -5,7 +5,7 @@ if (session_status() == PHP_SESSION_NONE) {
 }
 
 // Include the database connection
-include $_SERVER['DOCUMENT_ROOT'] . '/eval/db_connect.php';
+include $_SERVER['DOCUMENT_ROOT'] . '/eval-system-capstone/db_connect.php';
 
 // Rest of your code...
 
@@ -548,21 +548,61 @@ function load_report(faculty_id, subject_id, class_id) {
     });
 }
 
-	$('#print-btn').click(function() {
-		start_load()
-		var ns = $('noscript').clone()
-		var content = $('#printable').html()
-		ns.append(content)
-		var nw = window.open("Report", "_blank", "width=900,height=700")
-		nw.document.write(ns.html())
-		nw.document.close()
-		nw.print()
-		setTimeout(function() {
-			nw.close()
-			end_load()
-		}, 750)
-	})
+$('#print-btn').click(function() {
+    start_load();
 
+    // Capture the chart images as base64
+    var charts = document.querySelectorAll('canvas');
+    var totalCharts = charts.length;
+    var chartsProcessed = 0;
+    var chartImages = [];
+
+    // Loop through each chart and convert it to an image (base64)
+    charts.forEach(function(chart, index) {
+        var img = new Image();
+        img.src = chart.toDataURL(); // Convert canvas to base64 image
+        img.onload = function() {
+            // Store the image in chartImages array
+            chartImages.push(img);
+
+            // Once all charts are processed, proceed with printing
+            chartsProcessed++;
+            if (chartsProcessed === totalCharts) {
+                // Proceed to generate printable content
+                generatePrintableContent(chartImages);
+            }
+        };
+    });
+
+    function generatePrintableContent(chartImages) {
+        // Clone the printable content and replace canvas elements with images
+        var ns = $('noscript').clone();
+        var content = $('#printable').html();
+
+        // Find all canvas elements and replace them with the corresponding images
+        var canvases = document.querySelectorAll('canvas');
+
+        canvases.forEach(function(canvas, index) {
+            // Generate the <img> tag to replace each <canvas>
+            var imgTag = `<img src="${chartImages[index].src}" alt="Chart ${index + 1}" style="display:block; max-width:100%; height:auto;">`;
+            content = content.replace(canvas.outerHTML, imgTag);  // Replace canvas with corresponding image
+        });
+
+        // Create a new window for printing
+        var nw = window.open("Report", "_blank", "width=900,height=700");
+        nw.document.write(content);
+        nw.document.close();
+
+        // Wait for the document to be fully loaded before printing
+        setTimeout(function() {
+            nw.print();
+            setTimeout(function() {
+                nw.close();
+                end_load();
+            }, 750);
+        }, 500);
+    }
+});
 	function display_comments(comments) {
     // Remove existing comments section if it exists
     $('#comments-section').remove();
