@@ -200,6 +200,7 @@
     margin-bottom: 0;
     height: auto;
     min-height: 896px !important;
+    margin: 0;
   }
 
   .main-footer {

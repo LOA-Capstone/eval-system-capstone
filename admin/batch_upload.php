@@ -122,10 +122,9 @@ if (!empty($uniqueRows)) {
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f9;
-            padding: 40px;
         }
         .container {
-            max-width: 900px;
+            max-width: auto;
             margin: auto;
             background: #fff;
             padding: 40px;
@@ -137,6 +136,84 @@ if (!empty($uniqueRows)) {
             color: #333;
             margin-bottom: 20px;
         }
+        .csv-upload-form {
+  background-color: #fff;
+  box-shadow: 0 10px 60px rgb(218, 229, 255);
+  border: 1px solid blue;
+  border-radius: 20px;
+  padding: 2rem .7rem .7rem .7rem;
+  text-align: center;
+  font-size: 1.125rem;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.form-title {
+  color: #000000;
+  font-size: 1.8rem;
+  font-weight: 500;
+}
+
+.form-paragraph {
+  margin-top: 10px;
+  font-size: 0.9375rem;
+  color: rgb(105, 105, 105);
+}
+
+.drop-container {
+  background-color: #fff;
+  position: relative;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  margin-top: 2.1875rem;
+  border-radius: 10px;
+  border: 2px dashed rgb(171, 202, 255);
+  color: #444;
+  cursor: pointer;
+  transition: background .2s ease-in-out, border .2s ease-in-out;
+}
+
+.drop-container:hover {
+  background: rgba(0, 140, 255, 0.164);
+  border-color: rgba(17, 17, 17, 0.616);
+}
+
+.drop-container:hover .drop-title {
+  color: #222;
+}
+
+.drop-title {
+  color: #444;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  transition: color .2s ease-in-out;
+}
+
+#csv-file {
+  display: none;
+}
+
+.submit-btns {
+  background: #1C204B !important;
+  border: none;
+  padding: 10px 20px;
+  color: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 1rem;
+  width: 100%;
+  font-size: 1rem;
+  transition: background .2s ease-in-out;
+}
+
+.submit-btns:hover {
+    background: #3C437A !important;
+}
         form {
             margin-bottom: 30px;
             text-align: center;
@@ -217,13 +294,20 @@ button:focus {
     </style>
 </head>
 <body>
-<div class="container">
-    <h2>Data Upload System</h2>
 
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="csv_file" accept=".csv" required>
-        <input type="submit" value="Upload CSV">
-    </form>
+    <form class="csv-upload-form" method="POST" enctype="multipart/form-data">
+  <span class="form-title">UPLOAD DATA SYSTEM</span>
+  <p class="form-paragraph">
+    Please select a CSV file to upload
+  </p>
+  <label for="csv-file" class="drop-container">
+    <span class="drop-title">Drop CSV file here</span>
+    or
+    <input type="file" name="csv_file" accept=".csv" required id="csv-file">
+  </label>
+  <input type="submit" value="Upload CSV" class="submit-btns">
+</form>
+
 
     <?php if ($message): ?>
         <?php echo $message; ?>
@@ -269,6 +353,5 @@ button:focus {
             <?php endforeach; ?>
         </table>
     <?php endif; ?>
-</div>
 </body>
 </html>
