@@ -1,5 +1,7 @@
-<?php include'db_connect.php' ?>
+<?php include 'db_connect.php'; ?>
+
 <style>
+  /* Button base style */
   .btn.new_subject {
     display: inline-flex;
     align-items: center;
@@ -50,238 +52,295 @@
   .btn.new_subject:active {
     transform: scale(1); /* Reset size on click */
   }
-.col-lg-12{
-	background:
-}
 
-.btn.manage_subject, .btn.delete_subject {
-  position: relative;
-  background: rgb(177, 228, 255);
-  color: #000;
-  padding: 15px;
-  margin: 0;
-  border-radius: 10px;
-  width: 40px;
-  height: 40px;
-  font-size: 17px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
+  /* General button styles */
+  .btn.manage_subject, .btn.delete_subject {
+    position: relative;
+    background: rgb(177, 228, 255);
+    color: #000;
+    padding: 15px;
+    margin: 0;
+    border-radius: 10px;
+    width: 40px;
+    height: 40px;
+    font-size: 17px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
 
-.edit-tooltip {
-  position: absolute;
-  top: 0px;
-  font-size: 14px;
-  background: #ffffff;
-  color: #ffffff;
-  padding: 5px 8px;
-  border-radius: 5px;
-  box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  width: 150px;
-}
+  /* Tooltip styles */
+  .edit-tooltip {
+    position: absolute;
+    top: 0px;
+    font-size: 14px;
+    background: #ffffff;
+    color: #333; /* Changed to dark color for visibility */
+    padding: 5px 8px;
+    border-radius: 5px;
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    width: 150px;
+  }
 
-.edit-tooltip::before {
-  position: absolute;
-  content: "";
-  height: 8px;
-  width: 8px;
-  background: #ffffff;
-  bottom: -3px;
-  left: 50%;
-  transform: translate(-50%) rotate(45deg);
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
+  /* Tooltip arrow */
+  .edit-tooltip::before {
+    position: absolute;
+    content: "";
+    height: 8px;
+    width: 8px;
+    background: #ffffff;
+    bottom: -3px;
+    left: 50%;
+    transform: translate(-50%) rotate(45deg);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
 
-.btn.manage_subject:hover .edit-tooltip,
-.btn.delete_subject:hover .edit-tooltip {
-  top: -45px;
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
+  /* Tooltip show effect */
+  .btn.manage_subject:hover .edit-tooltip,
+  .btn.delete_subject:hover .edit-tooltip {
+    top: -45px;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
 
-.edit-icon {
-  font-size: 20px;
-}
+  /* Icon size */
+  .edit-icon {
+    font-size: 20px;
+  }
 
-.btn.manage_subject:hover,
-.btn.manage_subject:hover .edit-tooltip,
-.btn.manage_subject:hover .edit-tooltip::before {
-  background: linear-gradient(320deg, rgb(3, 77, 146), rgb(0, 60, 255));
-  color: #ffffff;
-}
+  /* Button hover effects for manage_subject */
+  .btn.manage_subject:hover,
+  .btn.manage_subject:hover .edit-tooltip,
+  .btn.manage_subject:hover .edit-tooltip::before {
+    background: linear-gradient(320deg, rgb(3, 77, 146), rgb(0, 60, 255));
+    color: #ffffff;
+  }
 
-.btn.delete_subject:hover,
-.btn.delete_subject:hover .edit-tooltip,
-.btn.delete_subject:hover .edit-tooltip::before {
-  background: linear-gradient(320deg, rgb(246, 68, 68), rgb(255, 0, 0));
-  color: #ffffff;
-}
+  /* Button hover effects for delete_subject */
+  .btn.delete_subject:hover,
+  .btn.delete_subject:hover .edit-tooltip,
+  .btn.delete_subject:hover .edit-tooltip::before {
+    background: linear-gradient(320deg, rgb(246, 68, 68), rgb(255, 0, 0));
+    color: #ffffff;
+  }
 
+  /* Custom popup design */
+  .custom-popup {
+    font-size: 1.1rem;
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  }
 
-.custom-popup {
-  font-size: 1.1rem;
-  border-radius: 10px;
-  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-}
+  /* Custom title style */
+  .custom-title {
+    color: #d32f2f;
+    font-family: 'Arial', sans-serif;
+  }
 
-.custom-title {
-  color: #d32f2f;
-  font-family: 'Arial', sans-serif;
-}
+  /* Custom cancel button style */
+  .custom-cancel-btn {
+    background-color: gray !important;
+    color: #fff !important;
+    padding: 10px 20px;
+    border-radius: 5px;
+  }
 
+  .custom-cancel-btn:hover {
+    background-color: #c0c0c0;
+  }
 
-.custom-confirm-btn {
-  background-color: darkred !important; 
-  color: #fff !important;
-  font-weight: bold;
-  padding: 10px 20px;
-  border-radius: 5px;
-}
+  /* Custom confirm button style */
+  .custom-confirm-btn {
+    background-color: darkred !important; 
+    color: #fff !important;
+    font-weight: bold;
+    padding: 10px 20px;
+    border-radius: 5px;
+  }
 
-.custom-cancel-btn {
-  background-color: gray !important;
-  color: #fff !important;
-  padding: 10px 20px;
-  border-radius: 5px;
-}
+  .custom-confirm-btn:hover {
+    background-color: #991b1b;
+  }
 
-.custom-popup .custom-content {
+  /* Custom icon style */
+  .custom-icon {
+    background-color: #fee2e2;
+    color: #dc2626;
+  }
+
+  /* Custom content style */
+  .custom-content {
     color: black;
-}
+  }
 
-.custom-popup .swal2-warning {
-    color: #8B0000; /* Dark red */
-}
+  /* Additional CSS to ensure counter is visible */
+  .counter {
+    color: black; /* Ensures text color is black */
+  }
 
-.custom-content {
-  color: black; 
-}
+  /* Correct tooltip text color */
+  .edit-tooltip {
+    color: #333; /* Change tooltip text color to dark for visibility */
+    background: #fff; /* Ensure background is white for contrast */
+  }
 
-
+  /* Correcting incomplete CSS declaration */
+  .col-lg-12 {
+    /* Removed incomplete background property */
+    /* Add any desired background properties here */
+  }
 </style>
+
+<!-- Subject Listing Table -->
 <div class="col-lg-12">
-	<div class="card card-outline card-primary">
-		<div class="card-header">
-			<div class="card-tools">
-			<a class="btn new_subject" href="javascript:void(0)">
-  <i class="fa fa-plus"></i>
-  <span class="text">Add New</span>
-</a>
-			</div>
-		</div>
-		<div class="card-body">
-    <table class="table tabe-hover table-bordered" id="list">
-      <colgroup>
-        <col width="5%">
-        <col width="15%">
-        <col width="30%">
-        <col width="40%">
-        <col width="15%">
-      </colgroup>
-      <thead>
-        <tr>
-          <th class="text-center">#</th>
-          <th>Code</th>
-          <th>Subject</th>
-          <th>Description</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php
-        $i = 1;
-        $qry = $conn->query("SELECT * FROM subject_list order by subject asc ");
-        while($row= $qry->fetch_assoc()):
-        ?>
-        <tr>
-          <th class="text-center"><?php echo $i++ ?></th>
-          <td><b><?php echo $row['code'] ?></b></td>
-          <td><b><?php echo $row['subject'] ?></b></td>
-          <td><b><?php echo $row['description'] ?></b></td>
-          <td class="text-center">
-            <div class="btn-group">
-            <a href="javascript:void(0)" data-id='<?php echo $row['id'] ?>' class="btn manage_subject">
-  <span class="edit-tooltip">Edit Subject</span>
-  <span class="edit-icon"><i class="fas fa-edit"></i></span>
-</a>
-<button type="button" class="btn delete_subject" data-id="<?php echo $row['id'] ?>">
-  <span class="edit-tooltip">Delete Subject</span>
-  <span class="edit-icon"><i class="fas fa-trash"></i></span>
-</button>
-
-            </div>
-          </td>
-        </tr>  
-        <?php endwhile; ?>
-      </tbody>
-    </table>
-  </div>	
-	</div>
+  <div class="card card-outline card-primary">
+    <div class="card-header">
+      <div class="card-tools">
+        <a class="btn new_subject" href="javascript:void(0)">
+          <i class="fa fa-plus"></i>
+          <span class="text">Add New</span>
+        </a>
+      </div>
+    </div>
+    <div class="card-body">
+      <!-- Corrected class name from 'tabe-hover' to 'table-hover' -->
+      <table class="table table-hover table-bordered" id="list">
+        <colgroup>
+          <col width="5%">
+          <col width="15%">
+          <col width="30%">
+          <col width="40%">
+          <col width="15%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="text-center">#</th>
+            <th>Code</th>
+            <th>Subject</th>
+            <th>Description</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php
+          $i = 1;
+          // Fetch subjects ordered by subject name
+          $qry = $conn->query("SELECT * FROM subject_list ORDER BY subject ASC");
+          while($row = $qry->fetch_assoc()):
+          ?>
+          <tr>
+            <!-- Changed from <th> to <td> and applied 'counter' class for styling -->
+            <td class="text-center counter"><?php echo $i++; ?></td>
+            <td><b><?php echo htmlspecialchars($row['code']); ?></b></td>
+            <td><b><?php echo htmlspecialchars($row['subject']); ?></b></td>
+            <td><b><?php echo htmlspecialchars($row['description']); ?></b></td>
+            <td class="text-center">
+              <div class="btn-group">
+                <a href="javascript:void(0)" data-id="<?php echo $row['id']; ?>" class="btn manage_subject">
+                  <span class="edit-tooltip">Edit Subject</span>
+                  <span class="edit-icon"><i class="fas fa-edit"></i></span>
+                </a>
+                <button type="button" class="btn delete_subject" data-id="<?php echo $row['id']; ?>">
+                  <span class="edit-tooltip">Delete Subject</span>
+                  <span class="edit-icon"><i class="fas fa-trash"></i></span>
+                </button>
+              </div>
+            </td>
+          </tr>  
+          <?php endwhile; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
-<script>
-	$(document).ready(function(){
-		$('.new_subject').click(function(){
-			uni_modal("New subject","<?php echo $_SESSION['login_view_folder'] ?>manage_subject.php")
-		})
-		$('.manage_subject').click(function(){
-			uni_modal("Manage subject","<?php echo $_SESSION['login_view_folder'] ?>manage_subject.php?id="+$(this).attr('data-id'))
-		})
-    $('.delete_subject').click(function(){
-  const subjectId = $(this).attr('data-id');
 
-  Swal.fire({
-    title: 'DELETE SUBJECT',
-    text: "Are you sure to delete this subject?",
-    icon: 'error',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Delete',
-    cancelButtonText: 'Cancel',
-    background: '#f2f2f2',
-    color: '#333',
-    padding: '1.5em',
-    width: '400px',
-    customClass: {
-      popup: 'custom-popup',
-      title: 'custom-title',
-      cancelButton: 'custom-cancel-btn',
-      confirmButton: 'custom-confirm-btn',
-      icon: 'custom-icon' ,
-      content: 'custom-content'
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      delete_subject(subjectId); 
+<script>
+  $(document).ready(function(){
+    // Initialize DataTables with correct method name and proper capitalization
+    $('#list').DataTable();
+
+    // New subject click handler
+    $('.new_subject').click(function(){
+      uni_modal("New Subject", "<?php echo $_SESSION['login_view_folder']; ?>manage_subject.php");
+    });
+
+    // Manage subject click handler
+    $('.manage_subject').click(function(){
+      var subjectId = $(this).data('id');
+      uni_modal("Manage Subject", "<?php echo $_SESSION['login_view_folder']; ?>manage_subject.php?id=" + subjectId);
+    });
+
+    // Delete subject click handler
+    $('.delete_subject').click(function() {
+      var subjectId = $(this).data('id');
+
+      Swal.fire({
+        title: 'DELETE SUBJECT',
+        text: "Are you sure to delete this subject?",
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626', // Red color for delete
+        cancelButtonColor: '#6c757d', // Gray color for cancel
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel',
+        background: '#f2f2f2',
+        color: '#333',
+        padding: '1.5em',
+        width: '400px',
+        customClass: {
+          popup: 'custom-popup',
+          title: 'custom-title',
+          cancelButton: 'custom-cancel-btn',
+          confirmButton: 'custom-confirm-btn',
+          icon: 'custom-icon',
+          content: 'custom-content'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          delete_subject(subjectId); 
+        }
+      });
+    });
+
+    // Function to delete the subject
+    function delete_subject(id) {
+      start_load();
+      $.ajax({
+        url: 'ajax.php?action=delete_subject',
+        method: 'POST',
+        data: {id: id},
+        success: function(resp) {
+          if (resp == 1) {
+            alert_toast("Data successfully deleted", 'success');
+            setTimeout(function() {
+              location.reload();
+            }, 1500);
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Deletion Failed',
+              text: 'An error occurred while deleting the subject.',
+            });
+            end_load();
+          }
+        },
+        error: function(){
+          Swal.fire({
+            icon: 'error',
+            title: 'AJAX Error',
+            text: 'Failed to communicate with the server.',
+          });
+          end_load();
+        }
+      });
     }
   });
-});
-		$('#list').dataTable()
-	})
-	function delete_subject($id){
-		start_load()
-		$.ajax({
-			url:'ajax.php?action=delete_subject',
-			method:'POST',
-			data:{id:$id},
-			success:function(resp){
-				if(resp==1){
-					alert_toast("Data successfully deleted",'success')
-					setTimeout(function(){
-						location.reload()
-					},1500)
-
-				}
-			}
-		})
-	}
 </script>
