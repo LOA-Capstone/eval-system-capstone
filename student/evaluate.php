@@ -103,7 +103,8 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
 					 <!-- Comment Textarea -->
 					 <div class="form-group">
     <label for="comment">Comments:</label>
-    <textarea name="comment" id="comment" class="form-control" placeholder="Enter your comments here..."></textarea>
+    <textarea name="comment" id="comment" class="form-control" placeholder="Enter your comments here..." maxlength="255"></textarea>
+    <small id="charCount" class="form-text text-muted">255 characters remaining</small>
 </div>
 					</form>
 					<div class="form-group">
@@ -291,6 +292,20 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
             calculateScore();
         });
     });
+
+    $(document).ready(function(){
+        // Existing code...
+
+        // Initialize character count
+        var maxChars = 255;
+        $('#charCount').text(maxChars + ' characters remaining');
+
+        $('#comment').on('input', function(){
+            var charsUsed = $(this).val().length;
+            var charsLeft = maxChars - charsUsed;
+            $('#charCount').text(charsLeft + ' characters remaining');
+        });
+    });
 </script>
 
 <?php
@@ -332,4 +347,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
     exit;
 }
 // ... rest of your PHP code ...
+
+
 ?>
