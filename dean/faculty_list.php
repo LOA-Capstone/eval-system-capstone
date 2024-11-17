@@ -5,11 +5,7 @@ $department_id = $_SESSION['login_department_id']; // Get Dean's department ID
 
 <div class="col-lg-12">
     <div class="card card-outline card-success">
-        <div class="card-header">
-            <div class="card-tools">
-                <a class="btn btn-block btn-sm btn-default btn-flat border-primary" href="./index.php?page=new_faculty"><i class="fa fa-plus"></i> Add New Teacher</a>
-            </div>
-        </div>
+
         <div class="card-body">
             <table class="table tabe-hover table-bordered" id="list">
                 <thead>
