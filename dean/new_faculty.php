@@ -1,6 +1,11 @@
 <?php
 // ... existing code ...
-
+// Check if user is a dean and is not editing an existing faculty
+if ($_SESSION['login_type'] == 2 && !isset($_GET['id'])) {
+    // User is a dean trying to add a new faculty, redirect or show error message
+    echo "<h4>You do not have permission to add new faculties.</h4>";
+    exit;
+}
 $department_id = $_SESSION['login_department_id']; // Get Dean's department ID
 ?>
 <div class="col-lg-12">

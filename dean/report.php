@@ -4,8 +4,6 @@ if (session_status() == PHP_SESSION_NONE) {
 	session_start();
 }
 
-// Include the database connection
-include $_SERVER['DOCUMENT_ROOT'] . '/eval-system-capstone/db_connect.php';
 
 // Rest of your code...
 
