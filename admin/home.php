@@ -210,7 +210,7 @@ $astat = array("Not Yet Started","On-going","Closed");
                         </span>
                         <b>&nbsp;Term:</b>
                         <span class="evaluation-status">
-                            <?php echo $_SESSION['academic']['term']; ?>
+                            <?php echo $_SESSION['academic']['term'] = $_SESSION['academic']['term'] ?? 'Not Set'; ?>
                         </span>
                     </h6>
                 <?php else: ?>
