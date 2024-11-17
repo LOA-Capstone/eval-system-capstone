@@ -154,6 +154,12 @@
                                 <p>List</p>
                             </a>
                         </li>
+                        <li class="nav-item dropdown">
+                    <a href="./index.php?page=faculty_batch_upload" class="nav-link nav-batch_upload">
+                        <i class="fas fa-angle-right nav-icon"></i>
+                        <p>Batch Upload</p>
+                    </a>
+                </li>
                     </ul>
                 </li>
                 <li class="nav-item">
@@ -174,6 +180,12 @@
                                 <p>List</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                    <a href="./index.php?page=batch_upload" class="nav-link nav-student_list tree-item">
+                        <i class="fas fa-angle-right nav-icon"></i>
+                        <p>Batch Upload</p>
+                    </a>
+                </li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
@@ -182,12 +194,7 @@
                         <p>Evaluation Report</p>
                     </a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a href="./index.php?page=batch_upload" class="nav-link nav-batch_upload">
-                        <i class="nav-icon fas fa-upload"></i>
-                        <p>Batch Upload</p>
-                    </a>
-                </li>
+             
 <!-- Department Section -->
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link nav-edit_department">
