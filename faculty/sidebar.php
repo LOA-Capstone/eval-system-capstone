@@ -25,6 +25,17 @@
               </p>
             </a>
           </li> 
+
+          <li class="nav-item dropdown">
+  <a href="./index.php?page=evaluation_summary" class="nav-link nav-evaluation_summary">
+    <i class="nav-icon fas fa-chart-bar"></i>
+    <p>
+      Evaluation Summary
+    </p>
+  </a>
+</li>
+
+          
         </ul>
       </nav>
     </div>
