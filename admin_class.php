@@ -488,31 +488,35 @@ class Action
 	}
 
 	function save_question()
-	{
-		extract($_POST);
-		$data = "";
-		foreach ($_POST as $k => $v) {
-			if (!in_array($k, array('id', 'user_ids')) && !is_numeric($k)) {
-				if (empty($data)) {
-					$data .= " $k='$v' ";
-				} else {
-					$data .= ", $k='$v' ";
-				}
-			}
-		}
+{
+    // Access $_POST variables directly
+    $question = isset($_POST['question']) ? $this->db->real_escape_string($_POST['question']) : '';
+    $criteria_id = isset($_POST['criteria_id']) ? (int)$_POST['criteria_id'] : 0;
+    $academic_id = isset($_POST['academic_id']) ? (int)$_POST['academic_id'] : 0;
+    $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 
-		if (empty($id)) {
-			$lastOrder = $this->db->query("SELECT * FROM question_list where academic_id = $academic_id order by abs(order_by) desc limit 1");
-			$lastOrder = $lastOrder->num_rows > 0 ? $lastOrder->fetch_array()['order_by'] + 1 : 0;
-			$data .= ", order_by='$lastOrder' ";
-			$save = $this->db->query("INSERT INTO question_list set $data");
-		} else {
-			$save = $this->db->query("UPDATE question_list set $data where id = $id");
-		}
-		if ($save) {
-			return 1;
-		}
-	}
+    // Prepare data
+    $data = "question='$question', criteria_id='$criteria_id', academic_id='$academic_id'";
+
+    if (empty($id)) {
+        // Get the last order
+        $lastOrderQry = $this->db->query("SELECT * FROM question_list WHERE academic_id = $academic_id ORDER BY ABS(order_by) DESC LIMIT 1");
+        $lastOrder = $lastOrderQry->num_rows > 0 ? (int)$lastOrderQry->fetch_array()['order_by'] + 1 : 1;
+        $data .= ", order_by='$lastOrder'";
+        $save = $this->db->query("INSERT INTO question_list SET $data");
+    } else {
+        $save = $this->db->query("UPDATE question_list SET $data WHERE id = $id");
+    }
+
+    if ($save) {
+        return 1;
+    } else {
+        // Log the error for debugging
+        error_log("MySQL Error: " . $this->db->error);
+        return 0;
+    }
+}
+
 	function delete_question()
 	{
 		extract($_POST);

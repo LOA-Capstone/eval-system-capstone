@@ -192,11 +192,6 @@
     background: #fff; /* Ensure background is white for contrast */
   }
 
-  /* Correcting incomplete CSS declaration */
-  .col-lg-12 {
-    /* Removed incomplete background property */
-    /* Add any desired background properties here */
-  }
 </style>
 
 <!-- Subject Listing Table -->

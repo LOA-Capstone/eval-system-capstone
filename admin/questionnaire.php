@@ -6,13 +6,6 @@
     color: black;
   }
 
-  /* (Optional) Retain or add other existing styles here */
-
-  /* Correcting any incomplete CSS declarations */
-  .col-lg-12 {
-    /* Ensure all CSS properties are properly defined */
-    /* Add desired background properties if needed */
-  }
 </style>
 
 <div class="col-lg-12">
