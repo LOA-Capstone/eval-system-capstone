@@ -18,8 +18,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
 		$comment_escaped = escapeshellarg($comment);
 
 		// Paths to Python executable and script
-        $pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe'; // Update this path
-        $scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py'; // Update this path
+        $pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe';
+        $scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py'; 
 
 
 
