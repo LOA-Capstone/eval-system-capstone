@@ -22,22 +22,29 @@ if(isset($_GET['sid']))
 $subject_id = $_GET['sid'];
 $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstname,' ',f.lastname) as faculty,s.code,s.subject FROM restriction_list r inner join faculty_list f on f.id = r.faculty_id inner join subject_list s on s.id = r.subject_id where academic_id ={$_SESSION['academic']['id']} and class_id = {$_SESSION['login_class_id']} and r.id not in (SELECT restriction_id from evaluation_list where academic_id ={$_SESSION['academic']['id']} and student_id = {$_SESSION['login_id']} ) ");
 ?>
-
+<?php 
+$teacherName = isset($_GET['teacher_name']) ? $_GET['teacher_name'] : '';
+$subjectName = isset($_GET['subject']) ? $_GET['subject'] : '';
+?>
 <div class="col-lg-12">
 	<div class="row">
 		<div class="col-md-3">
-			<div class="list-group">
-				<?php 
-				while($row=$restriction->fetch_array()):
-					if(empty($rid)){
-							$rid = $row['id'];
-							$faculty_id = $row['fid'];
-							$subject_id = $row['sid'];
-						}
-				?>
-				<a class="list-group-item list-group-item-action <?php echo isset($rid) && $rid == $row['id'] ? 'active' : '' ?>" href="./index.php?page=evaluate&rid=<?php echo $row['id'] ?>&sid=<?php echo $row['sid'] ?>&fid=<?php echo $row['fid'] ?>"><?php echo ucwords($row['faculty']).' - ('.$row["code"].') '.$row['subject'] ?></a>
-			<?php endwhile; ?>
-			</div>
+        <div class="list-group">
+	<?php 
+	while($row=$restriction->fetch_array()):
+		if(empty($rid)){
+			$rid = $row['id'];
+			$faculty_id = $row['fid'];
+			$subject_id = $row['sid'];
+		}
+		// Compare the teacher and subject in the URL to set the active class
+		$isActive = (ucwords($row['faculty']) == $teacherName && $row['subject'] == $subjectName) ? 'active' : '';
+	?>
+	<a class="list-group-item list-group-item-action <?php echo $isActive; ?>" href="index.php?page=evaluate&rid=<?php echo $row['id']; ?>&sid=<?php echo $row['sid']; ?>&fid=<?php echo $row['fid']; ?>&teacher_name=<?php echo urlencode(ucwords($row['faculty'])); ?>&subject=<?php echo urlencode($row['subject']); ?>">
+		<?php echo ucwords($row['faculty']) . ' - (' . $row["code"] . ') ' . $row['subject']; ?>
+	</a>
+	<?php endwhile; ?>
+</div>
 		</div>	
 		<div class="col-md-9">
 			<div class="card card-outline card-info">
@@ -126,7 +133,6 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
 <?php endif; ?>
 
 
-
 				</div>
 				
 			</div>
@@ -145,7 +151,10 @@ $restriction = $conn->query("SELECT r.id,s.id as sid,f.id as fid,concat(f.firstn
             uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>closed.php")
         }
         if(<?php echo empty($rid) ? 1 : 0 ?> == 1)
-            uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>done.php")
+            uni_modal("","<?php echo $_SESSION['login_view_folder'] ?>done.php")
+            setTimeout(function() {
+        window.location.href = "./index.php";
+        }, 5000);
     });
 
     $('#manage-evaluation').submit(function(e){
@@ -323,7 +332,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
         $escapedComment = escapeshellarg($comment);
 
         // Paths to Python executable and script
-        $pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe'; // Update this path
+        $pythonExecutable = 'C:/Users/Ivhan/AppData/Local/Programs/Python/Python312/python.exe';
         $scriptPath = 'C:/xampp/htdocs/eval/sentiment_analysis.py'; // Update this path
 
         // Build the command
