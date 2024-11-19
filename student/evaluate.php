@@ -142,20 +142,29 @@ $subjectName = isset($_GET['subject']) ? $_GET['subject'] : '';
 </div>
 <script>
     $(document).ready(function(){
-        if('<?php echo $_SESSION['academic']['status'] ?>' == 0){
-            uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>not_started.php")
-        }else if('<?php echo $_SESSION['academic']['status'] ?>' == 2){
-            uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>closed.php")
-        }
-        else if('<?php echo $_SESSION['academic']['status'] ?>' == 2){
-            uni_modal("Information","<?php echo $_SESSION['login_view_folder'] ?>closed.php")
-        }
-        if(<?php echo empty($rid) ? 1 : 0 ?> == 1)
-            uni_modal("","<?php echo $_SESSION['login_view_folder'] ?>done.php")
-            setTimeout(function() {
-        window.location.href = "./index.php";
+    const status = '<?php echo $_SESSION['academic']['status'] ?>';
+    const folder = '<?php echo $_SESSION['login_view_folder'] ?>';
+
+    if (status == 0) {
+        uni_modal("", folder + "not_started.php");
+        setTimeout(function() {
+            window.location.href = "./index.php";
         }, 5000);
-    });
+    } else if (status == 2) {
+        uni_modal("", folder + "closed.php");
+        setTimeout(function() {
+            window.location.href = "./index.php";
+        }, 5000);
+    }
+
+    if (<?php echo empty($rid) ? 1 : 0 ?> == 1) {
+        uni_modal("", folder + "done.php");
+        setTimeout(function() {
+            window.location.href = "./index.php";
+        }, 5000);
+    }
+});
+
 
     $('#manage-evaluation').submit(function(e){
         e.preventDefault();
