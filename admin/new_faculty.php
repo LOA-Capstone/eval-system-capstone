@@ -19,7 +19,16 @@
 							<label for="" class="control-label">Last Name</label>
 							<input type="text" name="lastname" class="form-control form-control-sm" required value="<?php echo isset($lastname) ? $lastname : '' ?>">
 						</div>
+						<!-- Add Status Field -->
+						<div class="form-group">
+							<label for="" class="control-label">Status</label>
+							<select name="status" class="form-control form-control-sm" required>
+								<option value="Full-time" <?php echo (isset($status) && $status == 'Full-time') ? 'selected' : '' ?>>Full-time</option>
+								<option value="Part-time" <?php echo (isset($status) && $status == 'Part-time') ? 'selected' : '' ?>>Part-time</option>
+							</select>
+						</div>
 					</div>
+
 					<div class="col-md-6">
 						<div class="form-group">
 							<label for="" class="control-label">Avatar</label>

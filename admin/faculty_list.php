@@ -24,14 +24,15 @@
                         <th>School ID</th>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>Department</th> <!-- New Column -->
+                        <th>Department</th>
+                        <th>Status</th> <!-- New Column -->
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
                     $i = 1;
-                    // Modify the query to join with department_list
+                    // Modify the query to include 'status' in the select statement
                     $qry = $conn->query("SELECT f.*, CONCAT(f.firstname, ' ', f.lastname) AS name, d.name AS department_name 
                                          FROM faculty_list f 
                                          LEFT JOIN department_list d ON f.department_id = d.id 
@@ -39,12 +40,12 @@
                     while($row = $qry->fetch_assoc()):
                     ?>
                     <tr>
-                        <!-- Applied the 'counter' class instead of inline style -->
                         <td class="text-center counter"><?php echo $i++ ?></td>
                         <td><b><?php echo htmlspecialchars($row['school_id']) ?></b></td>
                         <td><b><?php echo htmlspecialchars(ucwords($row['name'])) ?></b></td>
                         <td><b><?php echo htmlspecialchars($row['email']) ?></b></td>
-                        <td><b><?php echo htmlspecialchars($row['department_name']) ?></b></td> <!-- Display Department -->
+                        <td><b><?php echo htmlspecialchars($row['department_name']) ?></b></td>
+                        <td><b><?php echo htmlspecialchars($row['status']) ?></b></td> <!-- Display Status -->
                         <td class="text-center">
                             <button type="button" class="btn btn-default btn-sm btn-flat border-info wave-effect text-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                               Action
@@ -58,7 +59,7 @@
                             </div>
                         </td>
                     </tr>   
-                <?php endwhile; ?>
+                    <?php endwhile; ?>
                 </tbody>
             </table>
         </div>
@@ -74,7 +75,7 @@
         $('.delete_faculty').click(function(){
             _conf("Are you sure to delete this faculty?","delete_faculty",[$(this).attr('data-id')]);
         });
-        $('#list').DataTable(); // Correct method name and ensure DataTables is properly loaded
+        $('#list').DataTable(); // Ensure DataTables is properly loaded
     });
 
     function delete_faculty($id){

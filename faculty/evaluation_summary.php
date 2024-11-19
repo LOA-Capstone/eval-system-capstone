@@ -1,6 +1,10 @@
 <?php
 include 'db_connect.php';
-session_start(); // Ensure the session is started
+
+// Start the session if not already started
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Get the current academic year and semester from session
 $current_year = $_SESSION['academic']['year'];
@@ -173,11 +177,13 @@ if($faculty_qry->num_rows > 0){
     $faculty_name = $faculty['firstname'] . ' ' . $faculty['lastname'];
     $faculty_school_id = $faculty['school_id']; // Using school_id instead of faculty_id
     $department = $faculty['department'];
+    $status = $faculty['status']; // Fetching status
 } else {
     // Handle error
     $faculty_name = '';
     $faculty_school_id = '';
     $department = '';
+    $status = '';
 }
 
 // Get today's date
@@ -349,6 +355,13 @@ $average_remarks = get_remarks($combined_total_rating);
                 margin-bottom: 15px;
             }
         }
+        .summary-section {
+            margin-top: 20px;
+        }
+
+        .summary-section h4 {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -392,10 +405,11 @@ $average_remarks = get_remarks($combined_total_rating);
                     <div class="evaluation-type print-only">
                         <h3>Midterm Evaluation Summary</h3>
                     </div>
-                    <!-- Faculty Name and School ID - Visible Only in Print -->
+                    <!-- Faculty Name and Academic Year - Visible Only in Print -->
                     <div class="print-only">
                         <p><strong>Name:</strong> <?php echo htmlspecialchars($faculty_name); ?></p>
-                        <p><strong>School ID:</strong> <?php echo htmlspecialchars($faculty_school_id); ?></p>
+                        <p><strong>Academic Year:</strong> <?php echo htmlspecialchars($academic_year); ?></p>
+                        <!-- <p><strong>Status:</strong> <?php echo htmlspecialchars($status); ?></p> -->
                     </div>
                     <?php foreach ($criteria_questions as $cid => $questions): ?>
                         <h4><?php echo int_to_roman($criteria_counter) . '. ' . htmlspecialchars($criteria[$cid]); ?></h4>
@@ -430,19 +444,17 @@ $average_remarks = get_remarks($combined_total_rating);
                         <?php $criteria_counter++; ?>
                     <?php endforeach; ?>
                     
-                    <!-- Total Average and Remarks Section -->
-                    <div class="summary-section">
-                        <table class="table table-bordered">
-                            <tr>
-                                <td><strong>Total Average</strong></td>
-                                <td><strong><?php echo number_format($midterm_data['total_average'], 2); ?></strong></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Remarks</strong></td>
-                                <td><?php echo htmlspecialchars($midterm_remarks); ?></td>
-                            </tr>
-                        </table>
-                    </div>
+                    <!-- Total Average and Remarks Section within Table -->
+                    <table class="table table-bordered">
+                        <tr>
+                            <td colspan="2"><strong>Total Average</strong></td>
+                            <td><strong><?php echo number_format($midterm_data['total_average'], 2); ?></strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><strong>Remarks</strong></td>
+                            <td><?php echo htmlspecialchars($midterm_remarks); ?></td>
+                        </tr>
+                    </table>
                 <?php endif; ?>
             </div>
             <!-- Finals Tab -->
@@ -462,10 +474,11 @@ $average_remarks = get_remarks($combined_total_rating);
                     <div class="evaluation-type print-only">
                         <h3>Finals Evaluation Summary</h3>
                     </div>
-                    <!-- Faculty Name and School ID - Visible Only in Print -->
+                    <!-- Faculty Name and Academic Year - Visible Only in Print -->
                     <div class="print-only">
                         <p><strong>Name:</strong> <?php echo htmlspecialchars($faculty_name); ?></p>
-                        <p><strong>School ID:</strong> <?php echo htmlspecialchars($faculty_school_id); ?></p>
+                        <p><strong>Academic Year:</strong> <?php echo htmlspecialchars($academic_year); ?></p>
+                        <!-- <p><strong>Status:</strong> <?php echo htmlspecialchars($status); ?></p> -->
                     </div>
                     <?php foreach ($criteria_questions as $cid => $questions): ?>
                         <h4><?php echo int_to_roman($criteria_counter) . '. ' . htmlspecialchars($criteria[$cid]); ?></h4>
@@ -500,19 +513,17 @@ $average_remarks = get_remarks($combined_total_rating);
                         <?php $criteria_counter++; ?>
                     <?php endforeach; ?>
                     
-                    <!-- Total Average and Remarks Section -->
-                    <div class="summary-section">
-                        <table class="table table-bordered">
-                            <tr>
-                                <td><strong>Total Average</strong></td>
-                                <td><strong><?php echo number_format($finals_data['total_average'], 2); ?></strong></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Remarks</strong></td>
-                                <td><?php echo htmlspecialchars($finals_remarks); ?></td>
-                            </tr>
-                        </table>
-                    </div>
+                    <!-- Total Average and Remarks Section within Table -->
+                    <table class="table table-bordered">
+                        <tr>
+                            <td colspan="2"><strong>Total Average</strong></td>
+                            <td><strong><?php echo number_format($finals_data['total_average'], 2); ?></strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><strong>Remarks</strong></td>
+                            <td><?php echo htmlspecialchars($finals_remarks); ?></td>
+                        </tr>
+                    </table>
                 <?php endif; ?>
             </div>
             <!-- Summary Tab -->
@@ -523,8 +534,8 @@ $average_remarks = get_remarks($combined_total_rating);
                         <tr>
                             <td><strong>Name:</strong></td>
                             <td><?php echo htmlspecialchars($faculty_name); ?></td>
-                            <td><strong>School ID:</strong></td>
-                            <td><?php echo htmlspecialchars($faculty_school_id); ?></td>
+                            <td><strong>Academic Year:</strong></td> <!-- Changed from 'School ID' to 'Academic Year' -->
+                            <td><?php echo htmlspecialchars($academic_year); ?></td>
                         </tr>
                         <tr>
                             <td><strong>Department:</strong></td>
@@ -533,8 +544,8 @@ $average_remarks = get_remarks($combined_total_rating);
                             <td><?php echo htmlspecialchars($semester); ?></td>
                         </tr>
                         <tr>
-                            <td><strong>Academic Year:</strong></td>
-                            <td><?php echo htmlspecialchars($academic_year); ?></td>
+                            <td><strong>Status:</strong></td> <!-- Changed from 'Academic Year' to 'Status' -->
+                            <td><?php echo htmlspecialchars($status); ?></td> <!-- Displayed 'Status' here -->
                             <td><strong>Date:</strong></td>
                             <td><?php echo htmlspecialchars($date_today); ?></td>
                         </tr>
@@ -565,8 +576,7 @@ $average_remarks = get_remarks($combined_total_rating);
                                 <td><?php echo htmlspecialchars($finals_remarks); ?></td>
                             </tr>
                             <tr>
-                                <td><strong>Average</strong></td>
-                                <td></td>
+                                <td colspan="2"><strong>Average</strong></td> <!-- Merged cells -->
                                 <td><strong><?php echo ($total_respondents > 0) ? number_format($combined_total_rating, 2) : 'N/A'; ?></strong></td>
                                 <td><strong><?php echo htmlspecialchars($average_remarks); ?></strong></td>
                             </tr>

@@ -167,6 +167,18 @@ if ($action == 'save_question_order') {
 		echo $save;
 }
 if ($action == 'save_faculty') {
+
+	$status = $_POST['status'];
+    if(empty($id)){
+        // Insert new faculty
+        $qry = $conn->prepare("INSERT INTO faculty_list (school_id, firstname, lastname, email, password, department_id, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $qry->bind_param("sssssis", $school_id, $firstname, $lastname, $email, $password, $department_id, $status);
+    } else {
+        // Update existing faculty
+        $qry = $conn->prepare("UPDATE faculty_list SET school_id = ?, firstname = ?, lastname = ?, email = ?, password = ?, department_id = ?, status = ? WHERE id = ?");
+        $qry->bind_param("sssssis", $school_id, $firstname, $lastname, $email, $password, $department_id, $status, $id);
+    }
+	
 	$save = $crud->save_faculty();
 	if ($save)
 		echo $save;
