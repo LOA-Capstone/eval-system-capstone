@@ -1,6 +1,5 @@
 <?php include 'db_connect.php'; ?>
 <style>
-/* Button Styles */
 .btn.new_academic {
     display: inline-flex;
     align-items: center;
@@ -27,7 +26,6 @@
     transform: scale(1.05);
 }
 
-/* Manage and Delete Button Styles */
 .btn.manage_academic, .btn.delete_academic {
     position: relative;
     background: rgb(177, 228, 255);
@@ -137,9 +135,9 @@
                         <td><b><?php echo $row['term'] ?></b></td> <!-- New Term Column -->
                         <td class="text-center">
                             <?php if ($row['is_default'] == 0): ?>
-                                <button type="button" class="btn btn-secondary make_default" data-id="<?php echo $row['id'] ?>">No</button>
+                                <button type="button" class="btn btn-secondary make_default" data-id="<?php echo $row['id'] ?>">Inactive</button>
                             <?php else: ?>
-                                <button type="button" class="btn btn-primary">Yes</button>
+                                <button type="button" class="btn btn-primary">Active</button>
                             <?php endif; ?>
                         </td>
                         <td class="text-center">
