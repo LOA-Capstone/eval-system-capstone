@@ -33,7 +33,8 @@ function ordinal_suffix($num)
     <div class="row">
         <div class="col-md-12 mb-1">
             <div class="d-flex justify-content-end w-100">
-                <button class="btn btn-sm btn-success bg-gradient-success" style="display:none" id="print-btn"><i class="fa fa-print"></i> Print</button>
+                <!-- <button class="btn btn-sm btn-success bg-gradient-success" style="display:none" id="print-btn"  onclick="window.print()"><i class="fa fa-print"></i> Print</button> -->
+                <button class="btn btn-sm btn-success bg-gradient-success" onclick="window.print()"><i class="fa fa-print"></i> Print</button>
             </div>
         </div>
     </div>
