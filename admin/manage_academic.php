@@ -228,34 +228,5 @@ if(isset($_GET['id'])){
         });
     });
 
-	function validateSemester(semesterInput) {
-    const semester = semesterInput.value;
-    const termSelect = document.getElementById("term");
-    
-    if (semester == 1) {
-      // If it's the 1st semester, only Midterm is allowed
-      termSelect.querySelector('option[value="Midterm"]').disabled = false;
-      termSelect.querySelector('option[value="Finals"]').disabled = true;
-      if (termSelect.value === "Finals") {
-        termSelect.value = "Midterm"; // Change term to Midterm if Finals was selected
-      }
-    } else if (semester == 2) {
-      // If it's the 2nd semester, only Finals is allowed
-      termSelect.querySelector('option[value="Midterm"]').disabled = true;
-      termSelect.querySelector('option[value="Finals"]').disabled = false;
-      if (termSelect.value === "Midterm") {
-        termSelect.value = "Finals"; // Change term to Finals if Midterm was selected
-      }
-    } else {
-      // Reset if the semester input is invalid
-      termSelect.querySelector('option[value="Midterm"]').disabled = true;
-      termSelect.querySelector('option[value="Finals"]').disabled = true;
-    }
-  }
 
-  // Initialize the validation on page load
-  window.onload = function() {
-    const semesterInput = document.getElementById("semester");
-    validateSemester(semesterInput);
-  }
 </script>
