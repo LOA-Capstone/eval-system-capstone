@@ -5,35 +5,37 @@
   .black-text {
     color: black;
   }
-
 </style>
 
 <div class="col-lg-12">
   <div class="card card-outline card-primary">
     <div class="card-header">
       <div class="card-tools">
-        <!-- Changed class from 'new_academic' to 'new_academic' for consistency -->
+        <!-- Button to add a new academic year -->
         <a class="btn btn-block btn-sm btn-default btn-flat border-primary new_academic" href="javascript:void(0)">
           <i class="fa fa-plus"></i> Add New
         </a>
       </div>
     </div>
     <div class="card-body">
-      <!-- Corrected class name from 'tabe-hover' to 'table-hover' -->
+      <!-- Updated class name from 'tabe-hover' to 'table-hover' -->
       <table class="table table-hover table-bordered" id="list">
         <colgroup>
           <col width="5%">
-          <col width="35%">
+          <col width="25%"> <!-- Adjusted width for Academic Year -->
+          <col width="10%"> <!-- New column for Term -->
           <col width="15%">
           <col width="15%">
           <col width="15%">
-          <col width="15%">
+          <col width="15%"> <!-- Added column for Action -->
         </colgroup>
         <thead>
           <tr>
             <th class="text-center">#</th>
             <th>Academic Year</th>
+            <!-- New Header for Term -->
             <th>Semester</th>
+            <th>Term</th> 
             <th>Questions</th>
             <th>Answered</th>
             <th>Action</th>
@@ -53,13 +55,15 @@
             <!-- Changed from <th> to <td> and added 'black-text' class -->
             <td class="text-center black-text"><?php echo $i++; ?></td>
             <td><b><?php echo htmlspecialchars($row['year']); ?></b></td>
+            <!-- Displaying Term -->
             <td><b><?php echo htmlspecialchars($row['semester']); ?></b></td>
+            <td><b><?php echo htmlspecialchars($row['term']); ?></b></td>
             <!-- Added 'black-text' class to these columns -->
             <td class="text-center black-text"><b><?php echo number_format($questions); ?></b></td>
             <td class="text-center black-text"><b><?php echo number_format($answers); ?></b></td>
             <td class="text-center">
               <div class="btn-group">
-                <!-- 'Action' column remains untouched as per your request -->
+                <!-- 'Action' column remains unchanged -->
                 <button type="button" class="btn btn-default btn-sm btn-flat border-info wave-effect text-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                   Action
                 </button>
@@ -79,7 +83,7 @@
 
 <script>
   $(document).ready(function(){
-    // Initialize DataTables with correct method name and proper capitalization
+    // Initialize DataTables
     $('#list').DataTable();
     
     // New academic click handler
