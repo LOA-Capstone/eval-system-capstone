@@ -351,7 +351,7 @@ button:focus {
     </div>
 </div>
 <div>
-<h1>Batch Upload</h1>
+<!-- <h1>Batch Upload</h1>
 <form class="csv-upload-form" method="POST" enctype="multipart/form-data">
   <span class="form-title">UPLOAD DATA SYSTEM</span>
   <p class="form-paragraph">
@@ -363,7 +363,7 @@ button:focus {
     <input type="file" name="csv_file" accept=".csv" required id="csv-file">
   </label>
   <input type="submit" value="Upload CSV" class="submit-btns">
-</form>
+</form> -->
 
 
     <?php if ($message): ?>

@@ -3,24 +3,27 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Enable MySQLi error reporting
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
 // Database connection settings
 $servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "evaluation_db";
+$username = "root"; // Replace with your database username
+$password = "";     // Replace with your database password
+$dbname = "evaluation_db";   // Replace with your database name
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
+$conn->set_charset("utf8mb4"); // Set character set
 
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-$rows = [];
-$uniqueRows = [];
-$duplicates = [];
 $message = '';
+$duplicates = [];
+$pendingRows = [];
 
 // Handle CSV Upload and Processing
 if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK) {
@@ -30,87 +33,220 @@ if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK
         $message = "<div class='error'>CSV file is not readable.</div>";
     } else {
         if (($handle = fopen($csvFile, "r")) !== FALSE) {
-            fgetcsv($handle); // Skip headers
+            $headers = fgetcsv($handle); // Read headers
 
-            while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                // Expecting 7 columns: school_id, firstname, lastname, email, password, year, course
-                if (count($data) === 7 && !empty(trim($data[0])) && !empty(trim($data[1])) && !empty(trim($data[2])) && filter_var($data[3], FILTER_VALIDATE_EMAIL) && !empty(trim($data[4])) && !empty(trim($data[5])) && !empty(trim($data[6]))) {
-                    $rows[] = $data;
+            // Expected headers in CSV
+            $expectedHeaders = ['school_id', 'firstname', 'lastname', 'email', 'curriculum', 'level', 'section'];
+
+            if ($headers !== $expectedHeaders) {
+                $message = "<div class='error'>Invalid CSV format. Please use the provided template.</div>";
+            } else {
+                while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                    // Build associative array
+                    $row = array_combine($headers, $data);
+
+                    // Trim values
+                    foreach ($row as $key => $value) {
+                        $row[$key] = trim($value);
+                    }
+
+                    // Perform validation
+                    if (empty($row['school_id']) || empty($row['firstname']) || empty($row['lastname']) || empty($row['email']) || empty($row['curriculum']) || empty($row['level']) || empty($row['section'])) {
+                        // Missing required fields, skip this row
+                        continue;
+                    }
+
+                    if (!filter_var($row['email'], FILTER_VALIDATE_EMAIL)) {
+                        // Invalid email, skip this row
+                        continue;
+                    }
+
+                    // Check for duplicates in student_list
+                    $stmtCheck = $conn->prepare("SELECT id FROM student_list WHERE school_id = ? OR email = ?");
+                    $stmtCheck->bind_param("ss", $row['school_id'], $row['email']);
+                    $stmtCheck->execute();
+                    $stmtCheck->bind_result($id);
+                    if ($stmtCheck->fetch()) {
+                        // Duplicate found
+                        $duplicates[] = $row;
+                    } else {
+                        // No duplicate, proceed
+                        // Map curriculum, level, section to class_id
+                        $stmtClass = $conn->prepare("SELECT id FROM class_list WHERE curriculum = ? AND level = ? AND section = ?");
+                        $stmtClass->bind_param("sss", $row['curriculum'], $row['level'], $row['section']);
+                        $stmtClass->execute();
+                        $stmtClass->bind_result($class_id);
+                        if ($stmtClass->fetch()) {
+                            // Found matching class_id
+                            $row['class_id'] = $class_id;
+                        } else {
+                            // No matching class, set class_id to NULL
+                            $row['class_id'] = NULL;
+                        }
+                        $stmtClass->close();
+
+                        // Generate password
+                        $password_plain = $row['lastname'] . $row['firstname'] . $row['school_id'];
+                        $password_md5 = md5($password_plain);
+                        $row['password'] = $password_md5;
+
+                        // Check for duplicates in student_batch
+                        $stmtCheckBatch = $conn->prepare("SELECT id FROM student_batch WHERE school_id = ? AND email = ?");
+                        $stmtCheckBatch->bind_param("ss", $row['school_id'], $row['email']);
+                        $stmtCheckBatch->execute();
+                        if ($stmtCheckBatch->fetch()) {
+                            // Duplicate in batch, skip
+                            $stmtCheckBatch->close();
+                            continue;
+                        }
+                        $stmtCheckBatch->close();
+
+                        // Insert into student_batch with status 'pending'
+                        $stmtInsert = $conn->prepare("INSERT INTO student_batch (school_id, firstname, lastname, email, curriculum, level, section, password, class_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+                        $stmtInsert->bind_param("ssssssssi", $row['school_id'], $row['firstname'], $row['lastname'], $row['email'], $row['curriculum'], $row['level'], $row['section'], $row['password'], $row['class_id']);
+                        $stmtInsert->execute();
+                        $stmtInsert->close();
+                    }
+                    $stmtCheck->close();
                 }
             }
             fclose($handle);
         }
-
-        // Check for duplicates
-        foreach ($rows as $row) {
-            $stmtCheck = $conn->prepare("SELECT ID FROM batch_upload WHERE school_id = ? AND firstname = ? AND lastname = ? AND email = ? AND year = ? AND course = ?");
-            $stmtCheck->bind_param("ssssss", $row[0], $row[1], $row[2], $row[3], $row[5], $row[6]);
-            $stmtCheck->execute();
-            $stmtCheck->bind_result($id);
-            if ($stmtCheck->fetch()) {
-                $duplicates[] = array_merge([$id], $row); // Add ID to the row for updating
-            } else {
-                $uniqueRows[] = $row;
-            }
-            $stmtCheck->close();
-        }
-
-        // Save unique rows to database (without password)
-        if (!empty($uniqueRows)) {
-            foreach ($uniqueRows as $row) {
-                // Exclude password from insertion
-                $stmtInsert = $conn->prepare("INSERT INTO batch_upload (school_id, firstname, lastname, email, year, course) VALUES (?, ?, ?, ?, ?, ?)");
-                $stmtInsert->bind_param("ssssss", $row[0], $row[1], $row[2], $row[3], $row[5], $row[6]);
-                $stmtInsert->execute();
-                $stmtInsert->close();
-            }
-            
-        }
     }
 }
 
-// Handle update or delete actions for duplicates
+// Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     $action = $_POST['action'];
-    $index = $_POST['index'] ?? null; // Ensure index is set, if not, default to null
+    if ($action === 'update') {
+        // Handle update
+        $id = $_POST['id'];
+        $school_id = $_POST['school_id'];
+        $firstname = $_POST['firstname'];
+        $lastname = $_POST['lastname'];
+        $email = $_POST['email'];
+        $curriculum = $_POST['curriculum'];
+        $level = $_POST['level'];
+        $section = $_POST['section'];
 
-    if ($action === 'update' && isset($_POST['row'][$index])) {
-        $school_id = $_POST['row'][$index]['school_id'];
-        $firstname = $_POST['row'][$index]['firstname'];
-        $lastname = $_POST['row'][$index]['lastname'];
-        $email = $_POST['row'][$index]['email'];
-        $year = $_POST['row'][$index]['year'];
-        $course = $_POST['row'][$index]['course'];
+        // Generate password
+        $password_plain = $lastname . $firstname . $school_id;
+        $password_md5 = md5($password_plain);
 
-        // Update the database record
-        $stmtUpdate = $conn->prepare("UPDATE batch_upload SET school_id = ?, firstname = ?, lastname = ?, email = ?, year = ?, course = ? WHERE ID = ?");
-        $stmtUpdate->bind_param("ssssssi", $school_id, $firstname, $lastname, $email, $year, $course, $index);
+        // Map curriculum, level, section to class_id
+        $stmtClass = $conn->prepare("SELECT id FROM class_list WHERE curriculum = ? AND level = ? AND section = ?");
+        $stmtClass->bind_param("sss", $curriculum, $level, $section);
+        $stmtClass->execute();
+        $stmtClass->bind_result($class_id);
+        if ($stmtClass->fetch()) {
+            // Found matching class_id
+        } else {
+            // No matching class, set class_id to NULL
+            $class_id = NULL;
+        }
+        $stmtClass->close();
+
+        // Update the entry in student_batch
+        $stmtUpdate = $conn->prepare("UPDATE student_batch SET school_id = ?, firstname = ?, lastname = ?, email = ?, curriculum = ?, level = ?, section = ?, password = ?, class_id = ? WHERE id = ?");
+        $stmtUpdate->bind_param("ssssssssii", $school_id, $firstname, $lastname, $email, $curriculum, $level, $section, $password_md5, $class_id, $id);
         $stmtUpdate->execute();
         $stmtUpdate->close();
-
-        
-    } elseif ($action === 'delete' && isset($index)) {
-        // Delete the record
-        $stmtDelete = $conn->prepare("DELETE FROM batch_upload WHERE ID = ?");
-        $stmtDelete->bind_param("i", $index);
+    } elseif ($action === 'delete') {
+        // Handle delete
+        $id = $_POST['id'];
+        // Update status to 'removed'
+        $stmtDelete = $conn->prepare("UPDATE student_batch SET status = 'removed' WHERE id = ?");
+        $stmtDelete->bind_param("i", $id);
         $stmtDelete->execute();
         $stmtDelete->close();
+    } elseif ($action === 'add_students') {
+        // Handle adding students
+        if (isset($_POST['selected_students']) && !empty($_POST['selected_students'])) {
+            $selected_ids = $_POST['selected_students']; // array of IDs
+            foreach ($selected_ids as $id) {
+                // Get the student data from student_batch
+                $stmtSelect = $conn->prepare("SELECT * FROM student_batch WHERE id = ?");
+                $stmtSelect->bind_param("i", $id);
+                $stmtSelect->execute();
+                $result = $stmtSelect->get_result();
+                if ($row = $result->fetch_assoc()) {
+                    // Check again for duplicates in student_list before inserting
+                    $stmtCheck = $conn->prepare("SELECT id FROM student_list WHERE school_id = ? OR email = ?");
+                    $stmtCheck->bind_param("ss", $row['school_id'], $row['email']);
+                    $stmtCheck->execute();
+                    if ($stmtCheck->fetch()) {
+                        // Duplicate found, skip insertion
+                        $stmtCheck->close();
+                        continue;
+                    }
+                    $stmtCheck->close();
 
-       
-    }
-}
+                    // Prepare the INSERT statement
+                    $stmtInsert = $conn->prepare("INSERT INTO student_list (school_id, firstname, lastname, email, password, class_id, avatar, date_created) VALUES (?, ?, ?, ?, ?, ?, 'no-image-available.png', NOW())");
 
-// Fetch data from database only after upload
-$uploadedData = [];
-if (!empty($uniqueRows)) {
-    $result = $conn->query("SELECT * FROM batch_upload ORDER BY ID DESC");
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $uploadedData[] = $row;
+                    // Handle possible NULL class_id
+                    if (is_null($row['class_id'])) {
+                        $null = NULL;
+                        $stmtInsert->bind_param("sssssi", $row['school_id'], $row['firstname'], $row['lastname'], $row['email'], $row['password'], $null);
+                    } else {
+                        $stmtInsert->bind_param("sssssi", $row['school_id'], $row['firstname'], $row['lastname'], $row['email'], $row['password'], $row['class_id']);
+                    }
+
+                    try {
+                        $stmtInsert->execute();
+                        // Update status in student_batch to 'added'
+                        $stmtUpdate = $conn->prepare("UPDATE student_batch SET status = 'added' WHERE id = ?");
+                        $stmtUpdate->bind_param("i", $id);
+                        $stmtUpdate->execute();
+                        $stmtUpdate->close();
+                    } catch (Exception $e) {
+                        // Insertion failed, get error info
+                        $message .= "<div class='error'>Error adding student " . htmlspecialchars($row['firstname'] . ' ' . $row['lastname']) . ": " . $e->getMessage() . "</div>";
+                    }
+
+                    $stmtInsert->close();
+                }
+                $stmtSelect->close();
+            }
+            if (empty($message)) {
+                $message = "<div class='success'>Selected students have been added successfully.</div>";
+            }
+        } else {
+            // No students selected
+            $message = "<div class='error'>No students were selected to add.</div>";
         }
     }
 }
+
+// Fetch pending students from student_batch
+$pendingRows = [];
+$sqlPending = "SELECT * FROM student_batch WHERE status = 'pending'";
+$resultPending = $conn->query($sqlPending);
+if ($resultPending->num_rows > 0) {
+    while ($row = $resultPending->fetch_assoc()) {
+        $pendingRows[] = $row;
+    }
+}
+
+// Fetch duplicates (from processing)
+$duplicates = $duplicates ?? [];
+
+// Fetch existing students for display
+$i = 1;
+$class = array();
+$classes = $conn->query("SELECT id,concat(curriculum,' ',level,' - ',section) as `class` FROM class_list");
+while($row = $classes->fetch_assoc()){
+    $class[$row['id']] = $row['class'];
+}
+$qry = $conn->query("SELECT *,concat(firstname,' ',lastname) as name FROM student_list ORDER BY concat(firstname,' ',lastname) ASC");
+$studentList = [];
+while($row = $qry->fetch_assoc()){
+    $studentList[] = $row;
+}
+
 ?>
+
+
 <style>
   /* Button base style */
   .btn.new_academic {
@@ -341,150 +477,262 @@ button:focus {
 </style>
 
 <div class="col-lg-12">
-	<div class="card card-outline card-success">
-		<div class="card-header">
-			<div class="card-tools">
-			<a class="btn new_academic" href="./index.php?page=new_student">
-  <i class="fa fa-plus"></i>
-  <span class="text">Add New Student</span>
-</a>
-
-			</div>
-		</div>
-		<div class="card-body">
-			<table class="table tabe-hover table-bordered" id="list">
-				<thead>
-					<tr>
-						<th class="text-center">#</th>
-						<th>School ID</th>
-						<th>Name</th>
-						<th>Email</th>
-						<th>Current Class</th>
-						<th>Action</th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php
-					$i = 1;
-					$class= array();
-					$classes = $conn->query("SELECT id,concat(curriculum,' ',level,' - ',section) as `class` FROM class_list");
-					while($row=$classes->fetch_assoc()){
-						$class[$row['id']] = $row['class'];
-					}
-					$qry = $conn->query("SELECT *,concat(firstname,' ',lastname) as name FROM student_list order by concat(firstname,' ',lastname) asc");
-					while($row= $qry->fetch_assoc()):
-					?>
-					<tr>
-						<th class="text-center"><?php echo $i++ ?></th>
-						<td><b><?php echo $row['school_id'] ?></b></td>
-						<td><b><?php echo ucwords($row['name']) ?></b></td>
-						<td><b><?php echo $row['email'] ?></b></td>
-						<td><b><?php echo isset($class[$row['class_id']]) ? $class[$row['class_id']] : "N/A" ?></b></td>
-						<td class="text-center">
-							<button type="button" class="btn btn-default btn-sm btn-flat border-info wave-effect text-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-		                      Action
-		                    </button>
-		                    <div class="dropdown-menu" style="">
-		                      <a class="dropdown-item view_student" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>">View</a>
-		                      <div class="dropdown-divider"></div>
-		                      <a class="dropdown-item" href="./index.php?page=edit_student&id=<?php echo $row['id'] ?>">Edit</a>
-		                      <div class="dropdown-divider"></div>
-		                      <a class="dropdown-item delete_student" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>">Delete</a>
-		                    </div>
-						</td>
-					</tr>	
-				<?php endwhile; ?>
-				</tbody>
-			</table>
-		</div>
-	</div>
+    <div class="card card-outline card-success">
+        <div class="card-header">
+            <div class="card-tools">
+                <a class="btn new_academic" href="./index.php?page=new_student">
+                    <i class="fa fa-plus"></i>
+                    <span class="text">Add New Student</span>
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Wrap the table in a div for horizontal scrolling -->
+            <div class="table-container">
+                <table class="table tabe-hover table-bordered" id="list">
+                    <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>School ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Current Class</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $i = 1; ?>
+                        <?php foreach ($studentList as $student): ?>
+                        <tr>
+                            <th class="text-center"><?php echo $i++; ?></th>
+                            <td><b><?php echo htmlspecialchars($student['school_id'] ?? ''); ?></b></td>
+                            <td><b><?php echo htmlspecialchars(ucwords($student['name'] ?? '')); ?></b></td>
+                            <td><b><?php echo htmlspecialchars($student['email'] ?? ''); ?></b></td>
+                            <td><b><?php echo htmlspecialchars(isset($class[$student['class_id']]) ? $class[$student['class_id']] : "N/A"); ?></b></td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-default btn-sm btn-flat border-info wave-effect text-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                                    Action
+                                </button>
+                                <div class="dropdown-menu" style="">
+                                    <a class="dropdown-item view_student" href="javascript:void(0)" data-id="<?php echo $student['id']; ?>">View</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="./index.php?page=edit_student&id=<?php echo $student['id']; ?>">Edit</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item delete_student" href="javascript:void(0)" data-id="<?php echo $student['id']; ?>">Delete</a>
+                                </div>
+                            </td>
+                        </tr>   
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
-<div>
-<h1>Batch Upload</h1>
-	 <form class="csv-upload-form" method="POST" enctype="multipart/form-data">
-  <span class="form-title">UPLOAD DATA SYSTEM</span>
-  <p class="form-paragraph">
-    Please select a CSV file to upload
-  </p>
-  <label for="csv-file" class="drop-container">
-    <span class="drop-title">Drop CSV file here</span>
-    or
-    <input type="file" name="csv_file" accept=".csv" required id="csv-file">
-  </label>
-  <input type="submit" value="Upload CSV" class="submit-btns">
-</form>
 
+<div>
+    <h1>Batch Upload</h1>
+    <!-- Link to download CSV template -->
+    <a href="download_template.php">Download CSV Template</a>
+
+    <!-- CSV upload form -->
+    <form class="csv-upload-form" method="POST" enctype="multipart/form-data" id="csvUploadForm">
+        <span class="form-title">UPLOAD DATA SYSTEM</span>
+        <p class="form-paragraph">
+            Please select a CSV file to upload
+        </p>
+        <label for="csv-file" class="drop-container">
+            <span class="drop-title">Drop CSV file here or click to select</span>
+            <input type="file" name="csv_file" accept=".csv" required id="csv-file">
+        </label>
+    </form>
 
     <?php if ($message): ?>
         <?php echo $message; ?>
     <?php endif; ?>
 
+    <!-- Display duplicates -->
     <?php if (!empty($duplicates)): ?>
         <h3>Duplicate Records</h3>
-        <table class = "Table1">
-            <tr><th>School ID</th><th>Firstname</th><th>Lastname</th><th>Email</th><th>Year</th><th>Course</th><th>Actions</th></tr>
-            <?php foreach ($duplicates as $dup): ?>
-                <form method="POST">
-                    <input type="hidden" name="index" value="<?php echo $dup[0]; ?>">
+        <div class="table-container">
+            <table class="Table1">
+                <tr><th>School ID</th><th>Firstname</th><th>Lastname</th><th>Email</th><th>Curriculum</th><th>Level</th><th>Section</th></tr>
+                <?php foreach ($duplicates as $dup): ?>
                     <tr>
-                        <td><input type="text" name="row[<?php echo $dup[0]; ?>][school_id]" value="<?php echo htmlspecialchars($dup[1]); ?>"></td>
-                        <td><input type="text" name="row[<?php echo $dup[0]; ?>][firstname]" value="<?php echo htmlspecialchars($dup[2]); ?>"></td>
-                        <td><input type="text" name="row[<?php echo $dup[0]; ?>][lastname]" value="<?php echo htmlspecialchars($dup[3]); ?>"></td>
-                        <td><input type="email" name="row[<?php echo $dup[0]; ?>][email]" value="<?php echo htmlspecialchars($dup[4]); ?>"></td>
-                        <td><input type="text" name="row[<?php echo $dup[0]; ?>][year]" value="<?php echo htmlspecialchars($dup[6]); ?>"></td>
-                        <td><input type="text" name="row[<?php echo $dup[0]; ?>][course]" value="<?php echo htmlspecialchars($dup[7]); ?>"></td>
-                        <td>
-                            <button type="submit" name="action" value="update">Update</button>
-                            <button type="submit" name="action" value="delete">Delete</button>
-                        </td>
+                        <td><?php echo htmlspecialchars($dup['school_id'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($dup['firstname'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($dup['lastname'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($dup['email'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($dup['curriculum'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($dup['level'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($dup['section'] ?? ''); ?></td>
                     </tr>
-                </form>
-            <?php endforeach; ?>
-        </table>
+                <?php endforeach; ?>
+            </table>
+        </div>
     <?php endif; ?>
 
-    <?php if (!empty($uniqueRows)): ?>
-        <h3>Uploaded Data</h3>
-        <table class="Table1">
-            <tr><th>School ID</th><th>Firstname</th><th>Lastname</th><th>Email</th><th>Year</th><th>Course</th></tr>
-            <?php foreach ($uploadedData as $data): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($data['school_id']); ?></td>
-                    <td><?php echo htmlspecialchars($data['firstname']); ?></td>
-                    <td><?php echo htmlspecialchars($data['lastname']); ?></td>
-                    <td><?php echo htmlspecialchars($data['email']); ?></td>
-                    <td><?php echo htmlspecialchars($data['year']); ?></td>
-                    <td><?php echo htmlspecialchars($data['course']); ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </table>
+    <!-- Display pending students -->
+    <?php if (!empty($pendingRows)): ?>
+        <h3>Pending Students</h3>
+        <form method="POST" id="addStudentsForm">
+            <input type="hidden" name="action" value="add_students">
+            <div class="table-container">
+                <table class="Table1">
+                    <tr>
+                        <th>Select</th>
+                        <th>School ID</th>
+                        <th>Firstname</th>
+                        <th>Lastname</th>
+                        <th>Email</th>
+                        <th>Curriculum</th>
+                        <th>Level</th>
+                        <th>Section</th>
+                        <th>Class ID</th>
+                        <th>Actions</th>
+                    </tr>
+                    <?php foreach ($pendingRows as $row): ?>
+                        <tr>
+                            <td><input type="checkbox" name="selected_students[]" value="<?php echo $row['id']; ?>"></td>
+                            <td><?php echo htmlspecialchars($row['school_id'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($row['firstname'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($row['lastname'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($row['email'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($row['curriculum'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($row['level'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($row['section'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($row['class_id'] ?? ''); ?></td>
+                            <td>
+                                <!-- Provide edit and delete options -->
+                                <a href="?edit_id=<?php echo $row['id']; ?>" class="btn btn-sm btn-primary">Edit</a>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteStudent(<?php echo $row['id']; ?>)">Delete</button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+            <button type="submit">Add Selected Students</button>
+        </form>
     <?php endif; ?>
+
+    <!-- Edit Form -->
+    <?php
+    // Check if editing a student
+    if (isset($_GET['edit_id'])) {
+        $edit_id = $_GET['edit_id'];
+        // Fetch the student's data
+        $stmt = $conn->prepare("SELECT * FROM student_batch WHERE id = ?");
+        $stmt->bind_param("i", $edit_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($student = $result->fetch_assoc()) {
+            ?>
+            <h3>Edit Student</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="update">
+                <input type="hidden" name="id" value="<?php echo $student['id']; ?>">
+                <label>School ID:</label>
+                <input type="text" name="school_id" value="<?php echo htmlspecialchars($student['school_id'] ?? ''); ?>" required>
+                <label>Firstname:</label>
+                <input type="text" name="firstname" value="<?php echo htmlspecialchars($student['firstname'] ?? ''); ?>" required>
+                <label>Lastname:</label>
+                <input type="text" name="lastname" value="<?php echo htmlspecialchars($student['lastname'] ?? ''); ?>" required>
+                <label>Email:</label>
+                <input type="email" name="email" value="<?php echo htmlspecialchars($student['email'] ?? ''); ?>" required>
+                <label>Curriculum:</label>
+                <input type="text" name="curriculum" value="<?php echo htmlspecialchars($student['curriculum'] ?? ''); ?>" required>
+                <label>Level:</label>
+                <input type="text" name="level" value="<?php echo htmlspecialchars($student['level'] ?? ''); ?>" required>
+                <label>Section:</label>
+                <input type="text" name="section" value="<?php echo htmlspecialchars($student['section'] ?? ''); ?>" required>
+                <button type="submit" name="action" value="update">Update Student</button>
+            </form>
+            <?php
+        } else {
+            echo "<div class='error'>Student not found.</div>";
+        }
+        $stmt->close();
+    }
+    ?>
 </div>
-<script>
-	$(document).ready(function(){
-	$('.view_student').click(function(){
-		uni_modal("<i class='fa fa-id-card'></i> student Details","<?php echo $_SESSION['login_view_folder'] ?>view_student.php?id="+$(this).attr('data-id'))
-	})
-	$('.delete_student').click(function(){
-	_conf("Are you sure to delete this student?","delete_student",[$(this).attr('data-id')])
-	})
-		$('#list').dataTable()
-	})
-	function delete_student($id){
-		start_load()
-		$.ajax({
-			url:'ajax.php?action=delete_student',
-			method:'POST',
-			data:{id:$id},
-			success:function(resp){
-				if(resp==1){
-					alert_toast("Data successfully deleted",'success')
-					setTimeout(function(){
-						location.reload()
-					},1500)
 
-				}
-			}
-		})
-	}
+<script>
+// Automatically submit the form when a file is selected
+document.getElementById('csv-file').addEventListener('change', function() {
+    document.getElementById('csvUploadForm').submit();
+});
+
+// Optionally, handle drag and drop
+var dropContainer = document.querySelector('.drop-container');
+dropContainer.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropContainer.classList.add('dragover');
+});
+
+dropContainer.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropContainer.classList.remove('dragover');
+});
+
+dropContainer.addEventListener('drop', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    dropContainer.classList.remove('dragover');
+    var files = e.dataTransfer.files;
+    if (files.length > 0) {
+        document.getElementById('csv-file').files = files;
+        document.getElementById('csvUploadForm').submit();
+    }
+});
+
+$(document).ready(function(){
+    $('.view_student').click(function(){
+        uni_modal("<i class='fa fa-id-card'></i> Student Details","<?php echo $_SESSION['login_view_folder']; ?>view_student.php?id="+$(this).attr('data-id'));
+    });
+    $('.delete_student').click(function(){
+        _conf("Are you sure to delete this student?","delete_student",[$(this).attr('data-id')]);
+    });
+    $('#list').dataTable();
+});
+function delete_student(id){
+    start_load();
+    $.ajax({
+        url:'ajax.php?action=delete_student',
+        method:'POST',
+        data:{id:id},
+        success:function(resp){
+            if(resp==1){
+                alert_toast("Data successfully deleted",'success');
+                setTimeout(function(){
+                    location.reload();
+                },1500);
+            }
+        }
+    });
+}
+
+// Handle delete action for pending students
+function deleteStudent(id) {
+    if (confirm('Are you sure you want to delete this student?')) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = ''; // current page
+        var actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'delete';
+        form.appendChild(actionInput);
+
+        var idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'id';
+        idInput.value = id;
+        form.appendChild(idInput);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
 </script>
