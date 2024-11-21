@@ -2,7 +2,7 @@
     <div class="brand-container">
         <a>
             <img src="assets/uploads/LoaLogo.png" alt="Faculty Panel Logo" class="brand-logo">
-            <h4 class="text-center p-0 m-0"><b>FACULTY PANEL</b></h4>
+            <h4 class="text-center p-0 m-0"><b>TEACHER PANEL</b></h4>
         </a>
     </div>
     

@@ -121,6 +121,14 @@ function ordinal_suffix($num)
         color: black !important;
         font-weight: 700 !important;
     }
+
+
+    .rates {
+        color: black !important; /* Change to a contrasting color */
+        /* Optional: Makes the text bolder for better visibility */
+    }
+
+
 </style>
 <noscript>
     <style>
