@@ -50,13 +50,17 @@ if ($result && $result->num_rows > 0) {
                     <h5>
                         <b>&nbsp;Academic Year:</b>
                         <span class="academic-year">
-                            <?php echo $_SESSION['academic']['year'] . ' ' . ordinal_suffix1($_SESSION['academic']['semester']); ?>
+                            <?php echo $_SESSION['academic']['year']; ?>
                         </span>
                     </h5>
                     <h6>
                         <b>&nbsp;Evaluation Status:</b>
                         <span class="evaluation-status">
                             <?php echo $astat[$_SESSION['academic']['status']]; ?>
+                        </span>
+                        <b>&nbsp;Semester:</b>
+                        <span class="evaluation-status">
+                            <?php echo ordinal_suffix1($_SESSION['academic']['semester']); ?>
                         </span>
                         <b>&nbsp;Term:</b>
                         <span class="evaluation-status">
