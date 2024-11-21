@@ -245,8 +245,6 @@ $average_remarks = get_remarks($combined_total_rating);
 <html>
 <head>
     <title>Evaluation Summary</title>
-    <!-- Include Bootstrap CSS and JS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Include Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
     <!-- Include custom CSS for print and styling -->

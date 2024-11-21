@@ -1,3 +1,5 @@
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
 <style>
     .main-sidebar {
         background: #1C204B;
@@ -159,7 +161,7 @@
                 </li>
                 <li class="nav-item">
                     <a href="#" class="nav-link nav-edit_student">
-                        <i class="nav-icon fa ion-ios-people-outline"></i>
+                        <i class="nav-icon fa-solid fa-user-graduate"></i>
                         <p>Students<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
