@@ -73,10 +73,14 @@ while ($row = $result->fetch_assoc()) {
 
 <div class="section-container">
     <?php
-    // Array to track sections that have already been displayed
+    // Initialize $displayed_sections as an empty array to track displayed sections
     $displayed_sections = [];
 
-    foreach ($sections as $section => $subjects): 
+    // Fetch the current term from the session (default to 'Not Set' if not available)
+    $current_term = $_SESSION['academic']['term'] ?? 'Not Set';
+
+    // Iterate over sections and subjects
+    foreach ($sections as $section => $subjects):
         // Skip the section if it's already displayed
         if (in_array($section, $displayed_sections)) {
             continue;
@@ -84,9 +88,70 @@ while ($row = $result->fetch_assoc()) {
 
         // Add the section to the displayed list to prevent duplicates
         $displayed_sections[] = $section;
+
+        // Fetch the class_id for the current section
+        $class_query = $conn->prepare("SELECT id FROM class_list WHERE section = ?");
+        $class_query->bind_param('s', $section);
+        if ($class_query->execute()) {
+            $class_result = $class_query->get_result();
+            $class_data = $class_result->fetch_assoc();
+            $class_id = $class_data['id'] ?? null;
+        } else {
+            // Handle query error
+            echo "Error fetching class_id for section: $section";
+            continue; // Skip to next section if query fails
+        }
+
+        // Initialize the evaluations count
+        $completed_evaluations = 0;
+        $total_students = 0;
+
+        // Check if class_id and current_term are valid
+        if ($class_id && $current_term !== 'Not Set') {
+            // Fetch the teacher details from faculty_list and faculty_classes to match the teacher with the class
+            $teacher_query = $conn->prepare("
+                SELECT f.firstname, f.lastname, fc.class_id 
+                FROM faculty_list f
+                JOIN faculty_classes fc ON fc.faculty_id = f.id
+                WHERE fc.class_id = ?
+            ");
+            $teacher_query->bind_param('i', $class_id);
+            if ($teacher_query->execute()) {
+                $teacher_result = $teacher_query->get_result();
+                while ($teacher_data = $teacher_result->fetch_assoc()) {
+                    $teacher_firstname = $teacher_data['firstname'];
+                    $teacher_lastname = $teacher_data['lastname'];
+
+                    // Count students who have evaluated the teacher
+                    $eval_query = $conn->prepare("
+                        SELECT COUNT(DISTINCT e.student_id) AS evaluations_completed
+                        FROM evaluation_list e
+                        JOIN faculty_list f ON e.faculty_id = f.id
+                        JOIN academic_list a ON e.academic_id = a.id
+                        WHERE e.class_id = ? 
+                        AND e.faculty_id = (SELECT id FROM faculty_list WHERE firstname = ? AND lastname = ?)
+                        AND a.term = ?
+                    ");
+                    $eval_query->bind_param('isss', $class_id, $teacher_firstname, $teacher_lastname, $current_term);
+                    if ($eval_query->execute()) {
+                        $eval_result = $eval_query->get_result();
+                        $eval_data = $eval_result->fetch_assoc();
+                        $completed_evaluations = $eval_data['evaluations_completed'] ?? 0;
+                    } else {
+                        // Handle query error
+                        echo "Error fetching evaluations count for teacher: $teacher_firstname $teacher_lastname";
+                        continue; // Skip to next teacher if query fails
+                    }
+                }
+            } else {
+                // Handle query error
+                echo "Error fetching teacher details for section: $section";
+                continue; // Skip to next section if query fails
+            }
+        }
     ?>
         <div class="section-card">
-            <?php foreach ($subjects as $subject => $students): 
+            <?php foreach ($subjects as $subject => $students):
                 $total_students = count($students); // Count total students for this section and subject
             ?>
                 <div class="cardt">
@@ -100,7 +165,8 @@ while ($row = $result->fetch_assoc()) {
                             </div>
                             <div>
                                 <div class="viewstudent">Evaluations Completed</div>
-                                <div class="viewstudent">0</div>
+                                <div class="viewstudent"><?php echo $completed_evaluations; ?></div>
+                                <div class="viewstudent"><?php echo htmlspecialchars($current_term); ?></div>
                             </div>
                         </div>
                     </div>
@@ -109,6 +175,8 @@ while ($row = $result->fetch_assoc()) {
         </div>
     <?php endforeach; ?>
 </div>
+
+
 
 
 <style>
