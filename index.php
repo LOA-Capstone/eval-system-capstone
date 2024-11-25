@@ -204,7 +204,7 @@
   }
 
   .main-footer {
-    background: transparent;
+    background: blue transparent;
     color: black;
     font-size: 9px;
     height: auto;

@@ -110,7 +110,7 @@ $subjectName = isset($_GET['subject']) ? $_GET['subject'] : '';
 					 <!-- Comment Textarea -->
 					 <div class="form-group">
     <label for="comment">Comments:</label>
-    <textarea name="comment" id="comment" class="form-control" placeholder="Enter your comments here..." maxlength="255"></textarea>
+    <textarea name="comment" id="comment" class="form-control" placeholder="Enter your comments here...(English Only)" maxlength="255"></textarea>
     <small id="charCount" class="form-text text-muted">255 characters remaining</small>
 </div>
 					</form>

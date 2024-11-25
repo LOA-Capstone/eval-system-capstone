@@ -249,7 +249,31 @@ $average_remarks = get_remarks($combined_total_rating);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">
     <!-- Include custom CSS for print and styling -->
     <style>
+        
         @media print {
+            .signatory{
+            display: flex;
+            justify-content: space-between ;
+            align-items: center;
+            padding: 10px;
+        }
+        .signatory h3{
+            padding-bottom: 100px;
+            font-weight: bolder;
+        }
+        .signatory h1 {
+            text-decoration: underline;
+            }
+        .prepared{
+            width: 45%;
+            text-align: center;
+            padding: 10px;
+        }
+        .noted{
+            width: 45%;
+            text-align: center;
+            padding: 10px;
+        }
             .no-print {
                 display: none;
             }
@@ -289,6 +313,9 @@ $average_remarks = get_remarks($combined_total_rating);
             .print-only {
                 display: none;
             }
+            .signatory{
+            display: none;
+        }
         }
         body {
             background-color: #f8f9fa; /* Light gray background for the entire page */
@@ -330,6 +357,7 @@ $average_remarks = get_remarks($combined_total_rating);
             margin-top: 15px;
             font-style: italic;
         }
+        
         /* Simplistic Print Styling */
         @media print {
             body {
@@ -579,8 +607,25 @@ $average_remarks = get_remarks($combined_total_rating);
                                 <td><strong><?php echo htmlspecialchars($average_remarks); ?></strong></td>
                             </tr>
                         </tbody>
-                    </table>
-                
+                    </table><br>
+                           <div class="signatory">
+                           <div class="prepared">
+                           <br>
+                           <h3 > Prepared by: </h3>
+                           <h1>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</h1>
+
+                            <p><strong> Regie Ellana </strong></p>
+                            <p><strong> CCS Dean </strong></p>
+                            </div>
+                            <div  class="noted"> 
+                            <br>
+                            <h3> Noted by: </h3>
+                            <h1>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</h1>
+
+                            <p><strong> Dr. Leah P. Digo </strong></p>
+                            <p><strong> VP for Academic Affairs </strong></p>
+                            </div>
+                           </div>    
                 </div>
             </div>
         </div>
