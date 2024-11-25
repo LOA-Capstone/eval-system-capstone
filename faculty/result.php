@@ -33,7 +33,6 @@ function ordinal_suffix($num)
     <div class="row">
         <div class="col-md-12 mb-1">
             <div class="d-flex justify-content-end w-100">
-                <!-- <button class="btn btn-sm btn-success bg-gradient-success" style="display:none" id="print-btn"  onclick="window.print()"><i class="fa fa-print"></i> Print</button> -->
                 <button class="btn btn-sm btn-success bg-gradient-success" onclick="window.print()"><i class="fa fa-print"></i> Print</button>
             </div>
         </div>
@@ -122,13 +121,9 @@ function ordinal_suffix($num)
         font-weight: 700 !important;
     }
 
-
     .rates {
-        color: black !important; /* Change to a contrasting color */
-        /* Optional: Makes the text bolder for better visibility */
+        color: black !important;
     }
-
-
 </style>
 <noscript>
     <style>
@@ -164,8 +159,6 @@ function ordinal_suffix($num)
 </noscript>
 
 <!-- Include Chart.js Library -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Include Chart.js Library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
 <!-- Include Chart.js Data Labels Plugin -->
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -176,7 +169,7 @@ function ordinal_suffix($num)
         load_class()
     })
 
-    var sentimentChart; // Declare globally to manage chart instances
+    var sentimentChart;
 
     function load_class() {
         start_load()
@@ -259,10 +252,10 @@ function ordinal_suffix($num)
                         $('.rates').text('')
                         $('#tse').text('')
                         $('#print-btn').hide()
-                        // Remove previous dynamic content if no data
                         $('#total-average').remove();
                         $('#average-sentiment').remove();
                         $('#sentiment-distribution').remove();
+                        $('#comments-section').remove();
                     } else {
                         $('#print-btn').show()
                         $('#tse').text(resp.tse)
@@ -274,7 +267,7 @@ function ordinal_suffix($num)
                             var average_q = 0;
                             Object.keys(data[q]).map(r => {
                                 $('.rate_' + r + '_' + q).text(data[q][r] + '%')
-                                var percentage = data[q][r]; // percentage as a number
+                                var percentage = data[q][r];
                                 var rating = parseInt(r);
                                 average_q += (percentage / 100) * rating;
                             })
@@ -283,22 +276,17 @@ function ordinal_suffix($num)
                         })
                         var totalAverage = totalSum / totalQuestions;
 
-                        // Remove previous dynamic content
                         $('#total-average').remove();
                         $('#average-sentiment').remove();
                         $('#sentiment-distribution').remove();
 
-                        // Display total average
                         $('#printable').append('<div id="total-average" style="margin-top:20px;"><h4><b>Total Average:</b> ' + totalAverage.toFixed(2) + '</h4></div>');
 
-                        // Now display average polarity and subjectivity
                         var avg_polarity = parseFloat(resp.avg_polarity);
                         var avg_subjectivity = parseFloat(resp.avg_subjectivity);
 
-                        // Determine sentiment label based on avg_polarity
                         var sentimentLabel = '';
-                        var score = avg_polarity; // avg_polarity ranges from -1 to 1
-                        // Normalize polarity to 0 - 1
+                        var score = avg_polarity;
                         var normalized_polarity = (score + 1) / 2;
 
                         if (0.0 <= normalized_polarity && normalized_polarity < 0.1) {
@@ -319,7 +307,6 @@ function ordinal_suffix($num)
                             sentimentLabel = 'Unknown';
                         }
 
-                        // Similarly for subjectivity
                         var subjectivityLabel = '';
                         var subj_score = avg_subjectivity;
 
@@ -341,11 +328,9 @@ function ordinal_suffix($num)
                             subjectivityLabel = 'Unknown';
                         }
 
-                        // Calculate percentages
                         var avg_polarity_percent = avg_polarity * 100;
                         var avg_subjectivity_percent = avg_subjectivity * 100;
 
-                        // Append the new content with canvas elements for charts
                         $('#printable').append(
                             '<div id="average-sentiment" style="margin-top:20px;">' +
                             '<h4><b>Average Sentiment Scores:</b></h4>' +
@@ -364,7 +349,6 @@ function ordinal_suffix($num)
                             '</div>'
                         );
 
-                        // Create the Polarity Chart
                         var ctxP = document.getElementById('polarityChart').getContext('2d');
                         var polarityChart = new Chart(ctxP, {
                             type: 'doughnut',
@@ -378,7 +362,7 @@ function ordinal_suffix($num)
                                 }]
                             },
                             options: {
-                                cutoutPercentage: 80, // Adjust the thickness of the donut
+                                cutoutPercentage: 80,
                                 rotation: -Math.PI / 2,
                                 circumference: Math.PI * 2,
                                 tooltips: {
@@ -387,7 +371,6 @@ function ordinal_suffix($num)
                             }
                         });
 
-                        // Create the Subjectivity Chart
                         var ctxS = document.getElementById('subjectivityChart').getContext('2d');
                         var subjectivityChart = new Chart(ctxS, {
                             type: 'doughnut',
@@ -410,7 +393,6 @@ function ordinal_suffix($num)
                             }
                         });
 
-                        // Process the sentiment counts and create the 7-bar chart
                         var sentimentCounts = resp.sentiment_counts;
                         var sentimentLabels = [
                             'Very Strong (Negative)',
@@ -423,12 +405,10 @@ function ordinal_suffix($num)
                         ];
                         var sentimentData = sentimentLabels.map(label => sentimentCounts[label]);
 
-                        // Remove previous chart if exists
                         if (sentimentChart) {
                             sentimentChart.destroy();
                         }
 
-                        // Append new div with canvas
                         $('#printable').append(
                             '<div id="sentiment-distribution" style="margin-top:20px;">' +
                             '<h4><b>Sentiment Distribution:</b></h4>' +
@@ -436,15 +416,14 @@ function ordinal_suffix($num)
                             '</div>'
                         );
 
-                        // Colors for the bars
                         var barColors = [
-                            '#d73027', // Very Strong (Negative)
-                            '#fc8d59', // Strong (Negative)
-                            '#fee090', // Moderate (Negative)
-                            '#ffffbf', // Neutral
-                            '#e0f3f8', // Moderate (Positive)
-                            '#91bfdb', // Strong (Positive)
-                            '#4575b4' // Very Strong (Positive)
+                            '#d73027',
+                            '#fc8d59',
+                            '#fee090',
+                            '#ffffbf',
+                            '#e0f3f8',
+                            '#91bfdb',
+                            '#4575b4'
                         ];
 
                         var ctxSentiment = document.getElementById('sentimentChart').getContext('2d');
@@ -460,32 +439,33 @@ function ordinal_suffix($num)
                             },
                             options: {
                                 scales: {
-                                    yAxes: [{
+                                    y: {
+                                        beginAtZero: true,
                                         ticks: {
-                                            beginAtZero: true,
                                             precision: 0
                                         }
-                                    }]
+                                    }
                                 },
-                                legend: {
-                                    display: false
-                                },
-                                tooltips: {
-                                    mode: 'index',
-                                    intersect: false
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    tooltip: {
+                                        mode: 'index',
+                                        intersect: false
+                                    }
                                 },
                                 responsive: true,
                                 maintainAspectRatio: true
                             }
                         });
-                    }
-          
-                        // New code to handle comments
+
+                        // Display comments with new design
                         if (resp.comments && resp.comments.length > 0) {
                             display_comments(resp.comments);
                         } else {
                             $('#comments-section').remove();
-                        
+                        }
                     }
                 }
             },
@@ -496,107 +476,126 @@ function ordinal_suffix($num)
     }
 
     $('#print-btn').click(function() {
-    start_load();
+        start_load();
 
-    // Capture the chart images as base64
-    var charts = document.querySelectorAll('canvas');
-    var totalCharts = charts.length;
-    var chartsProcessed = 0;
-    var chartImages = [];
+        var charts = document.querySelectorAll('canvas');
+        var totalCharts = charts.length;
+        var chartsProcessed = 0;
+        var chartImages = [];
 
-    // Loop through each chart and convert it to an image (base64)
-    charts.forEach(function(chart, index) {
-        var img = new Image();
-        img.src = chart.toDataURL(); // Convert canvas to base64 image
-        img.onload = function() {
-            // Store the image in chartImages array
-            chartImages.push(img);
+        charts.forEach(function(chart, index) {
+            var img = new Image();
+            img.src = chart.toDataURL();
+            img.onload = function() {
+                chartImages.push(img);
 
-            // Once all charts are processed, proceed with printing
-            chartsProcessed++;
-            if (chartsProcessed === totalCharts) {
-                // Proceed to generate printable content
-                generatePrintableContent(chartImages);
-            }
-        };
-    });
-
-    function generatePrintableContent(chartImages) {
-        // Clone the printable content and replace canvas elements with images
-        var ns = $('noscript').clone();
-        var content = $('#printable').html();
-
-        // Find all canvas elements and replace them with the corresponding images
-        var canvases = document.querySelectorAll('canvas');
-
-        canvases.forEach(function(canvas, index) {
-            // Generate the <img> tag to replace each <canvas>
-            var imgTag = `<img src="${chartImages[index].src}" alt="Chart ${index + 1}" style="display:block; max-width:100%; height:auto;">`;
-            content = content.replace(canvas.outerHTML, imgTag);  // Replace canvas with corresponding image
+                chartsProcessed++;
+                if (chartsProcessed === totalCharts) {
+                    generatePrintableContent(chartImages);
+                }
+            };
         });
 
-        // Create a new window for printing
-        var nw = window.open("Report", "_blank", "width=900,height=700");
-        nw.document.write(content);
-        nw.document.close();
+        function generatePrintableContent(chartImages) {
+            var ns = $('noscript').clone();
+            var content = $('#printable').html();
 
-        // Wait for the document to be fully loaded before printing
-        setTimeout(function() {
-            nw.print();
+            var canvases = document.querySelectorAll('canvas');
+
+            canvases.forEach(function(canvas, index) {
+                var imgTag = `<img src="${chartImages[index].src}" alt="Chart ${index + 1}" style="display:block; max-width:100%; height:auto;">`;
+                content = content.replace(canvas.outerHTML, imgTag);
+            });
+
+            var nw = window.open("Report", "_blank", "width=900,height=700");
+            nw.document.write(content);
+            nw.document.close();
+
             setTimeout(function() {
-                nw.close();
-                end_load();
-            }, 750);
-        }, 500);
-    }
-});
-
-
-
-
-    function display_comments(comments) {
-    // Remove existing comments section if it exists
-    $('#comments-section').remove();
-
-    // Create a new comments section
-    var commentsHtml = '<div id="comments-section" style="margin-top:20px;">' +
-        '<h4><b>Student Comments:</b></h4>';
-
-    comments.forEach(function(comment) {
-        commentsHtml += '<div class="comment-item" style="border-bottom: 1px solid #ccc; padding: 10px 0;">' +
-            '<p><b>Sentiment:</b> ' + comment.sentiment + '</p>' +
-            '<p><b>Comment:</b> ' + comment.comment + '</p>' +
-            '</div>';
+                nw.print();
+                setTimeout(function() {
+                    nw.close();
+                    end_load();
+                }, 750);
+            }, 500);
+        }
     });
 
-    commentsHtml += '</div>';
+    function display_comments(comments) {
+        $('#comments-section').remove();
 
-    // Append the comments section to the printable area
-    $('#printable').append(commentsHtml);
-}
+        var commentsHtml = '<div id="comments-section" style="margin-top:20px;">' +
+            '<h4><b>Student Comments:</b></h4>';
 
+        comments.forEach(function(comment) {
+            commentsHtml +=
+                '<div class="comment-item card mb-3">' +
+                '<div class="card-body">' +
+                '<h5 class="card-title">Sentiment: ' + comment.sentiment + '</h5>' +
+                '<p class="card-text">' + comment.comment + '</p>' +
+                '</div>' +
+                '</div>';
+        });
+
+        commentsHtml += '</div>';
+
+        $('#printable').append(commentsHtml);
+    }
 </script>
 
 <style>
     #comments-section {
         margin-top: 20px;
     }
+
     .comment-item {
-        border-bottom: 1px solid #ccc;
-        padding: 10px 0;
-    }
-    .comment-item:last-child {
-        border-bottom: none;
+        border: 1px solid #ccc;
+        border-radius: 5px;
     }
 
-	#sentimentChartContainer {
-    max-width: 800px; /* Adjust this value as needed */
-    margin: 0 auto;
-}
+    .comment-item .card-body {
+        padding: 15px;
+    }
 
-#sentimentChart {
-    width: 100% !important;
-    height: auto !important;
-}
+    .comment-item .card-title {
+        margin-bottom: 10px;
+        font-size: 18px;
+        color: #333;
+    }
 
+    .comment-item .card-text {
+        font-size: 16px;
+        color: #555;
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        #printable, #printable * {
+            visibility: visible;
+        }
+
+        #printable {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+
+        .no-print, .no-print * {
+            display: none !important;
+        }
+    }
+
+    #sentimentChartContainer {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    #sentimentChart {
+        width: 100% !important;
+        height: auto !important;
+    }
 </style>

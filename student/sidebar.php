@@ -114,7 +114,7 @@
                 <li class="nav-item dropdown">
                     <a href="./index.php?page=evaluate" class="nav-link nav-evaluate">
                         <i class="nav-icon fas fa-check-circle"></i>
-                        <p>Evaluate Professors</p>
+                        <p>Evaluate Teachers</p>
                     </a>
                 </li>
                 <li class="nav-item dropdown">
