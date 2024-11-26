@@ -188,26 +188,28 @@
                 }
             }
             $.ajax({
-                url:'ajax.php?action=save_student',
-                data: new FormData($(this)[0]),
-                cache: false,
-                contentType: false,
-                processData: false,
-                method: 'POST',
-                type: 'POST',
-                success:function(resp){
-                    if(resp == 1){
-                        alert_toast('Data successfully saved.',"success");
-                        setTimeout(function(){
-                            location.replace('index.php?page=student_list')
-                        },750)
-                    } else if(resp == 2){
-                        $('#msg').html("<div class='alert alert-danger'>Email already exist.</div>");
-                        $('[name="email"]').addClass("border-danger")
-                        end_load()
-                    }
-                }
-            })
+			url: 'ajax.php?action=save_student',
+			data: new FormData($(this)[0]),
+			cache: false,
+			contentType: false,
+			processData: false,
+			method: 'POST',
+			type: 'POST',
+			success: function(resp) {
+				if (resp == 1) {
+					alert_toast('Data successfully saved.', "success");
+					setTimeout(function() {
+						location.replace('index.php?page=student_list')
+					}, 750)
+				} else if (resp == 2) {
+					$('#msg').html("<div class='alert alert-danger'>Email already exist.</div>");
+					$('[name="email"]').addClass("border-danger")
+                    $('#msg').html("<div class='alert alert-danger'>School ID already exist.</div>");
+					$('[name="school_id"]').addClass("border-danger")
+					end_load()
+				} 
+			}
+		})
         })
     });
 </script>
