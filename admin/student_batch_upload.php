@@ -1,3 +1,4 @@
+
 <?php
 // Enable error reporting
 error_reporting(E_ALL);
@@ -24,6 +25,68 @@ if ($conn->connect_error) {
 $message = '';
 $duplicates = [];
 $pendingRows = [];
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Get the action and ID from POST data
+    $action = $_POST['action'] ?? '';
+    $studentId = $_POST['id'] ?? '';
+    $updatedData = $_POST['updated_data'] ?? '';
+
+    // Check if action is 'update_student' and if ID and updated data are provided
+    if ($action == 'update_student' && $studentId && $updatedData) {
+        // Decode the JSON data into an associative array
+        $updatedData = json_decode($updatedData, true);
+
+        // Prepare your SQL update statement using the decoded data
+        $sql = "UPDATE student_batch SET
+                    school_id=?,
+                    firstname = ?, 
+                    lastname = ?, 
+                    email = ?, 
+                    curriculum = ?, 
+                    level = ?, 
+                    section = ?, 
+                    password = ? 
+                WHERE id = ?";
+
+        // Prepare the statement
+        if ($stmt = $conn->prepare($sql)) {
+            // Bind parameters
+            $stmt->bind_param("ssssssssi", 
+            $updatedData['school_id'], 
+                $updatedData['firstname'], 
+                $updatedData['lastname'], 
+                $updatedData['email'], 
+                $updatedData['curriculum'], 
+                $updatedData['level'], 
+                $updatedData['section'], 
+                $updatedData['password'], 
+                $studentId
+            );
+
+            // Execute the query
+            if ($stmt->execute()) {
+                // Return success
+                echo json_encode(['success' => true]);
+            } else {
+                // Return error
+                echo json_encode(['success' => false, 'message' => 'Failed to update data']);
+            }
+
+            // Close the statement
+            $stmt->close();
+        } else {
+            // Return error if SQL query preparation fails
+            echo json_encode(['success' => false, 'message' => 'Failed to prepare SQL query']);
+        }
+    } else {
+        // Return error if action is not correct or required data is missing
+        echo json_encode(['success' => false, 'message' => 'Invalid data or action']);
+    }
+} else {
+    // Return error if request method is not POST
+    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+}
 
 // Handle CSV Upload and Processing
 if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK) {
@@ -283,89 +346,104 @@ $duplicates = $duplicates ?? [];
 
     <!-- Display pending students -->
     <?php if (!empty($pendingRows)): ?>
-        <h3>Pending Students</h3>
-        <form method="POST" id="addStudentsForm">
-            <input type="hidden" name="action" value="add_students">
-            <div class="table-container">
-                <table class="Table1">
-                    <tr>
-                        <th>Select</th>
-                        <th>School ID</th>
-                        <th>Firstname</th>
-                        <th>Lastname</th>
-                        <th>Email</th>
-                        <th>Curriculum</th>
-                        <th>Level</th>
-                        <th>Section</th>
-                        <th>Class ID</th>
-                        <th>Actions</th>
+    <h3>Pending Students</h3>
+    <form method="POST" id="addStudentsForm">
+        <input type="hidden" name="action" value="add_students">
+        <div class="table-container">
+            <table class="Table1">
+                <tr>
+                    <th>Select</th>
+                    <th>School ID</th>
+                    <th>Firstname</th>
+                    <th>Lastname</th>
+                    <th>Email</th>
+                    <th>Curriculum</th>
+                    <th>Level</th>
+                    <th>Section</th>
+                    <th>Class ID</th>
+                    <th>Actions</th>
+                </tr>
+                <?php foreach ($pendingRows as $row): ?>
+                    <tr id="row-<?php echo $row['id']; ?>">
+                        <td><input type="checkbox" name="selected_students[]" value="<?php echo $row['id']; ?>"></td>
+                        <td class="editable" data-field="school_id"><?php echo htmlspecialchars($row['school_id'] ?? ''); ?></td>
+                        <td class="editable" data-field="firstname"><?php echo htmlspecialchars($row['firstname'] ?? ''); ?></td>
+                        <td class="editable" data-field="lastname"><?php echo htmlspecialchars($row['lastname'] ?? ''); ?></td>
+                        <td class="editable" data-field="email"><?php echo htmlspecialchars($row['email'] ?? ''); ?></td>
+                        <td class="editable" data-field="curriculum"><?php echo htmlspecialchars($row['curriculum'] ?? ''); ?></td>
+                        <td class="editable" data-field="level"><?php echo htmlspecialchars($row['level'] ?? ''); ?></td>
+                        <td class="editable" data-field="section"><?php echo htmlspecialchars($row['section'] ?? ''); ?></td>
+                        <td><?php echo htmlspecialchars($row['class_id'] ?? ''); ?></td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-primary edit-btn" onclick="editRow(<?php echo $row['id']; ?>)">Edit</button>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="deleteStudent(<?php echo $row['id']; ?>)">Delete</button>
+                        </td>
                     </tr>
-                    <?php foreach ($pendingRows as $row): ?>
-                        <tr>
-                            <td><input type="checkbox" name="selected_students[]" value="<?php echo $row['id']; ?>"></td>
-                            <td><?php echo htmlspecialchars($row['school_id'] ?? ''); ?></td>
-                            <td><?php echo htmlspecialchars($row['firstname'] ?? ''); ?></td>
-                            <td><?php echo htmlspecialchars($row['lastname'] ?? ''); ?></td>
-                            <td><?php echo htmlspecialchars($row['email'] ?? ''); ?></td>
-                            <td><?php echo htmlspecialchars($row['curriculum'] ?? ''); ?></td>
-                            <td><?php echo htmlspecialchars($row['level'] ?? ''); ?></td>
-                            <td><?php echo htmlspecialchars($row['section'] ?? ''); ?></td>
-                            <td><?php echo htmlspecialchars($row['class_id'] ?? ''); ?></td>
-                            <td>
-                                <!-- Provide edit and delete options -->
-                                <a href="?edit_id=<?php echo $row['id']; ?>" class="btn btn-sm btn-primary">Edit</a>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteStudent(<?php echo $row['id']; ?>)">Delete</button>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </table>
-            </div>
-            <button type="submit">Add Selected Students</button>
-        </form>
-    <?php endif; ?>
-
-    <!-- Edit Form -->
-    <?php
-    // Check if editing a student
-    if (isset($_GET['edit_id'])) {
-        $edit_id = $_GET['edit_id'];
-        // Fetch the student's data
-        $stmt = $conn->prepare("SELECT * FROM student_batch WHERE id = ?");
-        $stmt->bind_param("i", $edit_id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($student = $result->fetch_assoc()) {
-            ?>
-            <h3>Edit Student</h3>
-            <form method="POST">
-                <input type="hidden" name="action" value="update">
-                <input type="hidden" name="id" value="<?php echo $student['id']; ?>">
-                <label>School ID:</label>
-                <input type="text" name="school_id" value="<?php echo htmlspecialchars($student['school_id'] ?? ''); ?>" required>
-                <label>Firstname:</label>
-                <input type="text" name="firstname" value="<?php echo htmlspecialchars($student['firstname'] ?? ''); ?>" required>
-                <label>Lastname:</label>
-                <input type="text" name="lastname" value="<?php echo htmlspecialchars($student['lastname'] ?? ''); ?>" required>
-                <label>Email:</label>
-                <input type="email" name="email" value="<?php echo htmlspecialchars($student['email'] ?? ''); ?>" required>
-                <label>Curriculum:</label>
-                <input type="text" name="curriculum" value="<?php echo htmlspecialchars($student['curriculum'] ?? ''); ?>" required>
-                <label>Level:</label>
-                <input type="text" name="level" value="<?php echo htmlspecialchars($student['level'] ?? ''); ?>" required>
-                <label>Section:</label>
-                <input type="text" name="section" value="<?php echo htmlspecialchars($student['section'] ?? ''); ?>" required>
-                <button type="submit" name="action" value="update">Update Student</button>
-            </form>
-            <?php
-        } else {
-            echo "<div class='error'>Student not found.</div>";
-        }
-        $stmt->close();
-    }
-    ?>
-</div>
+                <?php endforeach; ?>
+            </table>
+        </div>
+        <button type="submit">Add Selected Students</button>
+    </form>
+<?php endif; ?>
 
 <script>
+     // Function to toggle between view and edit modes for each table row
+    function editRow(id) {
+        const row = document.getElementById('row-' + id);
+        const cells = row.querySelectorAll('.editable');
+        const editButton = row.querySelector('.edit-btn');
+        
+        // Toggle between Edit and Save
+        if (editButton.innerHTML === 'Edit') {
+            editButton.innerHTML = 'Save';  // Change button to Save
+            cells.forEach(cell => {
+                const field = cell.getAttribute('data-field');
+                const cellValue = cell.innerHTML;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = cellValue;
+                input.setAttribute('data-field', field);
+                cell.innerHTML = '';  // Clear the cell content
+                cell.appendChild(input);  // Add input field
+            });
+        } else {
+            // Collect updated data when Save is clicked
+            editButton.innerHTML = 'Edit';  // Change button back to Edit
+            const updatedData = {};
+            cells.forEach(cell => {
+                const input = cell.querySelector('input');
+                if (input) {
+                    const field = input.getAttribute('data-field');
+                    updatedData[field] = input.value;  // Collect updated value
+                    cell.innerHTML = input.value;  // Update the cell content
+                }
+            });
+
+            // Send updated data to the server using AJAX
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'admin/student_batch_upload.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        console.log('Data updated successfully');
+                        // Optionally, you can show a success message here
+                    } else {
+                        alert('Failed to update data');
+                    }
+                }
+            };
+
+            // Send data as URL encoded parameters
+            const params = new URLSearchParams();
+            params.append('action', 'update_student');
+            params.append('id', id);
+            params.append('updated_data', JSON.stringify(updatedData));  // Send the updated data
+
+            xhr.send(params.toString());  // Send the request
+        }
+    }
 // Automatically submit the form when a file is selected
 document.getElementById('csv-file').addEventListener('change', function() {
     document.getElementById('csvUploadForm').submit();
