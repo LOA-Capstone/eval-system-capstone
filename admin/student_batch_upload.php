@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         $password_md5 = md5($password_plain);
 
         // Check for duplicates in student_batch
-        $stmtCheckBatch = $conn->prepare("SELECT id FROM student_batch WHERE (school_id = ? OR email = ?) AND id != ?");
+        $stmtCheckBatch = $conn->prepare("SELECT id FROM student_batch WHERE (school_id = ? OR email = ?) AND id != ? AND status != 'removed'");
         $stmtCheckBatch->bind_param("ssi", $school_id, $email, $id);
         $stmtCheckBatch->execute();
         if ($stmtCheckBatch->fetch()) {
@@ -162,6 +162,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             // No students selected
             $message = "<div class='error'>No students were selected to add.</div>";
         }
+    } elseif ($action === 'clear_data') {
+        // Handle clear data action
+        // Clear pending students from student_batch where status is 'pending'
+        $stmtClearPending = $conn->prepare("DELETE FROM student_batch WHERE status = 'pending'");
+        $stmtClearPending->execute();
+        $stmtClearPending->close();
+
+        // Reset the duplicates array
+        $duplicates = [];
+
+        // Set a success message
+        $message = "<div class='success'>
+        <span class='success-icon'>&#10004;</span> <!-- Checkmark icon -->
+        <span class='success-text'>Pending students and duplicate records have been cleared successfully.</span>
+    </div>";
+
     }
 }
 
@@ -231,21 +247,31 @@ if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK
                         $row['password'] = $password_md5;
 
                         // Check for duplicates in student_batch
-                        $stmtCheckBatch = $conn->prepare("SELECT id FROM student_batch WHERE school_id = ? AND email = ?");
+                        $stmtCheckBatch = $conn->prepare("SELECT id, status FROM student_batch WHERE school_id = ? AND email = ?");
                         $stmtCheckBatch->bind_param("ss", $row['school_id'], $row['email']);
                         $stmtCheckBatch->execute();
+                        $stmtCheckBatch->bind_result($batch_id, $batch_status);
                         if ($stmtCheckBatch->fetch()) {
-                            // Duplicate in batch, skip
+                            // Duplicate found in batch
                             $stmtCheckBatch->close();
-                            continue;
+                            if ($batch_status == 'removed') {
+                                // Update status back to 'pending' and update fields
+                                $stmtUpdate = $conn->prepare("UPDATE student_batch SET firstname = ?, lastname = ?, curriculum = ?, level = ?, section = ?, password = ?, class_id = ?, status = 'pending' WHERE id = ?");
+                                $stmtUpdate->bind_param("sssssisi", $row['firstname'], $row['lastname'], $row['curriculum'], $row['level'], $row['section'], $row['password'], $row['class_id'], $batch_id);
+                                $stmtUpdate->execute();
+                                $stmtUpdate->close();
+                            } else {
+                                // Student is already pending or added, skip
+                                continue;
+                            }
+                        } else {
+                            $stmtCheckBatch->close();
+                            // Insert into student_batch with status 'pending'
+                            $stmtInsert = $conn->prepare("INSERT INTO student_batch (school_id, firstname, lastname, email, curriculum, level, section, password, class_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+                            $stmtInsert->bind_param("ssssssssi", $row['school_id'], $row['firstname'], $row['lastname'], $row['email'], $row['curriculum'], $row['level'], $row['section'], $row['password'], $row['class_id']);
+                            $stmtInsert->execute();
+                            $stmtInsert->close();
                         }
-                        $stmtCheckBatch->close();
-
-                        // Insert into student_batch with status 'pending'
-                        $stmtInsert = $conn->prepare("INSERT INTO student_batch (school_id, firstname, lastname, email, curriculum, level, section, password, class_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
-                        $stmtInsert->bind_param("ssssssssi", $row['school_id'], $row['firstname'], $row['lastname'], $row['email'], $row['curriculum'], $row['level'], $row['section'], $row['password'], $row['class_id']);
-                        $stmtInsert->execute();
-                        $stmtInsert->close();
                     }
                     $stmtCheck->close();
                 }
@@ -295,6 +321,9 @@ $duplicates = $duplicates ?? [];
                 <input type="file" name="csv_file" accept=".csv" required id="csv-file">
             </label>
         </form>
+
+        <!-- Add the Clear Data button -->
+        <button type="button" class="clear-data-btn" onclick="clearData()">Clear Data</button>
 
         <?php if ($message): ?>
             <?php echo $message; ?>
@@ -462,88 +491,154 @@ $duplicates = $duplicates ?? [];
         });
 
         // Handle delete action for pending students
-        function deleteStudent(id) {
-            if (confirm('Are you sure you want to delete this student?')) {
-                var form = document.createElement('form');
-                form.method = 'POST';
-                form.action = ''; // current page
-                var actionInput = document.createElement('input');
-                actionInput.type = 'hidden';
-                actionInput.name = 'action';
-                actionInput.value = 'delete';
-                form.appendChild(actionInput);
+           // JavaScript functions as defined above
+           function deleteStudent(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'Do you really want to delete this student?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = ''; // current page
 
-                var idInput = document.createElement('input');
-                idInput.type = 'hidden';
-                idInput.name = 'id';
-                idInput.value = id;
-                form.appendChild(idInput);
+                    var actionInput = document.createElement('input');
+                    actionInput.type = 'hidden';
+                    actionInput.name = 'action';
+                    actionInput.value = 'delete';
+                    form.appendChild(actionInput);
 
-                document.body.appendChild(form);
-                form.submit();
-            }
+                    var idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'id';
+                    idInput.value = id;
+                    form.appendChild(idInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+
+        function clearData() {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: 'This will clear all pending students and duplicate records.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, clear it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = ''; // current page
+
+                    var actionInput = document.createElement('input');
+                    actionInput.type = 'hidden';
+                    actionInput.name = 'action';
+                    actionInput.value = 'clear_data';
+                    form.appendChild(actionInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
         }
 
         function reloadPageAfterDelay(delayInMilliseconds) {
-    setTimeout(() => {
-        window.location.reload();
-    }, delayInMilliseconds);
-}
-
+            setTimeout(() => {
+                Swal.fire({
+                    title: 'Reloading...',
+                    timer: delayInMilliseconds,
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                }).then(() => {
+                    window.location.reload();
+                });
+            }, delayInMilliseconds);
+        }
     </script>
     <style>
-     /* Button base style */
-     .btn.new_academic {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: bold;
-    color: white;
-    background-color: #28a745; /* Green color */
-    border: none;
-    border-radius: 5px;
-    text-decoration: none;
-    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease, background-color 0.2s ease;
-    position: relative;
-    overflow: hidden;
-  }
+        /* Button base style */
+        .btn.new_academic {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            background-color: #28a745; /* Green color */
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
 
-  /* Style the icon */
-  .btn.new_academic i {
-    margin-right: 8px;
-    font-size: 16px;
-    color: #fff;
-    transition: transform 0.2s ease;
-  }
+        /* Style the icon */
+        .btn.new_academic i {
+            margin-right: 8px;
+            font-size: 16px;
+            color: #fff;
+            transition: transform 0.2s ease;
+        }
 
-  /* Style the text */
-  .btn.new_academic .text {
-    transition: opacity 0.2s ease, transform 0.2s ease;
-  }
+        /* Style the text */
+        .btn.new_academic .text {
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
 
-  /* Hover effect */
-  .btn.new_academic:hover {
-    transform: scale(1.05); /* Slight enlargement */
-  }
+        /* Hover effect */
+        .btn.new_academic:hover {
+            transform: scale(1.05); /* Slight enlargement */
+        }
 
-  /* When hovered, the icon moves to the center */
-  .btn.new_academic:hover i {
-    transform: translateX(55px); /* Move the icon to the center */
-  }
+        /* When hovered, the icon moves to the center */
+        .btn.new_academic:hover i {
+            transform: translateX(55px); /* Move the icon to the center */
+        }
 
-  /* Hide the text on hover */
-  .btn.new_academic:hover .text {
-    opacity: 0; /* Hide the text */
-  }
+        /* Hide the text on hover */
+        .btn.new_academic:hover .text {
+            opacity: 0; /* Hide the text */
+        }
 
-  /* Active effect (on click) */
-  .btn.new_academic:active {
-    transform: scale(1); /* Reset size on click */
-  }
-  
+        /* Active effect (on click) */
+        .btn.new_academic:active {
+            transform: scale(1); /* Reset size on click */
+        }
+
+        /* Style for Clear Data button */
+        button.clear-data-btn {
+            padding: 10px 20px;
+            background-color: #dc3545; /* Bootstrap danger color */
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button.clear-data-btn:hover {
+            background-color: #c82333;
+        }
+
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f4f9;
@@ -562,83 +657,83 @@ $duplicates = $duplicates ?? [];
             margin-bottom: 20px;
         }
         .csv-upload-form {
-  background-color: #fff;
-  box-shadow: 0 10px 60px rgb(218, 229, 255);
-  border: 1px solid blue;
-  border-radius: 20px;
-  padding: 2rem .7rem .7rem .7rem;
-  text-align: center;
-  font-size: 1.125rem;
-  max-width: 420px;
-  margin: 0 auto;
-}
+            background-color: #fff;
+            box-shadow: 0 10px 60px rgb(218, 229, 255);
+            border: 1px solid blue;
+            border-radius: 20px;
+            padding: 2rem .7rem .7rem .7rem;
+            text-align: center;
+            font-size: 1.125rem;
+            max-width: 420px;
+            margin: 0 auto;
+        }
 
-.form-title {
-  color: #000000;
-  font-size: 1.8rem;
-  font-weight: 500;
-}
+        .form-title {
+            color: #000000;
+            font-size: 1.8rem;
+            font-weight: 500;
+        }
 
-.form-paragraph {
-  margin-top: 10px;
-  font-size: 0.9375rem;
-  color: rgb(105, 105, 105);
-}
+        .form-paragraph {
+            margin-top: 10px;
+            font-size: 0.9375rem;
+            color: rgb(105, 105, 105);
+        }
 
-.drop-container {
-  background-color: #fff;
-  position: relative;
-  display: flex;
-  gap: 10px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-  margin-top: 2.1875rem;
-  border-radius: 10px;
-  border: 2px dashed rgb(171, 202, 255);
-  color: #444;
-  cursor: pointer;
-  transition: background .2s ease-in-out, border .2s ease-in-out;
-}
+        .drop-container {
+            background-color: #fff;
+            position: relative;
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            margin-top: 2.1875rem;
+            border-radius: 10px;
+            border: 2px dashed rgb(171, 202, 255);
+            color: #444;
+            cursor: pointer;
+            transition: background .2s ease-in-out, border .2s ease-in-out;
+        }
 
-.drop-container:hover {
-  background: rgba(0, 140, 255, 0.164);
-  border-color: rgba(17, 17, 17, 0.616);
-}
+        .drop-container:hover {
+            background: rgba(0, 140, 255, 0.164);
+            border-color: rgba(17, 17, 17, 0.616);
+        }
 
-.drop-container:hover .drop-title {
-  color: #222;
-}
+        .drop-container:hover .drop-title {
+            color: #222;
+        }
 
-.drop-title {
-  color: #444;
-  font-size: 20px;
-  font-weight: bold;
-  text-align: center;
-  transition: color .2s ease-in-out;
-}
+        .drop-title {
+            color: #444;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            transition: color .2s ease-in-out;
+        }
 
-#csv-file {
-  display: none;
-}
+        #csv-file {
+            display: none;
+        }
 
-.submit-btns {
-  background: #1C204B !important;
-  border: none;
-  padding: 10px 20px;
-  color: #fff;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-top: 1rem;
-  width: 100%;
-  font-size: 1rem;
-  transition: background .2s ease-in-out;
-}
+        .submit-btns {
+            background: #1C204B !important;
+            border: none;
+            padding: 10px 20px;
+            color: #fff;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 1rem;
+            width: 100%;
+            font-size: 1rem;
+            transition: background .2s ease-in-out;
+        }
 
-.submit-btns:hover {
-    background: #3C437A !important;
-}
+        .submit-btns:hover {
+            background: #3C437A !important;
+        }
         form {
             margin-bottom: 30px;
             text-align: center;
@@ -665,10 +760,50 @@ $duplicates = $duplicates ?? [];
             margin: 20px 0;
             font-size: 16px;
         }
-        .success {
-            background-color: white;
-            color: white;
-        }
+/* Success message styling */
+.success {
+    display: flex;
+    align-items: center;
+    background-color: #d4edda; /* Light green background */
+    color: #155724; /* Dark green text */
+    border: 1px solid #c3e6cb; /* Border matching the background */
+    padding: 15px 20px;
+    border-radius: 5px;
+    margin: 20px auto;
+    max-width: 600px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Success icon styling */
+.success-icon {
+    font-size: 20px;
+    margin-right: 15px;
+    color: #28a745; /* Slightly brighter green for the icon */
+}
+
+/* Success text styling */
+.success-text {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Optional: Make the success message responsive */
+@media (max-width: 600px) {
+    .success {
+        padding: 10px 15px;
+    }
+    .success-text {
+        font-size: 14px;
+    }
+}
+
         .error {
             background-color: #f8d7da;
             color: #721c24;
@@ -698,26 +833,25 @@ $duplicates = $duplicates ?? [];
             border-radius: 4px;
         }
         button {
-    padding: 10px 20px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 8px;
-    font-size: 16px;
-    margin: 10px 5px; /* Adds space between buttons */
-    transition: background-color 0.3s ease; /* Smooth hover effect */
-}
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 10px 5px; /* Adds space between buttons */
+            transition: background-color 0.3s ease; /* Smooth hover effect */
+        }
 
-button:hover {
-    background-color: #218838;
-}
+        button:hover {
+            background-color: #218838;
+        }
 
-button:focus {
-    outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.6);
-}
-   
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.6);
+        }
     </style>
 </body>
 </html>
