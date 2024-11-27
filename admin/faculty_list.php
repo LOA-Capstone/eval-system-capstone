@@ -305,7 +305,7 @@ button:focus {
             <table class="table table-hover table-bordered" id="list">
                 <thead>
                     <tr>
-                        <th class="text-center">#</th>
+                        <th class="text-center counter">#</th>
                         <th>School ID</th>
                         <th>Name</th>
                         <th>Email</th>

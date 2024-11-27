@@ -10,7 +10,7 @@
             <table class="table table-hover table-bordered" id="list">
                 <thead>
                     <tr>
-                        <th class="text-center">#</th>
+                        <th class="text-center counter">#</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>User Type</th> <!-- New Column -->
@@ -40,12 +40,12 @@
                         }
                     ?>
                     <tr>
-                        <th class="text-center"><?php echo $i++; ?></th>
+                        <th class="text-center counter"><?php echo $i++; ?></th>
                         <td><b><?php echo ucwords($row['name']); ?></b></td>
                         <td><b><?php echo $row['email']; ?></b></td>
                         <td><b><?php echo $user_type; ?></b></td> <!-- Display User Type -->
                         <td><b><?php echo $department; ?></b></td> <!-- Display Department -->
-                        <td class="text-center">
+                        <td class="text-center counter">
                             <button type="button" class="btn btn-default btn-sm btn-flat border-info wave-effect text-info dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                               Action
                             </button>
@@ -91,3 +91,8 @@
         })
     }
 </script>
+<style> 
+            .counter {
+        color: black;
+    }
+</style>

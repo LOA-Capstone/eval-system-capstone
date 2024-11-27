@@ -1,5 +1,8 @@
 <?php include 'db_connect.php'; ?>
 <style>
+      .counter {
+        color: black;
+    }
   /* Button base style */
   .btn.new_class {
     display: inline-flex;
@@ -215,7 +218,7 @@
         </colgroup>
         <thead>
           <tr>
-            <th class="text-center">#</th>
+            <th class="text-center counter">#</th>
             <th>Class</th>
             <th>Action</th>
           </tr>

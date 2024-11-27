@@ -2,6 +2,9 @@
 
 <style>
   /* Button base style */
+  .counter {
+        color: black;
+    }
   .btn.new_subject {
     display: inline-flex;
     align-items: center;
@@ -217,7 +220,7 @@
         </colgroup>
         <thead>
           <tr>
-            <th class="text-center">#</th>
+            <th class="text-center counter">#</th>
             <th>Code</th>
             <th>Subject</th>
             <th>Description</th>
