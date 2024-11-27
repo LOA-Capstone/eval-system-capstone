@@ -37,6 +37,9 @@ while($row = $qry->fetch_assoc()){
 ?>
 
 <style>
+        .counter {
+        color: black;
+    }
   /* Button base style */
   .btn.new_academic {
     display: inline-flex;
@@ -106,7 +109,7 @@ while($row = $qry->fetch_assoc()){
                 <table class="table tabe-hover table-bordered" id="list">
                     <thead>
                         <tr>
-                            <th class="text-center">#</th>
+                            <th class="text-center counter">#</th>
                             <th>School ID</th>
                             <th>Name</th>
                             <th>Email</th>
@@ -118,7 +121,7 @@ while($row = $qry->fetch_assoc()){
                         <?php $i = 1; ?>
                         <?php foreach ($studentList as $student): ?>
                         <tr>
-                            <th class="text-center"><?php echo $i++; ?></th>
+                            <th class="text-center counter"><?php echo $i++; ?></th>
                             <td><b><?php echo htmlspecialchars($student['school_id'] ?? ''); ?></b></td>
                             <td><b><?php echo htmlspecialchars(ucwords($student['name'] ?? '')); ?></b></td>
                             <td><b><?php echo htmlspecialchars($student['email'] ?? ''); ?></b></td>

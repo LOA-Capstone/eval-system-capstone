@@ -5,6 +5,9 @@
   .black-text {
     color: black;
   }
+  .counter {
+        color: black;
+    }
 </style>
 
 <div class="col-lg-12">
@@ -31,7 +34,7 @@
         </colgroup>
         <thead>
           <tr>
-            <th class="text-center">#</th>
+            <th class="text-center counter">#</th>
             <th>Academic Year</th>
             <!-- New Header for Term -->
             <th>Semester</th>

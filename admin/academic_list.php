@@ -1,5 +1,8 @@
 <?php include 'db_connect.php'; ?>
 <style>
+        .counter {
+        color: black;
+    }
 .btn.new_academic {
     display: inline-flex;
     align-items: center;
@@ -113,7 +116,7 @@
                 </colgroup>
                 <thead>
                     <tr>
-                        <th class="text-center">#</th>
+                        <th class="text-center counter">#</th>
                         <th>Year</th>
                         <th>Semester</th>
                         <th>Term</th>
@@ -129,7 +132,7 @@
                     while ($row = $qry->fetch_assoc()):
                     ?>
                     <tr>
-                        <th class="text-center"><?php echo $i++ ?></th>
+                        <th class="text-center counter"><?php echo $i++ ?></th>
                         <td><b><?php echo $row['year'] ?></b></td>
                         <td><b><?php echo $row['semester'] ?></b></td>
                         <td><b><?php echo $row['term'] ?></b></td> <!-- New Term Column -->

@@ -10,7 +10,7 @@
             <table class="table tabe-hover table-bordered" id="list">
                 <thead>
                     <tr>
-                        <th class="text-center" width="50px">#</th>
+                        <th class="text-center counter" width="50px">#</th>
                         <th>Department Name</th>
                         <th>Description</th>
                         <th width="150px">Action</th>
@@ -23,7 +23,7 @@
                     while($row= $qry->fetch_assoc()):
                     ?>
                     <tr>
-                        <td class="text-center"><?php echo $i++ ?></td>
+                        <td class="text-center counter"><?php echo $i++ ?></td>
                         <td><b><?php echo ucwords($row['name']) ?></b></td>
                         <td><?php echo $row['description'] ?></td>
                         <td class="text-center">
@@ -63,3 +63,8 @@
         });
     }
 </script>
+<style> 
+            .counter {
+        color: black;
+    }
+</style>
