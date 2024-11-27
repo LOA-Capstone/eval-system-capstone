@@ -1,4 +1,3 @@
-
 <?php
 // Enable error reporting
 error_reporting(E_ALL);
@@ -26,66 +25,144 @@ $message = '';
 $duplicates = [];
 $pendingRows = [];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Get the action and ID from POST data
-    $action = $_POST['action'] ?? '';
-    $studentId = $_POST['id'] ?? '';
-    $updatedData = $_POST['updated_data'] ?? '';
+// Handle POST actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $action = $_POST['action'];
 
-    // Check if action is 'update_student' and if ID and updated data are provided
-    if ($action == 'update_student' && $studentId && $updatedData) {
-        // Decode the JSON data into an associative array
-        $updatedData = json_decode($updatedData, true);
+    if ($action === 'update_student') {
+        // Retrieve the student ID
+        $id = intval($_POST['id']);
+        
+        // Retrieve updated data
+        $school_id = trim($_POST['school_id']);
+        $firstname = trim($_POST['firstname']);
+        $lastname = trim($_POST['lastname']);
+        $email = trim($_POST['email']);
+        $curriculum = trim($_POST['curriculum']);
+        $level = trim($_POST['level']);
+        $section = trim($_POST['section']);
 
-        // Prepare your SQL update statement using the decoded data
-        $sql = "UPDATE student_batch SET
-                    school_id=?,
-                    firstname = ?, 
-                    lastname = ?, 
-                    email = ?, 
-                    curriculum = ?, 
-                    level = ?, 
-                    section = ?, 
-                    password = ? 
-                WHERE id = ?";
+        // Initialize response array
+        $response = ['success' => false, 'message' => ''];
 
-        // Prepare the statement
-        if ($stmt = $conn->prepare($sql)) {
-            // Bind parameters
-            $stmt->bind_param("ssssssssi", 
-            $updatedData['school_id'], 
-                $updatedData['firstname'], 
-                $updatedData['lastname'], 
-                $updatedData['email'], 
-                $updatedData['curriculum'], 
-                $updatedData['level'], 
-                $updatedData['section'], 
-                $updatedData['password'], 
-                $studentId
-            );
-
-            // Execute the query
-            if ($stmt->execute()) {
-                // Return success
-                echo json_encode(['success' => true]);
-            } else {
-                // Return error
-                echo json_encode(['success' => false, 'message' => 'Failed to update data']);
-            }
-
-            // Close the statement
-            $stmt->close();
-        } else {
-            // Return error if SQL query preparation fails
-            echo json_encode(['success' => false, 'message' => 'Failed to prepare SQL query']);
+        // Validate inputs (you can add more validation as needed)
+        if (empty($school_id) || empty($firstname) || empty($lastname) || empty($email) || empty($curriculum) || empty($level) || empty($section)) {
+            $response['message'] = 'All fields are required.';
+            echo json_encode($response);
+            exit;
         }
-    } else {
-        // Return error if action is not correct or required data is missing
-        echo json_encode(['success' => false, 'message' => 'Invalid data or action']);
+
+        // Map curriculum, level, section to class_id
+        $stmtClass = $conn->prepare("SELECT id FROM class_list WHERE curriculum = ? AND level = ? AND section = ?");
+        $stmtClass->bind_param("sss", $curriculum, $level, $section);
+        $stmtClass->execute();
+        $stmtClass->bind_result($class_id);
+        if ($stmtClass->fetch()) {
+            // Found matching class_id
+            // $class_id is already set
+        } else {
+            // No matching class, set class_id to NULL
+            $class_id = NULL;
+        }
+        $stmtClass->close();
+
+        // Generate password
+        $password_plain = $lastname . $firstname . $school_id;
+        $password_md5 = md5($password_plain);
+
+        // Check for duplicates in student_batch
+        $stmtCheckBatch = $conn->prepare("SELECT id FROM student_batch WHERE (school_id = ? OR email = ?) AND id != ?");
+        $stmtCheckBatch->bind_param("ssi", $school_id, $email, $id);
+        $stmtCheckBatch->execute();
+        if ($stmtCheckBatch->fetch()) {
+            // Duplicate found
+            $stmtCheckBatch->close();
+            $response['message'] = 'A student with the same School ID or Email already exists.';
+            echo json_encode($response);
+            exit;
+        }
+        $stmtCheckBatch->close();
+
+        // Update the student_batch record
+        $stmtUpdate = $conn->prepare("UPDATE student_batch SET school_id = ?, firstname = ?, lastname = ?, email = ?, curriculum = ?, level = ?, section = ?, password = ?, class_id = ? WHERE id = ?");
+        $stmtUpdate->bind_param("ssssssssii", $school_id, $firstname, $lastname, $email, $curriculum, $level, $section, $password_md5, $class_id, $id);
+        if ($stmtUpdate->execute()) {
+            $response['success'] = true;
+            $response['message'] = 'Student updated successfully.';
+        } else {
+            $response['message'] = 'Failed to update student.';
+        }
+        $stmtUpdate->close();
+
+        // Return the response
+        echo json_encode($response);
+        exit;
+
+    } elseif ($action === 'delete') {
+        // Handle delete
+        $id = $_POST['id'];
+        // Update status to 'removed'
+        $stmtDelete = $conn->prepare("UPDATE student_batch SET status = 'removed' WHERE id = ?");
+        $stmtDelete->bind_param("i", $id);
+        $stmtDelete->execute();
+        $stmtDelete->close();
+    } elseif ($action === 'add_students') {
+        // Handle adding students
+        if (isset($_POST['selected_students']) && !empty($_POST['selected_students'])) {
+            $selected_ids = $_POST['selected_students']; // array of IDs
+            foreach ($selected_ids as $id) {
+                // Get the student data from student_batch
+                $stmtSelect = $conn->prepare("SELECT * FROM student_batch WHERE id = ?");
+                $stmtSelect->bind_param("i", $id);
+                $stmtSelect->execute();
+                $result = $stmtSelect->get_result();
+                if ($row = $result->fetch_assoc()) {
+                    // Check again for duplicates in student_list before inserting
+                    $stmtCheck = $conn->prepare("SELECT id FROM student_list WHERE school_id = ? OR email = ?");
+                    $stmtCheck->bind_param("ss", $row['school_id'], $row['email']);
+                    $stmtCheck->execute();
+                    if ($stmtCheck->fetch()) {
+                        // Duplicate found, skip insertion
+                        $stmtCheck->close();
+                        continue;
+                    }
+                    $stmtCheck->close();
+
+                    // Prepare the INSERT statement
+                    $stmtInsert = $conn->prepare("INSERT INTO student_list (school_id, firstname, lastname, email, password, class_id, avatar, date_created) VALUES (?, ?, ?, ?, ?, ?, 'no-image-available.png', NOW())");
+
+                    // Handle possible NULL class_id
+                    if (is_null($row['class_id'])) {
+                        $null = NULL;
+                        $stmtInsert->bind_param("sssssi", $row['school_id'], $row['firstname'], $row['lastname'], $row['email'], $row['password'], $null);
+                    } else {
+                        $stmtInsert->bind_param("sssssi", $row['school_id'], $row['firstname'], $row['lastname'], $row['email'], $row['password'], $row['class_id']);
+                    }
+
+                    try {
+                        $stmtInsert->execute();
+                        // Update status in student_batch to 'added'
+                        $stmtUpdate = $conn->prepare("UPDATE student_batch SET status = 'added' WHERE id = ?");
+                        $stmtUpdate->bind_param("i", $id);
+                        $stmtUpdate->execute();
+                        $stmtUpdate->close();
+                    } catch (Exception $e) {
+                        // Insertion failed, get error info
+                        $message .= "<div class='error'>Error adding student " . htmlspecialchars($row['firstname'] . ' ' . $row['lastname']) . ": " . $e->getMessage() . "</div>";
+                    }
+
+                    $stmtInsert->close();
+                }
+                $stmtSelect->close();
+            }
+            if (empty($message)) {
+                $message = "<div class='success'>Selected students have been added successfully.</div>";
+            }
+        } else {
+            // No students selected
+            $message = "<div class='error'>No students were selected to add.</div>";
+        }
     }
-} else {
-    // Return error if request method is not POST
-    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
 }
 
 // Handle CSV Upload and Processing
@@ -178,109 +255,6 @@ if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK
     }
 }
 
-// Handle POST actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    $action = $_POST['action'];
-    if ($action === 'update') {
-        // Handle update
-        $id = $_POST['id'];
-        $school_id = $_POST['school_id'];
-        $firstname = $_POST['firstname'];
-        $lastname = $_POST['lastname'];
-        $email = $_POST['email'];
-        $curriculum = $_POST['curriculum'];
-        $level = $_POST['level'];
-        $section = $_POST['section'];
-
-        // Generate password
-        $password_plain = $lastname . $firstname . $school_id;
-        $password_md5 = md5($password_plain);
-
-        // Map curriculum, level, section to class_id
-        $stmtClass = $conn->prepare("SELECT id FROM class_list WHERE curriculum = ? AND level = ? AND section = ?");
-        $stmtClass->bind_param("sss", $curriculum, $level, $section);
-        $stmtClass->execute();
-        $stmtClass->bind_result($class_id);
-        if ($stmtClass->fetch()) {
-            // Found matching class_id
-        } else {
-            // No matching class, set class_id to NULL
-            $class_id = NULL;
-        }
-        $stmtClass->close();
-
-        // Update the entry in student_batch
-        $stmtUpdate = $conn->prepare("UPDATE student_batch SET school_id = ?, firstname = ?, lastname = ?, email = ?, curriculum = ?, level = ?, section = ?, password = ?, class_id = ? WHERE id = ?");
-        $stmtUpdate->bind_param("ssssssssii", $school_id, $firstname, $lastname, $email, $curriculum, $level, $section, $password_md5, $class_id, $id);
-        $stmtUpdate->execute();
-        $stmtUpdate->close();
-    } elseif ($action === 'delete') {
-        // Handle delete
-        $id = $_POST['id'];
-        // Update status to 'removed'
-        $stmtDelete = $conn->prepare("UPDATE student_batch SET status = 'removed' WHERE id = ?");
-        $stmtDelete->bind_param("i", $id);
-        $stmtDelete->execute();
-        $stmtDelete->close();
-    } elseif ($action === 'add_students') {
-        // Handle adding students
-        if (isset($_POST['selected_students']) && !empty($_POST['selected_students'])) {
-            $selected_ids = $_POST['selected_students']; // array of IDs
-            foreach ($selected_ids as $id) {
-                // Get the student data from student_batch
-                $stmtSelect = $conn->prepare("SELECT * FROM student_batch WHERE id = ?");
-                $stmtSelect->bind_param("i", $id);
-                $stmtSelect->execute();
-                $result = $stmtSelect->get_result();
-                if ($row = $result->fetch_assoc()) {
-                    // Check again for duplicates in student_list before inserting
-                    $stmtCheck = $conn->prepare("SELECT id FROM student_list WHERE school_id = ? OR email = ?");
-                    $stmtCheck->bind_param("ss", $row['school_id'], $row['email']);
-                    $stmtCheck->execute();
-                    if ($stmtCheck->fetch()) {
-                        // Duplicate found, skip insertion
-                        $stmtCheck->close();
-                        continue;
-                    }
-                    $stmtCheck->close();
-
-                    // Prepare the INSERT statement
-                    $stmtInsert = $conn->prepare("INSERT INTO student_list (school_id, firstname, lastname, email, password, class_id, avatar, date_created) VALUES (?, ?, ?, ?, ?, ?, 'no-image-available.png', NOW())");
-
-                    // Handle possible NULL class_id
-                    if (is_null($row['class_id'])) {
-                        $null = NULL;
-                        $stmtInsert->bind_param("sssssi", $row['school_id'], $row['firstname'], $row['lastname'], $row['email'], $row['password'], $null);
-                    } else {
-                        $stmtInsert->bind_param("sssssi", $row['school_id'], $row['firstname'], $row['lastname'], $row['email'], $row['password'], $row['class_id']);
-                    }
-
-                    try {
-                        $stmtInsert->execute();
-                        // Update status in student_batch to 'added'
-                        $stmtUpdate = $conn->prepare("UPDATE student_batch SET status = 'added' WHERE id = ?");
-                        $stmtUpdate->bind_param("i", $id);
-                        $stmtUpdate->execute();
-                        $stmtUpdate->close();
-                    } catch (Exception $e) {
-                        // Insertion failed, get error info
-                        $message .= "<div class='error'>Error adding student " . htmlspecialchars($row['firstname'] . ' ' . $row['lastname']) . ": " . $e->getMessage() . "</div>";
-                    }
-
-                    $stmtInsert->close();
-                }
-                $stmtSelect->close();
-            }
-            if (empty($message)) {
-                $message = "<div class='success'>Selected students have been added successfully.</div>";
-            }
-        } else {
-            // No students selected
-            $message = "<div class='error'>No students were selected to add.</div>";
-        }
-    }
-}
-
 // Fetch pending students from student_batch
 $pendingRows = [];
 $sqlPending = "SELECT * FROM student_batch WHERE status = 'pending'";
@@ -295,211 +269,231 @@ if ($resultPending->num_rows > 0) {
 $duplicates = $duplicates ?? [];
 
 ?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Batch Upload</title>
+    <style>
+        /* Your CSS styles here */
+        /* ... (Copy your CSS styles related to batch upload here) ... */
+        /* For brevity, I'm omitting the CSS code since it's the same as in your original file */
+    </style>
+</head>
+<body>
+    <div>
+        <!-- Link to download CSV template -->
+        <a href="download_template.php">Download CSV Template</a>
 
-<style>
-    /* Button base style */
-    /* ... (Copy your CSS styles related to batch upload here) ... */
-    /* For brevity, I'm omitting the CSS code since it's the same as in your original file */
-</style>
+        <!-- CSV upload form -->
+        <form class="csv-upload-form" method="POST" enctype="multipart/form-data" id="csvUploadForm">
+            <span class="form-title">UPLOAD DATA SYSTEM</span>
+            <p class="form-paragraph">
+                Please select a CSV file to upload
+            </p>
+            <label for="csv-file" class="drop-container">
+                <span class="drop-title">Drop CSV file here or click to select</span>
+                <input type="file" name="csv_file" accept=".csv" required id="csv-file">
+            </label>
+        </form>
 
-<div>
+        <?php if ($message): ?>
+            <?php echo $message; ?>
+        <?php endif; ?>
 
-    <!-- Link to download CSV template -->
-    <a href="download_template.php">Download CSV Template</a>
+        <!-- Display duplicates -->
+        <?php if (!empty($duplicates)): ?>
+            <h3>Duplicate Records</h3>
+            <div class="table-container">
+                <table class="Table1">
+                    <tr><th>School ID</th><th>Firstname</th><th>Lastname</th><th>Email</th><th>Curriculum</th><th>Level</th><th>Section</th></tr>
+                    <?php foreach ($duplicates as $dup): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($dup['school_id'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($dup['firstname'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($dup['lastname'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($dup['email'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($dup['curriculum'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($dup['level'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($dup['section'] ?? ''); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        <?php endif; ?>
 
-    <!-- CSV upload form -->
-    <form class="csv-upload-form" method="POST" enctype="multipart/form-data" id="csvUploadForm">
-        <span class="form-title">UPLOAD DATA SYSTEM</span>
-        <p class="form-paragraph">
-            Please select a CSV file to upload
-        </p>
-        <label for="csv-file" class="drop-container">
-            <span class="drop-title">Drop CSV file here or click to select</span>
-            <input type="file" name="csv_file" accept=".csv" required id="csv-file">
-        </label>
-    </form>
-
-    <?php if ($message): ?>
-        <?php echo $message; ?>
-    <?php endif; ?>
-
-    <!-- Display duplicates -->
-    <?php if (!empty($duplicates)): ?>
-        <h3>Duplicate Records</h3>
-        <div class="table-container">
-            <table class="Table1">
-                <tr><th>School ID</th><th>Firstname</th><th>Lastname</th><th>Email</th><th>Curriculum</th><th>Level</th><th>Section</th></tr>
-                <?php foreach ($duplicates as $dup): ?>
+        <!-- Display pending students -->
+        <?php if (!empty($pendingRows)): ?>
+        <h3>Pending Students</h3>
+        <form method="POST" id="addStudentsForm">
+            <input type="hidden" name="action" value="add_students">
+            <div class="table-container">
+                <table class="Table1">
                     <tr>
-                        <td><?php echo htmlspecialchars($dup['school_id'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($dup['firstname'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($dup['lastname'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($dup['email'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($dup['curriculum'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($dup['level'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($dup['section'] ?? ''); ?></td>
+                        <th>Select</th>
+                        <th>School ID</th>
+                        <th>Firstname</th>
+                        <th>Lastname</th>
+                        <th>Email</th>
+                        <th>Curriculum</th>
+                        <th>Level</th>
+                        <th>Section</th>
+                        <th>Class ID</th>
+                        <th>Actions</th>
                     </tr>
-                <?php endforeach; ?>
-            </table>
-        </div>
+                    <?php foreach ($pendingRows as $row): ?>
+                        <tr id="row-<?php echo $row['id']; ?>">
+                            <td><input type="checkbox" name="selected_students[]" value="<?php echo $row['id']; ?>"></td>
+                            <td class="editable" data-field="school_id"><?php echo htmlspecialchars($row['school_id'] ?? ''); ?></td>
+                            <td class="editable" data-field="firstname"><?php echo htmlspecialchars($row['firstname'] ?? ''); ?></td>
+                            <td class="editable" data-field="lastname"><?php echo htmlspecialchars($row['lastname'] ?? ''); ?></td>
+                            <td class="editable" data-field="email"><?php echo htmlspecialchars($row['email'] ?? ''); ?></td>
+                            <td class="editable" data-field="curriculum"><?php echo htmlspecialchars($row['curriculum'] ?? ''); ?></td>
+                            <td class="editable" data-field="level"><?php echo htmlspecialchars($row['level'] ?? ''); ?></td>
+                            <td class="editable" data-field="section"><?php echo htmlspecialchars($row['section'] ?? ''); ?></td>
+                            <td><?php echo htmlspecialchars($row['class_id'] ?? ''); ?></td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary edit-btn" onclick="editRow(<?php echo $row['id']; ?>)">Edit</button>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteStudent(<?php echo $row['id']; ?>)">Delete</button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+            <button type="submit">Add Selected Students</button>
+        </form>
     <?php endif; ?>
+    </div>
 
-    <!-- Display pending students -->
-    <?php if (!empty($pendingRows)): ?>
-    <h3>Pending Students</h3>
-    <form method="POST" id="addStudentsForm">
-        <input type="hidden" name="action" value="add_students">
-        <div class="table-container">
-            <table class="Table1">
-                <tr>
-                    <th>Select</th>
-                    <th>School ID</th>
-                    <th>Firstname</th>
-                    <th>Lastname</th>
-                    <th>Email</th>
-                    <th>Curriculum</th>
-                    <th>Level</th>
-                    <th>Section</th>
-                    <th>Class ID</th>
-                    <th>Actions</th>
-                </tr>
-                <?php foreach ($pendingRows as $row): ?>
-                    <tr id="row-<?php echo $row['id']; ?>">
-                        <td><input type="checkbox" name="selected_students[]" value="<?php echo $row['id']; ?>"></td>
-                        <td class="editable" data-field="school_id"><?php echo htmlspecialchars($row['school_id'] ?? ''); ?></td>
-                        <td class="editable" data-field="firstname"><?php echo htmlspecialchars($row['firstname'] ?? ''); ?></td>
-                        <td class="editable" data-field="lastname"><?php echo htmlspecialchars($row['lastname'] ?? ''); ?></td>
-                        <td class="editable" data-field="email"><?php echo htmlspecialchars($row['email'] ?? ''); ?></td>
-                        <td class="editable" data-field="curriculum"><?php echo htmlspecialchars($row['curriculum'] ?? ''); ?></td>
-                        <td class="editable" data-field="level"><?php echo htmlspecialchars($row['level'] ?? ''); ?></td>
-                        <td class="editable" data-field="section"><?php echo htmlspecialchars($row['section'] ?? ''); ?></td>
-                        <td><?php echo htmlspecialchars($row['class_id'] ?? ''); ?></td>
-                        <td>
-                            <button type="button" class="btn btn-sm btn-primary edit-btn" onclick="editRow(<?php echo $row['id']; ?>)">Edit</button>
-                            <button type="button" class="btn btn-sm btn-danger" onclick="deleteStudent(<?php echo $row['id']; ?>)">Delete</button>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </table>
-        </div>
-        <button type="submit">Add Selected Students</button>
-    </form>
-<?php endif; ?>
-
-<script>
-     // Function to toggle between view and edit modes for each table row
-    function editRow(id) {
-        const row = document.getElementById('row-' + id);
-        const cells = row.querySelectorAll('.editable');
-        const editButton = row.querySelector('.edit-btn');
-        
-        // Toggle between Edit and Save
-        if (editButton.innerHTML === 'Edit') {
-            editButton.innerHTML = 'Save';  // Change button to Save
-            cells.forEach(cell => {
-                const field = cell.getAttribute('data-field');
-                const cellValue = cell.innerHTML;
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.value = cellValue;
-                input.setAttribute('data-field', field);
-                cell.innerHTML = '';  // Clear the cell content
-                cell.appendChild(input);  // Add input field
-            });
-        } else {
-            // Collect updated data when Save is clicked
-            editButton.innerHTML = 'Edit';  // Change button back to Edit
-            const updatedData = {};
-            cells.forEach(cell => {
-                const input = cell.querySelector('input');
-                if (input) {
-                    const field = input.getAttribute('data-field');
-                    updatedData[field] = input.value;  // Collect updated value
-                    cell.innerHTML = input.value;  // Update the cell content
-                }
-            });
-
-            // Send updated data to the server using AJAX
-            const xhr = new XMLHttpRequest();
-            xhr.open('POST', 'admin/student_batch_upload.php', true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    if (response.success) {
-                        console.log('Data updated successfully');
-                        // Optionally, you can show a success message here
-                    } else {
-                        alert('Failed to update data');
+    <script>
+        // Function to toggle between view and edit modes for each table row
+        function editRow(id) {
+            const row = document.getElementById('row-' + id);
+            const cells = row.querySelectorAll('.editable');
+            const editButton = row.querySelector('.edit-btn');
+            
+            // Toggle between Edit and Save
+            if (editButton.innerHTML === 'Edit') {
+                editButton.innerHTML = 'Save';  // Change button to Save
+                cells.forEach(cell => {
+                    const field = cell.getAttribute('data-field');
+                    const cellValue = cell.innerText;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = cellValue;
+                    input.setAttribute('data-field', field);
+                    cell.innerHTML = '';  // Clear the cell content
+                    cell.appendChild(input);  // Add input field
+                });
+            } else {
+                // Collect updated data when Save is clicked
+                editButton.innerHTML = 'Edit';  // Change button back to Edit
+                const updatedData = {};
+                cells.forEach(cell => {
+                    const input = cell.querySelector('input');
+                    if (input) {
+                        const field = input.getAttribute('data-field');
+                        updatedData[field] = input.value.trim();  // Collect updated value
+                        cell.innerText = input.value;  // Update the cell content
                     }
+                });
+
+                // Send updated data to the server using AJAX
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', window.location.href, true);
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            const response = JSON.parse(xhr.responseText);
+                            if (response.success) {
+                                alert(response.message);
+                            } else {
+                                alert('Error: ' + response.message);
+                                // Optionally, revert the changes in the table or keep the row in edit mode
+                            }
+                        } else {
+                            alert('An error occurred while updating data.');
+                        }
+                    }
+                };
+
+                // Send data as URL encoded parameters
+                const params = new URLSearchParams();
+                params.append('action', 'update_student');
+                params.append('id', id);
+                // Flatten the updatedData object into URL parameters
+                for (const key in updatedData) {
+                    params.append(key, updatedData[key]);
                 }
-            };
 
-            // Send data as URL encoded parameters
-            const params = new URLSearchParams();
-            params.append('action', 'update_student');
-            params.append('id', id);
-            params.append('updated_data', JSON.stringify(updatedData));  // Send the updated data
-
-            xhr.send(params.toString());  // Send the request
+                xhr.send(params.toString());  // Send the request
+                reloadPageAfterDelay(300);
+            }
         }
-    }
-// Automatically submit the form when a file is selected
-document.getElementById('csv-file').addEventListener('change', function() {
-    document.getElementById('csvUploadForm').submit();
-});
 
-// Optionally, handle drag and drop
-var dropContainer = document.querySelector('.drop-container');
-dropContainer.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    dropContainer.classList.add('dragover');
-});
+        // Automatically submit the form when a file is selected
+        document.getElementById('csv-file').addEventListener('change', function() {
+            document.getElementById('csvUploadForm').submit();
+        });
 
-dropContainer.addEventListener('dragleave', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    dropContainer.classList.remove('dragover');
-});
+        // Optionally, handle drag and drop
+        var dropContainer = document.querySelector('.drop-container');
+        dropContainer.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropContainer.classList.add('dragover');
+        });
 
-dropContainer.addEventListener('drop', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    dropContainer.classList.remove('dragover');
-    var files = e.dataTransfer.files;
-    if (files.length > 0) {
-        document.getElementById('csv-file').files = files;
-        document.getElementById('csvUploadForm').submit();
-    }
-});
+        dropContainer.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropContainer.classList.remove('dragover');
+        });
 
-// Handle delete action for pending students
-function deleteStudent(id) {
-    if (confirm('Are you sure you want to delete this student?')) {
-        var form = document.createElement('form');
-        form.method = 'POST';
-        form.action = ''; // current page
-        var actionInput = document.createElement('input');
-        actionInput.type = 'hidden';
-        actionInput.name = 'action';
-        actionInput.value = 'delete';
-        form.appendChild(actionInput);
+        dropContainer.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropContainer.classList.remove('dragover');
+            var files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('csv-file').files = files;
+                document.getElementById('csvUploadForm').submit();
+            }
+        });
 
-        var idInput = document.createElement('input');
-        idInput.type = 'hidden';
-        idInput.name = 'id';
-        idInput.value = id;
-        form.appendChild(idInput);
+        // Handle delete action for pending students
+        function deleteStudent(id) {
+            if (confirm('Are you sure you want to delete this student?')) {
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = ''; // current page
+                var actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'delete';
+                form.appendChild(actionInput);
 
-        document.body.appendChild(form);
-        form.submit();
-    }
+                var idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'id';
+                idInput.value = id;
+                form.appendChild(idInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function reloadPageAfterDelay(delayInMilliseconds) {
+    setTimeout(() => {
+        window.location.reload();
+    }, delayInMilliseconds);
 }
-</script>
-<style>
+
+    </script>
+    <style>
      /* Button base style */
-  .btn.new_academic {
+     .btn.new_academic {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -724,4 +718,6 @@ button:focus {
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.6);
 }
    
-</style>
+    </style>
+</body>
+</html>
