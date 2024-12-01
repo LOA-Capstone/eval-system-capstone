@@ -161,7 +161,22 @@ class Action
 			return 1;
 		}
 	}
-
+	function update_user_password(){
+		extract($_POST);
+		$type = array("","users","faculty_list","student_list",);
+		
+		// Check if password is not empty
+		if(!empty($password) && !empty($id)){
+			// Update only the password for the specific user
+			$save = $this->db->query("UPDATE {$type[$_SESSION['login_type']]} set password=md5('$password') where id = $id");
+			
+			if($save){
+				return 1; // Success
+			}
+		}
+		
+		return 0; // Failed to update
+	}
 	function signup()
 	{
 		extract($_POST);
