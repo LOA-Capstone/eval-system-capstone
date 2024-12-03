@@ -89,6 +89,11 @@ if ($action == 'update_user') {
 	if ($save)
 		echo $save;
 }
+if($action == 'update_user_password'){
+    $save = $crud->update_user_password();
+    if($save)
+        echo $save;
+}
 if ($action == 'delete_user') {
 	$save = $crud->delete_user();
 	if ($save)
