@@ -1,0 +1,6 @@
+[2024-12-03 11:12:12] Duplicate found in faculty_list: School ID = f1001, Email = john.doe@example.com
+[2024-12-03 11:12:12] Duplicate found in faculty_list: School ID = f1002, Email = jane.smith@example.com
+[2024-12-03 11:12:21] Duplicate found in faculty_list: School ID = f1001, Email = john.doe@example.com
+[2024-12-03 11:12:21] Duplicate found in faculty_list: School ID = f1002, Email = jane.smith@example.com
+[2024-12-03 11:13:36] Duplicate found in faculty_list: School ID = f1001, Email = john.doe@example.com
+[2024-12-03 11:13:36] Duplicate found in faculty_list: School ID = f1002, Email = jane.smith@example.com

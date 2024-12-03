@@ -163,20 +163,40 @@ class Action
 	}
 	function update_user_password(){
 		extract($_POST);
-		$type = array("","users","faculty_list","student_list",);
-		
+		$type = array(
+			"",                // 0 - Not used
+			"users",           // 1 - Admin
+			"faculty_list",    // 2 - Faculty       
+			"student_list",    // 3 - Students
+			"users",           // 4 - Dean
+			"faculty_list"     // 5 - Faculty
+		);
+	
+		// Validate login type
+		if(!isset($_SESSION['login_type']) || !isset($type[$_SESSION['login_type']])){
+			error_log("Invalid login type: " . $_SESSION['login_type']);
+			return 0;
+		}
+	
 		// Check if password is not empty
 		if(!empty($password) && !empty($id)){
-			// Update only the password for the specific user
-			$save = $this->db->query("UPDATE {$type[$_SESSION['login_type']]} set password=md5('$password') where id = $id");
-			
+			// Use prepared statements to prevent SQL injection
+			$stmt = $this->db->prepare("UPDATE {$type[$_SESSION['login_type']]} SET password = md5(?) WHERE id = ?");
+			$stmt->bind_param("si", $password, $id);
+			$save = $stmt->execute();
+	
 			if($save){
 				return 1; // Success
+			} else {
+				error_log("Password update failed: " . $stmt->error);
 			}
+		} else {
+			error_log("Password or ID is empty.");
 		}
-		
+	
 		return 0; // Failed to update
 	}
+	
 	function signup()
 	{
 		extract($_POST);

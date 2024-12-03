@@ -121,9 +121,9 @@
                 </li>
                 <!-- Academic Year -->
                 <li class="nav-item dropdown">
-                    <a href="./index.php?page=academic_list" class="nav-link nav-academic_list">
+                    <a href="./index.php?page=academic_year_list" class="nav-link nav-academic_year_list">
                         <i class="nav-icon fas fa-calendar"></i>
-                        <p>Academic Year</p>
+                        <p>Academic Year List</p>
                     </a>
                 </li>
                 <!-- Questionnaires -->
