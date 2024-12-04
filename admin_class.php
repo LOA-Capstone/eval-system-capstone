@@ -18,90 +18,54 @@ class Action
 		ob_end_flush();
 	}
 
+	function login()
+{
+    extract($_POST);
+    // Define role mappings
+    $type = array("", "users", "users", "student_list", "faculty_list");
+    $type2 = array("", "admin", "dean", "student", "faculty");
 
-    function login()
-    {
-        // Retrieve and sanitize POST data
-        $identifier = isset($_POST['identifier']) ? trim($_POST['identifier']) : '';
-        $password = isset($_POST['password']) ? $_POST['password'] : '';
-        $login = isset($_POST['login']) ? intval($_POST['login']) : 0;
-
-        // Define role mappings
-        $type = array("", "users", "users", "student_list", "faculty_list");
-        $type2 = array("", "admin", "dean", "student", "faculty");
-
-        // Hash the password using MD5 (Note: Consider using stronger hashing algorithms like bcrypt)
-        $hashed_password = md5($password);
-
-        // Initialize SQL and parameters
-        $sql = "";
-        $params = array();
-
-        if ($login == 1 || $login == 2) {
-            // For admin or dean, check 'users' table with 'type'
-            $user_type = ($login == 1) ? 1 : 2; // 1 for admin, 2 for dean
-            $sql = "SELECT *, CONCAT(firstname, ' ', lastname) AS name FROM users 
-                    WHERE (email = ? OR school_id = ?) 
-                    AND password = ? 
-                    AND type = ?";
-            $params = array($identifier, $identifier, $hashed_password, $user_type);
-        } elseif ($login == 3 || $login == 4) {
-            // For student or faculty, determine the table
-            $table = $type[$login];
-            $sql = "SELECT *, CONCAT(firstname, ' ', lastname) AS name FROM $table 
-                    WHERE (email = ? OR school_id = ?) 
-                    AND password = ?";
-            $params = array($identifier, $identifier, $hashed_password);
-        } else {
-            return 2; // Invalid login type
-        }
-
-        // Prepare and execute the SQL statement to prevent SQL injection
-        if ($stmt = $this->db->prepare($sql)) {
-            // Bind parameters based on the query
-            if ($login == 1 || $login == 2) {
-                $stmt->bind_param("sssi", ...$params);
-            } else {
-                $stmt->bind_param("sss", ...$params);
-            }
-
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
-                $user = $result->fetch_assoc(); // Fetch the user data once
-
-                // Store user data in session
-                foreach ($user as $key => $value) {
-                    if ($key != 'password' && !is_numeric($key))
-                        $_SESSION['login_' . $key] = $value;
-                }
-                $_SESSION['login_type'] = $login;
-                $_SESSION['login_view_folder'] = $type2[$login] . '/';
-
-                // Store department ID if the user is a Dean
-                if ($login == 2) {
-                    $_SESSION['login_department_id'] = $user['department_id'];
-                }
-
-                // Load academic settings
-                $academic = $this->db->query("SELECT * FROM academic_list WHERE is_default = 1");
-                if ($academic->num_rows > 0) {
-                    $academic_data = $academic->fetch_assoc();
-                    foreach ($academic_data as $k => $v) {
-                        if (!is_numeric($k))
-                            $_SESSION['academic'][$k] = $v;
-                    }
-                }
-                return 1;
-            } else {
-                return 2; // Invalid credentials
-            }
-        } else {
-            // SQL statement preparation failed
-            return 2;
-        }
+    if ($login == 1 || $login == 2) {
+        // For admin or dean, check 'users' table with 'type'
+        $user_type = ($login == 1) ? 1 : 2; // 1 for admin, 2 for dean
+        $qry = $this->db->query("SELECT *, CONCAT(firstname, ' ', lastname) AS name FROM users WHERE email = '$email' AND password = MD5('$password') AND type = $user_type");
+    } elseif ($login == 3 || $login == 4) {
+        // For student or faculty
+        $qry = $this->db->query("SELECT *, CONCAT(firstname, ' ', lastname) AS name FROM {$type[$login]} WHERE email = '$email' AND password = MD5('$password')");
+    } else {
+        return 2; // Invalid login type
     }
+
+    if ($qry->num_rows > 0) {
+        $user = $qry->fetch_assoc(); // Fetch the user data once
+
+        // Store user data in session
+        foreach ($user as $key => $value) {
+            if ($key != 'password' && !is_numeric($key))
+                $_SESSION['login_' . $key] = $value;
+        }
+        $_SESSION['login_type'] = $login;
+        $_SESSION['login_view_folder'] = $type2[$login] . '/';
+
+        // Store department ID if the user is a Dean
+        if ($login == 2) {
+            $_SESSION['login_department_id'] = $user['department_id'];
+        }
+
+        // Load academic settings
+        $academic = $this->db->query("SELECT * FROM academic_list WHERE is_default = 1");
+        if ($academic->num_rows > 0) {
+            $academic_data = $academic->fetch_assoc();
+            foreach ($academic_data as $k => $v) {
+                if (!is_numeric($k))
+                    $_SESSION['academic'][$k] = $v;
+            }
+        }
+        return 1;
+    } else {
+        return 2;
+    }
+}
 
 	
 
@@ -199,40 +163,20 @@ class Action
 	}
 	function update_user_password(){
 		extract($_POST);
-		$type = array(
-			"",                // 0 - Not used
-			"users",           // 1 - Admin
-			"faculty_list",    // 2 - Faculty       
-			"student_list",    // 3 - Students
-			"users",           // 4 - Dean
-			"faculty_list"     // 5 - Faculty
-		);
-	
-		// Validate login type
-		if(!isset($_SESSION['login_type']) || !isset($type[$_SESSION['login_type']])){
-			error_log("Invalid login type: " . $_SESSION['login_type']);
-			return 0;
-		}
-	
+		$type = array("","users","faculty_list","student_list",);
+		
 		// Check if password is not empty
 		if(!empty($password) && !empty($id)){
-			// Use prepared statements to prevent SQL injection
-			$stmt = $this->db->prepare("UPDATE {$type[$_SESSION['login_type']]} SET password = md5(?) WHERE id = ?");
-			$stmt->bind_param("si", $password, $id);
-			$save = $stmt->execute();
-	
+			// Update only the password for the specific user
+			$save = $this->db->query("UPDATE {$type[$_SESSION['login_type']]} set password=md5('$password') where id = $id");
+			
 			if($save){
 				return 1; // Success
-			} else {
-				error_log("Password update failed: " . $stmt->error);
 			}
-		} else {
-			error_log("Password or ID is empty.");
 		}
-	
+		
 		return 0; // Failed to update
 	}
-	
 	function signup()
 	{
 		extract($_POST);
