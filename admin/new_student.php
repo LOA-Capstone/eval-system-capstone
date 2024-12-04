@@ -1,9 +1,10 @@
-<?php    
+<?php
 // Include database connection
 include('db_connect.php');  // Adjust the path as needed
 
 // Check if form is being submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $id = isset($_POST['id']) ? $_POST['id'] : null; // Capture the ID to check if editing
     $school_id = $_POST['school_id'];
     $firstname = $_POST['firstname'];
     $lastname = $_POST['lastname'];
@@ -19,72 +20,118 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $emailDuplicate = false;
     $success_msg = '';
 
-    // Check if School ID already exists in the database
-    $checkSchoolIdQuery = "SELECT * FROM student_list WHERE school_id = ?";
-    $stmt = $conn->prepare($checkSchoolIdQuery);
-    $stmt->bind_param('s', $school_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    // Validation only applies for adding a new record or updating passwords
+    if (!$id || (!empty($password) && !empty($cpass))) {
+        // Check if School ID already exists in the database
+        $checkSchoolIdQuery = "SELECT * FROM student_list WHERE school_id = ?" . ($id ? " AND id != ?" : "");
+        $stmt = $conn->prepare($checkSchoolIdQuery);
+        if ($id) {
+            $stmt->bind_param('si', $school_id, $id);
+        } else {
+            $stmt->bind_param('s', $school_id);
+        }
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-    // If there's a record with the same School ID
-    if ($result->num_rows > 0) {
-        $schoolIdDuplicate = true;
-        $error_msg = "School ID is already taken.";
-    }
+        // If there's a record with the same School ID
+        if ($result->num_rows > 0) {
+            $schoolIdDuplicate = true;
+            $error_msg = "School ID is already taken.";
+        }
 
-    // Check if Email already exists in the database
-    $checkEmailQuery = "SELECT * FROM student_list WHERE email = ?";
-    $emailStmt = $conn->prepare($checkEmailQuery);
-    $emailStmt->bind_param('s', $email);
-    $emailStmt->execute();
-    $emailResult = $emailStmt->get_result();
+        // Check if Email already exists in the database
+        $checkEmailQuery = "SELECT * FROM student_list WHERE email = ?" . ($id ? " AND id != ?" : "");
+        $emailStmt = $conn->prepare($checkEmailQuery);
+        if ($id) {
+            $emailStmt->bind_param('si', $email, $id);
+        } else {
+            $emailStmt->bind_param('s', $email);
+        }
+        $emailStmt->execute();
+        $emailResult = $emailStmt->get_result();
 
-    if ($emailResult->num_rows > 0) {
-        $emailDuplicate = true;
-        $error_msg = "Email is already registered.";
-    }
+        if ($emailResult->num_rows > 0) {
+            $emailDuplicate = true;
+            $error_msg = "Email is already registered.";
+        }
 
-    // Validate password match
-    if ($password !== $cpass) {
-        $error_msg = "Password and Confirm Password do not match.";
+        // Validate password match (for new records or if password fields are filled)
+        if ($password !== $cpass) {
+            $error_msg = "Password and Confirm Password do not match.";
+        } elseif (!$id && empty($password)) {
+            $error_msg = "Password is required for new records.";
+        }
     }
 
     if ($error_msg === '') {
-      
-        $password = password_hash($password, PASSWORD_DEFAULT);
+        if ($id) {
+            // Update existing record
+            $updateQuery = "UPDATE student_list SET school_id = ?, firstname = ?, lastname = ?, email = ?, class_id = ?";
+            $params = [$school_id, $firstname, $lastname, $email, $class_id];
+            $types = 'ssssi';
 
-        $insertQuery = "INSERT INTO student_list (school_id, firstname, lastname, email, password, class_id, avatar) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?)";
+            if (!empty($password)) {
+                $password = password_hash($password, PASSWORD_DEFAULT);
+                $updateQuery .= ", password = ?";
+                $params[] = $password;
+                $types .= 's';
+            }
 
+            if (!empty($avatar)) {
+                $updateQuery .= ", avatar = ?";
+                $params[] = $avatar;
+                $types .= 's';
+                move_uploaded_file($_FILES['img']['tmp_name'], 'assets/uploads/' . $avatar);
+            }
 
-        $stmt = $conn->prepare($insertQuery);
-        $stmt->bind_param('sssssis', $school_id, $firstname, $lastname, $email, $password, $class_id, $avatar);
+            $updateQuery .= " WHERE id = ?";
+            $params[] = $id;
+            $types .= 'i';
 
-        if ($stmt->execute()) {
-            $success_msg = "Data successfully saved."; 
-            move_uploaded_file($_FILES['img']['tmp_name'], 'assets/uploads/' . $avatar);
-            
+            $stmt = $conn->prepare($updateQuery);
+            $stmt->bind_param($types, ...$params);
+
+            if ($stmt->execute()) {
+                $success_msg = "Data successfully updated.";
+            } else {
+                $error_msg = "Error updating data: " . $stmt->error;
+            }
         } else {
-            $error_msg = "Error saving data: " . $stmt->error;
+            // Insert new record
+            $password = password_hash($password, PASSWORD_DEFAULT);
+            $insertQuery = "INSERT INTO student_list (school_id, firstname, lastname, email, password, class_id, avatar) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+            $stmt = $conn->prepare($insertQuery);
+            $stmt->bind_param('sssssis', $school_id, $firstname, $lastname, $email, $password, $class_id, $avatar);
+
+            if ($stmt->execute()) {
+                $success_msg = "Data successfully saved.";
+                move_uploaded_file($_FILES['img']['tmp_name'], 'assets/uploads/' . $avatar);
+            } else {
+                $error_msg = "Error saving data: " . $stmt->error;
+            }
         }
-         
-         echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
-            echo "<script>
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Data successfully saved!',
-                        icon: 'success',
-                        confirmButtonText: 'Go to Student List'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = 'index.php?page=student_list';
-                        }
-                    });
-                  </script>";
-        exit; 
+
+        echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
+        echo "<script>
+                Swal.fire({
+                    title: 'Success!',
+                    text: '{$success_msg}',
+                    icon: 'success',
+                    confirmButtonText: 'Go to Student List'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'index.php?page=student_list';
+                    }
+                });
+              </script>";
+        exit;
     }
 }
 ?>
+
+
 
 <div class="col-lg-12">
     <div class="card">
