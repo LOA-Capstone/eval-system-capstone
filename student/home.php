@@ -1,8 +1,8 @@
 <?php 
 include('db_connect.php');
 
-// Function to add ordinal suffix to a number (1st, 2nd, 3rd, etc.)
-function ordinal_suffix1($num){
+// Function to add ordinal suffix to numbers
+function ordinal_suffix($num){
     $num = $num % 100; // Protect against large numbers
     if($num < 11 || $num > 13){
          switch($num % 10){
@@ -14,371 +14,293 @@ function ordinal_suffix1($num){
     return $num.'th';
 }
 
-$astat = array("Not Yet Started", "Started", "Closed");
+// Array for evaluation status
+$astat = array("Not Yet Started","Started","Closed");
 
-// Get login details from session
-$login_name = $_SESSION['login_name'];  // Assuming login_name is in 'Firstname Lastname' format
-$academic_id = $_SESSION['academic']['id'];
-$student_id = $_SESSION['login_id'];
+// Fetch evaluation data similar to the Evaluate page
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 // Prepare the SQL statement with placeholders
 $stmt = $conn->prepare("
     SELECT 
-        sst.Teacher_Firstname, 
-        sst.Teacher_Lastname, 
-        sst.Subject_name,
+        r.id, 
+        s.id AS sid, 
+        f.id AS fid, 
+        CONCAT(f.firstname, ' ', f.lastname) AS faculty, 
+        s.code, 
+        s.subject,
         CASE 
             WHEN el.evaluation_id IS NOT NULL THEN 1 
             ELSE 0 
         END AS is_evaluated
-    FROM student_subject_teacher sst
-    JOIN faculty_list fl 
-        ON fl.firstname = sst.Teacher_Firstname 
-        AND fl.lastname = sst.Teacher_Lastname
-    JOIN subject_list sl 
-        ON sl.subject = sst.Subject_name
-    LEFT JOIN evaluation_list el 
-        ON el.faculty_id = fl.id 
-        AND el.subject_id = sl.id 
-        AND el.student_id = ? 
-        AND el.academic_id = ?
-    WHERE CONCAT(sst.Student_Firstname, ' ', sst.Student_Lastname) = ?
+    FROM restriction_list r 
+    INNER JOIN faculty_list f ON f.id = r.faculty_id 
+    INNER JOIN subject_list s ON s.id = r.subject_id 
+    LEFT JOIN evaluation_list el ON el.restriction_id = r.id 
+        AND el.academic_id = ? 
+        AND el.student_id = ?
+    WHERE r.academic_id = ? 
+      AND r.class_id = ?
+    ORDER BY f.lastname ASC, f.firstname ASC
 ");
 
 // Bind parameters to the placeholders
-$stmt->bind_param("iis", $student_id, $academic_id, $login_name);
+$academic_id = $_SESSION['academic']['id'];
+$student_id = $_SESSION['login_id'];
+$class_id = $_SESSION['login_class_id'];
+
+$stmt->bind_param("iiii", $academic_id, $student_id, $academic_id, $class_id);
 
 // Execute the statement
 $stmt->execute();
 
 // Get the result
-$result = $stmt->get_result();
-
-// Prepare an array to store teacher and subject details
-$teachers = [];
-if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $teacherName = $row['Teacher_Firstname'] . ' ' . $row['Teacher_Lastname'];
-        $subjectName = $row['Subject_name'];
-        $isEvaluated = $row['is_evaluated'];
-        // Add teacher name, subject, and evaluation status as an associative array
-        $teachers[] = ['name' => $teacherName, 'subject' => $subjectName, 'is_evaluated' => $isEvaluated];
-    }
-}
-
+$restriction = $stmt->get_result();
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Your existing head content -->
+    <!-- Meta Tags for Responsiveness and SEO -->
     <meta charset="UTF-8">
-    <title>Evaluation Page</title>
-    <!-- Bootstrap CSS (Ensure Bootstrap is included) -->
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> -->
-    <!-- Font Awesome for icons -->
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Evaluation System</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS for Modern Styling -->
     <style>
-    .column {
-      display: flex;
-      flex-direction: column; 
-      align-items: center;
-      gap: 15px; 
-      margin-top: 20px;
-    }
-    
-    .header {
-      font-size: 24px;
-      font-weight: 700;
-      color: #333;
-      margin: 0;
-      width: 100%; 
-      text-align: left; 
-    }
-    
-    .card-containers {
-      display: flex;
-      flex-wrap: wrap; 
-      gap: 15px; 
-    }
-    
-    
-    /* Teacher card design */
-    
-    .teacher-card-link{
-      background: transparent;
-      text-align: center;
-    }
+        /* Root Variables for Theme Colors */
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #1cc88a;
+            --success-color: #36b9cc;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+            --font-family: 'Inter', sans-serif;
+        }
 
-    .teacher-card-link.disabled {
-      pointer-events: none; /* Disable click */
-      opacity: 0.6; /* Visual indication of disabled state */
-    }
+        body {
+            font-family: var(--font-family);
+            background-color: var(--light-color);
+        }
 
-    .Teacher-card {
-      position: relative; /* For badge positioning */
-      background: radial-gradient(178.94% 106.41% at 26.42% 106.41%, #B1E4FF 0%, #FFFFFF 71.88%);
-      border: 1px solid #1C204B;
-      border-radius: 8px;
-      width: 250px;
-      height: 200px;
-      padding: 15px;
-      text-align: center;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .Teacher-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
-    }
-    
-    /* Icon container styling */
-    .icon-container {
-        background-color: #B1E4FF;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        margin: 0 auto 10px auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .icon {
-        color: #1C204B;
-        font-size: 24px;
-    }
-    
-    /* Message text container styling */
-    .message-text-container {
-        margin-top: 10px;
-    }
-    
-    .message-text {
-        font-size: 20px;
-        font-weight: bold;
-        color: #1C204B;
-        margin-bottom: 5px;
-    }
-    
-    .sub-text {
-        font-size: 16px;
-        color: #1C204B;
-    }
-    
-    .badge {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-    }
-    
-    /* Academic Year and Evaluation Status Styling */
-    .academic-year {
-        color: yellow; 
-        font-weight: bold; 
-        font-size: 1.2em; 
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6), 
-                     -2px -2px 4px rgba(0, 0, 0, 0.6),
-                     2px -2px 4px rgba(0, 0, 0, 0.6),
-                     -2px 2px 4px rgba(0, 0, 0, 0.6);  
-    }
-    
-    .evaluation-status {
-        color: yellow;
-        font-weight: bold;
-        font-size: 1.2em;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6), 
-                     -2px -2px 4px rgba(0, 0, 0, 0.6),
-                     2px -2px 4px rgba(0, 0, 0, 0.6),
-                     -2px 2px 4px rgba(0, 0, 0, 0.6); 
-    }
-    
-    .card-body {
-  display: flex;
-  flex-direction: column; 
-  padding: 1rem; 
-  background-color:#B1E4FF ;
-}
+        /* Card Styling */
+        .card-eval {
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            background-color: #ffffff;
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
 
-    .card-body h5, .card-body h6 {
-        color: black;
-        transition: transform 300ms ease;
-        z-index: 5;
-    }
-    
-    .card-body h5:hover, .card-body h6:hover {
-        transform: translateX(0.15rem); 
-    }
-    
-    .card-body h6 {
-        
-        padding: 0 1.25rem; 
-    }
-    
-    .card-body h4 {
-        color: #1C204B;
-        padding: 0;
-        margin: 0;
-        font-weight: 600;
-    }
-    
-    
-    .card::before {
-      position: absolute;
-      width: 20rem; 
-      height: 20rem;
-      transform: translate(-50%, -50%);
-      background: radial-gradient(circle closest-side at center, white, transparent);
-      opacity: 0;
-      transition: opacity 300ms ease;
-      z-index: 3;
-    }
-    
-    .card:hover::before {
-      opacity: 0.1; 
-    }
-    
-    .card:hover .notiborderglow {
-      opacity: 0.1;
-    }
-    
-    
-    .note {
-      color: #32a6ff; 
-      position: fixed;
-      top: 80%;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      font-size: 0.9rem;
-      width: 75%;
-    }
-    
-    /* Tooltip styling */
-    [data-bs-toggle="tooltip"] {
-        cursor: not-allowed;
-    }
+        .card-eval:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-eval .card-body {
+            padding: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .status-badge {
+            font-size: 0.85rem;
+            padding: 0.5em 0.75em;
+            border-radius: 20px;
+            text-transform: capitalize;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .badge-pending {
+            background-color: var(--dark-color);
+            color: #ffffff;
+        }
+
+        .badge-completed {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-evaluate {
+            width: 100%;
+            transition: background-color 0.3s, transform 0.3s;
+            border-radius: 25px;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-evaluate:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-3px);
+        }
+
+        /* Responsive Grid */
+        @media (max-width: 576px) {
+            .card-eval {
+                border-radius: 10px;
+            }
+        }
+
+        /* Academic Info Card */
+        .callout-info {
+            background-color: #ffffff;
+            border-left: 5px solid var(--primary-color);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .callout-info h5, .callout-info h6 {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Welcome Message */
+        .welcome-message {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .welcome-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+        }
+
+        /* Section Titles */
+        .section-title {
+            position: relative;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 4px;
+            background-color: var(--primary-color);
+            bottom: 0;
+            left: 0;
+            border-radius: 2px;
+        }
     </style>
 </head>
 <body>
-    <div class="col-12">
-        <div class="card">
-            <div class="card-body">
-                <h4>&nbsp;Welcome <?php echo htmlspecialchars($_SESSION['login_name']); ?>!</h4> 
-                <br>
-                <div class="col-md-5">
-                    <?php if (isset($_SESSION['academic'])): ?>
-                        <h5>
-                            <b>&nbsp;Academic Year:</b>
-                            <span class="academic-year">
-                                <?php echo htmlspecialchars($_SESSION['academic']['year']); ?>
-                            </span>
-                        </h5>
-                        <h6>
-                            <b>&nbsp;Evaluation Status:</b>
-                            <span class="evaluation-status">
-                                <?php echo htmlspecialchars($astat[$_SESSION['academic']['status']]); ?>
-                            </span>
-                            <b>&nbsp;Semester:</b>
-                            <span class="evaluation-status">
-                                <?php echo ordinal_suffix1($_SESSION['academic']['semester']); ?>
-                            </span>
-                            <b>&nbsp;Term:</b>
-                            <span class="evaluation-status">
-                                <?php echo htmlspecialchars($_SESSION['academic']['term'] ?? 'Not Set'); ?>
-                            </span>
-                        </h6>
-                    <?php else: ?>
-                        <h5>No academic data available.</h5>
-                    <?php endif; ?>
+    <div class="container-fluid py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Welcome Section -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                        <div class="welcome-message">
+                            <i class="bi bi-person-circle welcome-icon"></i>
+                            <div>
+                                <h2 class="mb-0">Welcome, <?php echo htmlspecialchars($_SESSION['login_name']); ?>!</h2>
+                                <?php if (isset($_SESSION['academic'])): ?>
+                                    <p class="text-muted mb-0">Let's make your academic experience better.</p>
+                                <?php else: ?>
+                                    <p class="text-muted mb-0">No academic data available.</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php if (isset($_SESSION['academic'])): ?>
+                            <div class="mt-4 callout-info">
+                                <h5><strong>Academic Year:</strong> <?php echo htmlspecialchars($_SESSION['academic']['year']).' '.ordinal_suffix($_SESSION['academic']['semester']); ?> Semester</h5>
+                                <h6><strong>Evaluation Status:</strong> <?php echo htmlspecialchars($astat[$_SESSION['academic']['status']]); ?></h6>
+                                <h6><strong>Term:</strong> <?php echo htmlspecialchars($_SESSION['academic']['term']); ?></h6>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
+
+                <!-- Evaluation Cards Section -->
+                <div class="mb-5">
+                    <h3 class="section-title">Your Teacher Evaluations</h3>
+                    <div class="row g-4">
+                        <?php 
+                        if($restriction->num_rows > 0):
+                            while($row = $restriction->fetch_assoc()):
+                                // Determine if this faculty has been evaluated
+                                $isEvaluated = $row['is_evaluated'] == 1;
+
+                                // Prepare URLs and classes based on evaluation status
+                                if(!$isEvaluated){
+                                    $cardLink = "index.php?page=evaluate&rid=".urlencode($row['id'])."&sid=".urlencode($row['sid'])."&fid=".urlencode($row['fid'])."&teacher_name=".urlencode(ucwords($row['faculty']))."&subject=".urlencode($row['subject']);
+                                    $badgeClass = 'badge-pending';
+                                    $badgeText = 'Pending';
+                                    $btnClass = 'btn-primary';
+                                    $btnIcon = 'bi-pencil-square';
+                                    $btnText = 'Evaluate';
+                                } else {
+                                    $cardLink = '#';
+                                    $badgeClass = 'badge-completed';
+                                    $badgeText = 'Completed';
+                                    $btnClass = 'btn-secondary';
+                                    $btnIcon = 'bi-check-circle';
+                                    $btnText = 'Completed';
+                                }
+                        ?>
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card card-eval h-100">
+                                <div class="card-body d-flex flex-column">
+                                    <div>
+                                        <h5 class="card-title"><?= htmlspecialchars(ucwords($row['faculty'])) ?></h5>
+                                        <p class="card-text text-muted"><?= htmlspecialchars($row['subject']) ?> (<?= htmlspecialchars($row['code']) ?>)</p>
+                                    </div>
+                                    <div class="mt-auto">
+                                        <span class="status-badge <?= $badgeClass ?>"><?= $badgeText ?></span>
+                                        <?php if(!$isEvaluated): ?>
+                                            <a href="<?= htmlspecialchars($cardLink) ?>" class="btn btn-evaluate <?= $btnClass ?> text-white mt-3">
+                                                <i class="<?= $btnIcon ?>"></i> <?= $btnText ?>
+                                            </a>
+                                        <?php else: ?>
+                                            <button class="btn btn-evaluate <?= $btnClass ?> text-white mt-3" disabled>
+                                                <i class="<?= $btnIcon ?>"></i> <?= $btnText ?>
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php 
+                            endwhile;
+                        else:
+                        ?>
+                            <div class="col-12">
+                                <div class="alert alert-info text-center" role="alert">
+                                    You have no pending evaluations at this time.
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <!-- End of Evaluation Cards Section -->
             </div>
         </div>
     </div>
-    <div class="column">
-        <!-- Header -->
-        <h3 class="header">List of Teachers</h3>
-        <div class="card-containers">
-        <?php 
-        // Check if teachers array is not empty
-        if (!empty($teachers)) {
-            foreach ($teachers as $teacher) {
-                $teacherName = $teacher['name'];
-                $subjectName = $teacher['subject'];
-                $isEvaluated = $teacher['is_evaluated'];
-                
-                if (!$isEvaluated) {
-                    // Not evaluated: clickable link
-                    echo "<a href='index.php?page=evaluate&teacher_name=" . urlencode($teacherName) . "&subject=" . urlencode($subjectName) . "' class='teacher-card-link'>";
-                    echo "  <div class='Teacher-card'>";
-                    echo "    <div class='icon-container'>";
-                    echo "      <i class='fa-solid fa-user-tie icon'></i>";
-                    echo "    </div>";
-                    echo "    <div class='message-text-container'>";
-                    echo "      <p class='message-text'>$teacherName</p>";
-                    echo "      <p class='sub-text'>$subjectName</p>";
-                    echo "    </div>";
-                    echo "    <span class='badge bg-primary rounded-pill'>Evaluate</span>";
-                    echo "  </div>";
-                    echo "</a>";
-                } else {
-                    // Evaluated: non-clickable or disabled link
-                    // Option 1: Use a div instead of an 'a' tag
-                    echo "<div class='teacher-card-link disabled' aria-disabled='true' data-bs-toggle='tooltip' title='You have already evaluated this faculty.'>";
-                    echo "  <div class='Teacher-card'>";
-                    echo "    <div class='icon-container'>";
-                    echo "      <i class='fa-solid fa-user-tie icon'></i>";
-                    echo "    </div>";
-                    echo "    <div class='message-text-container'>";
-                    echo "      <p class='message-text'>$teacherName</p>";
-                    echo "      <p class='sub-text'>$subjectName</p>";
-                    echo "    </div>";
-                    echo "    <span class='badge bg-secondary rounded-pill'>Completed</span>";
-                    echo "  </div>";
-                    echo "</div>";
-                    
-                    // Option 2: Use 'a' tag with href="#" and disabled class
-                    /*
-                    echo "<a href='#' class='teacher-card-link disabled text-muted' aria-disabled='true' data-bs-toggle='tooltip' title='You have already evaluated this faculty.'>";
-                    echo "  <div class='Teacher-card'>";
-                    echo "    <div class='icon-container'>";
-                    echo "      <i class='fa-solid fa-user-tie icon'></i>";
-                    echo "    </div>";
-                    echo "    <div class='message-text-container'>";
-                    echo "      <p class='message-text'>$teacherName</p>";
-                    echo "      <p class='sub-text'>$subjectName</p>";
-                    echo "    </div>";
-                    echo "    <span class='badge bg-secondary rounded-pill'>Completed</span>";
-                    echo "  </div>";
-                    echo "</a>";
-                    */
-                }
-            }
-        } else {
-            echo "<p>No teachers found for this student.</p>";
-        }
-        ?>
-        </div>
-    </div>
 
-
-    <!-- Include Bootstrap JS for tooltips and other functionalities -->
+    <!-- Bootstrap JS and dependencies (Popper.js) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Include jQuery (if not already included) -->
+    <!-- Optional: Include jQuery if needed for other functionalities -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Custom JS (if any) -->
     <script>
-    $(document).ready(function(){
-        // Initialize Bootstrap tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-          return new bootstrap.Tooltip(tooltipTriggerEl)
+        // Example: Tooltip Initialization (if needed)
+        $(function () {
+            $('[data-bs-toggle="tooltip"]').tooltip()
         })
-    });
     </script>
 </body>
 </html>
