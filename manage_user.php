@@ -2,16 +2,32 @@
 include('db_connect.php');
 session_start();
 
+// Debug logging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Ensure login_type is set and is a valid index
-if(!isset($_SESSION['login_type']) || $_SESSION['login_type'] < 1 || $_SESSION['login_type'] > 3) {
-    die("Invalid login type");
+if(!isset($_SESSION['login_type']) || $_SESSION['login_type'] < 1 ) {
+    die("Invalid login type. Current login_type: " . $_SESSION['login_type']);
 }
 
 // Define the type array to match your database tables
-$type = array("","users","faculty_list","student_list");
+$type = array(
+    "", // 0 index (typically empty)
+    "users",           // 1 - users (admin, dean)
+    "users",           // 4 - users (dean)
+    "student_list",    // 3 - students
+    "faculty_list",    // 2 - faculty       
+    "faculty_list"     // 5 - faculty
+);
+
+// Debugging: Print out the current login type and corresponding table
+echo "Login Type: " . $_SESSION['login_type'] . "<br>";
+echo "Corresponding Table: " . $type[$_SESSION['login_type']] . "<br>";
 
 // Check if ID is set in the URL
 if(isset($_GET['id'])){
+    
     // Safely select the correct table based on login type
     $table = $type[$_SESSION['login_type']];
     
@@ -27,7 +43,7 @@ if(isset($_GET['id'])){
         $meta = $result->fetch_assoc();
     } else {
         // No user found
-        die("No user found");
+        die("No user found in table: $table for ID: " . $_GET['id']);
     }
 }
 ?>

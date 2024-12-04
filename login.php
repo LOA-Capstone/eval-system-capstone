@@ -44,8 +44,9 @@ if (isset($_SESSION['login_id']))
       <div class="card-bodies">
         <form action="" id="login-form">
           <div class="input-group mb-3">
-            <input type="email" name="email" required placeholder="">
-            <label for="email">Email</label>
+          <input type="text" name="identifier" required placeholder="">
+<label for="identifier">Email or School ID</label>
+
             <div class="input-iconiess">
               <span class="fas fa-envelope input-icon"></span>
             </div>

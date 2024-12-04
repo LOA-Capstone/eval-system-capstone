@@ -647,3 +647,237 @@ $('#print-btn').click(function() {
 }
 
 </style>
+<style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --success-color: #198754;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --font-family: 'Inter', sans-serif;
+        }
+
+    
+        .card-header {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .list-group-item {
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .list-group-item:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .list-group-item.active {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .rating-label {
+            color: #000; /* Ensuring labels 1-5 are black */
+            font-weight: 600;
+        }
+
+        .btn-primary-custom {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .btn-primary-custom:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+
+        .badge-primary {
+            background-color: var(--primary-color);
+        }
+
+        .alert-success, .alert-danger, .alert-info, .alert-warning {
+            border-radius: 0.5rem;
+        }
+
+        .table thead th {
+            background-color: var(--secondary-color);
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        /* Smooth transitions for interactive elements */
+        .btn, .list-group-item, .form-check-input {
+            transition: all 0.3s ease;
+        }
+
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--secondary-color);
+            border-radius: 4px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .card-header h5 {
+                font-size: 1.25rem;
+            }
+
+            .btn {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .teacher-card-link {
+                width: 100%;
+            }
+        }
+
+        /* Teacher Card Styles */
+        .teacher-card-link {
+            text-decoration: none;
+            color: inherit;
+            width: 100%;
+        }
+
+        .teacher-card {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            width: 250px;
+            height: 200px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .teacher-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .icon-container {
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon {
+            color: #fff;
+            font-size: 24px;
+        }
+
+        .message-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 5px;
+        }
+
+        .sub-text {
+            font-size: 16px;
+            color: var(--secondary-color);
+        }
+
+        /* Welcome Card Styles */
+        .welcome-card {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-card h4 {
+            color: var(--dark-color);
+            font-weight: 600;
+        }
+
+        .academic-year, .evaluation-status {
+            color: #000; /* Changed from yellow to black for better readability */
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .academic-year::after, .evaluation-status::after {
+            content: "";
+            display: block;
+            height: 2px;
+            background: var(--primary-color);
+            margin-top: 4px;
+            width: 50px;
+        }
+
+        /* Print Button */
+        #print-btn {
+            display: none;
+        }
+
+        /* Custom Rates Styling */
+        .rates {
+            color: black;
+            font-weight: 600;
+        }
+
+        /* Additional Styles */
+        #polarityChart,
+        #subjectivityChart {
+            width: 200px !important;
+            height: 200px !important;
+        }
+
+        /* Noscript Styles */
+        noscript table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        noscript table.wborder tr,
+        noscript table.wborder td,
+        noscript table.wborder th {
+            border: 1px solid gray;
+            padding: 8px;
+        }
+
+        noscript table.wborder thead tr {
+            background: #6c757d;
+            color: #fff;
+        }
+
+        noscript .text-center {
+            text-align: center;
+        }
+
+        noscript .text-right {
+            text-align: right;
+        }
+
+        noscript .text-left {
+            text-align: left;
+        }
+    </style>
