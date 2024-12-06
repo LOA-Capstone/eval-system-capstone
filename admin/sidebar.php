@@ -160,10 +160,7 @@
                             </a>
                         </li>
                               <!-- Batch Upload -->
-                              <li class="nav-item">
-                            <a href="./index.php?page=faculty_batch_upload" class="nav-link nav-faculty_batch_upload tree-item">
-                                <i class="fas fa-angle-right nav-icon"></i>
-                                <p>Batch Upload</p>
+                              
                             </a>
                         </li>
                     </ul>

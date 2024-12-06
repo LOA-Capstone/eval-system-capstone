@@ -15,9 +15,7 @@
     <div class="card-header">
       <div class="card-tools">
         <!-- Button to add a new academic year -->
-        <a class="btn btn-block btn-sm btn-default btn-flat border-primary new_academic" href="javascript:void(0)">
-          <i class="fa fa-plus"></i> Add New
-        </a>
+
       </div>
     </div>
     <div class="card-body">
