@@ -195,6 +195,51 @@ $restriction = $stmt->get_result();
             left: 0;
             border-radius: 2px;
         }
+        /* Updated Card Styling for Completed Evaluations (Grayish Disabled Look) */
+.card-eval.disabled {
+    background-color: #f8f9fa; /* Light gray background for disabled */
+    border: 1px solid #e0e0e0; /* Soft border to make it look inactive */
+    filter: grayscale(100%); /* Apply grayscale to images or elements to make them look disabled */
+    opacity: 0.7; /* Slightly faded to indicate it's disabled */
+    pointer-events: none; /* Disable interactions */
+}
+
+.card-eval.disabled .card-body {
+    color: #6c757d; /* Muted text for disabled state */
+}
+
+.card-eval.disabled .status-badge {
+    background-color: #e0e0e0; /* Light gray badge for completed state */
+    color: #6c757d; /* Muted text for badge */
+}
+
+.card-eval.disabled .btn-evaluate {
+    background-color: #e0e0e0; /* Disable the button with a light gray color */
+    color: #6c757d; /* Muted text color for button */
+    pointer-events: none; /* Disable button interactions */
+}
+
+.card-eval.disabled:hover {
+    transform: none; /* No hover effect on disabled cards */
+    box-shadow: none; /* Remove shadow to maintain the disabled look */
+}
+
+/* Completed Status Badge */
+.badge-completed {
+    background-color: #6c757d; /* Gray color for completed badge */
+    color: #ffffff;
+}
+
+/* Button for Completed Cards */
+.btn-secondary {
+    background-color: #6c757d; /* Gray button for completed */
+    color: #ffffff;
+}
+
+.btn-secondary:hover {
+    background-color: #5a636b; /* Slightly darker gray on hover */
+}
+
     </style>
 </head>
 <body>
@@ -246,34 +291,35 @@ $restriction = $stmt->get_result();
                                 } else {
                                     $cardLink = '#';
                                     $badgeClass = 'badge-completed';
-                                    $badgeText = 'Completed';
+                                    $badgeText = 'Evaluated';
                                     $btnClass = 'btn-secondary';
                                     $btnIcon = 'bi-check-circle';
                                     $btnText = 'Completed';
                                 }
                         ?>
-                        <div class="col-md-6 col-lg-4">
-                            <div class="card card-eval h-100">
-                                <div class="card-body d-flex flex-column">
-                                    <div>
-                                        <h5 class="card-title"><?= htmlspecialchars(ucwords($row['faculty'])) ?></h5>
-                                        <p class="card-text text-muted"><?= htmlspecialchars($row['subject']) ?> (<?= htmlspecialchars($row['code']) ?>)</p>
-                                    </div>
-                                    <div class="mt-auto">
-                                        <span class="status-badge <?= $badgeClass ?>"><?= $badgeText ?></span>
-                                        <?php if(!$isEvaluated): ?>
-                                            <a href="<?= htmlspecialchars($cardLink) ?>" class="btn btn-evaluate <?= $btnClass ?> text-white mt-3">
-                                                <i class="<?= $btnIcon ?>"></i> <?= $btnText ?>
-                                            </a>
-                                        <?php else: ?>
-                                            <button class="btn btn-evaluate <?= $btnClass ?> text-white mt-3" disabled>
-                                                <i class="<?= $btnIcon ?>"></i> <?= $btnText ?>
-                                            </button>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                       <div class="col-md-6 col-lg-4">
+    <div class="card card-eval h-100 <?= $isEvaluated ? 'disabled' : '' ?>"> <!-- Apply 'disabled' class for completed evaluations -->
+        <div class="card-body d-flex flex-column">
+            <div>
+                <h5 class="card-title"><?= htmlspecialchars(ucwords($row['faculty'])) ?></h5>
+                <p class="card-text text-muted"><?= htmlspecialchars($row['subject']) ?> (<?= htmlspecialchars($row['code']) ?>)</p>
+            </div>
+            <div class="mt-auto">
+                <span class="status-badge <?= $badgeClass ?>"><?= $badgeText ?></span>
+                <?php if(!$isEvaluated): ?>
+                    <a href="<?= htmlspecialchars($cardLink) ?>" class="btn btn-evaluate <?= $btnClass ?> text-white mt-3">
+                        <i class="<?= $btnIcon ?>"></i> <?= $btnText ?>
+                    </a>
+                <?php else: ?>
+                    <button class="btn btn-evaluate <?= $btnClass ?> text-white mt-3" disabled>
+                        <i class="<?= $btnIcon ?>"></i> <?= $btnText ?>
+                    </button>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
                         <?php 
                             endwhile;
                         else:
