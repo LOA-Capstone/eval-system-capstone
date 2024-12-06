@@ -204,10 +204,14 @@
 				} else if (resp == 2) {
 					$('#msg').html("<div class='alert alert-danger'>Email already exist.</div>");
 					$('[name="email"]').addClass("border-danger")
+                    
+					end_load()
+				} 
+                else if (resp == 3) {
                     $('#msg').html("<div class='alert alert-danger'>School ID already exist.</div>");
 					$('[name="school_id"]').addClass("border-danger")
 					end_load()
-				} 
+				}
 			}
 		})
         })

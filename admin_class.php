@@ -710,6 +710,13 @@ class Action
 			return 2;
 			exit;
 		}
+	// pang unique school_id eto lng binago ko dito
+		$school_id = $this->db->real_escape_string($school_id);
+		$check = $this->db->query("SELECT * FROM student_list WHERE school_id ='$school_id' " . (!empty($id) ? "AND id != {$id}" : ''))->num_rows;
+		if ($check > 0) {
+			return 3;
+			exit;
+		}
 		if (isset($_FILES['img']) && $_FILES['img']['tmp_name'] != '') {
 			$fname = strtotime(date('y-m-d H:i')) . '_' . $_FILES['img']['name'];
 			$move = move_uploaded_file($_FILES['img']['tmp_name'], 'assets/uploads/' . $fname);
