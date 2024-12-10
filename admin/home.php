@@ -142,52 +142,84 @@ $astat = array("Not Yet Started","On-going","Closed");
 
 
 /* ----- */
-
 .custom-box {
-  max-width: auto;
-  height: 130px;
+  max-width: 100%;
+  height: 150px;
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  border-radius: 0.5rem;
-  background:#1C204B;
-  background: -webkit-linear-gradient(to right, #3f4c6b, #1C204B; );
-  background: linear-gradient(to right top, #3f4c6b,#1C204B; );
+  align-items: center;
+  background: linear-gradient(to top right, #3f4c6b, #1C204B);
+  border-radius: 1rem;
   padding: 2rem;
-  margin: 0.5rem;
-  color: rgb(107, 114, 128);
-  box-shadow: 0px 30px 78px -39px rgba(0, 0, 0, 0.4);
-  transition: transform 0.3s ease; 
+  margin: 1rem 0;
+  color: white;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
 }
 
 .custom-box:hover {
-  transform: scale(1.05); /* Scale up slightly on hover */
+  transform: translateY(-5px);
 }
 
 .inner {
   flex-grow: 1;
+  text-align: left;
 }
 
 .inner h3 {
-  margin-bottom: 0.25rem;
-  font-size: 1.5rem; 
-  line-height: 1.25rem;
-  font-weight: 600;
-  color: rgb(255, 255, 255);
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
 }
 
 .inner p {
-  margin: 0;
-  font-size: 1rem; 
-  color: rgb(255, 255, 255);
+  font-size: 1.1rem;
+  font-weight: 500;
 }
 
 .icon {
-  font-size: 2rem; 
-  color: rgb(255, 255, 255);
+  font-size: 2.5rem;
+  color: #ffffff;
+  transition: transform 0.3s ease;
 }
 
+.icon:hover {
+  transform: scale(1.1);
+}
 
+/* Modern Note Design */
+.note {
+  color: #32a6ff;
+  position: fixed;
+  top: 80%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: 1rem;
+  width: 80%;
+  padding: 0.75rem;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 0.5rem;
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .custom-box {
+    height: 120px;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .inner h3 {
+    font-size: 1.6rem;
+  }
+  
+  .icon {
+    font-size: 2rem;
+    margin-top: 1rem;
+  }
+}
  </style>
 
 <div class="col-12">
