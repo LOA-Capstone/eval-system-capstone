@@ -1,22 +1,12 @@
+<?php include '../db_connect.php' ?>
 <?php
-include '../db_connect.php';
-$department_id = $_SESSION['login_department_id'];
-$faculty_id = $_GET['id'];
-
-// Check if the faculty belongs to the Dean's department
-$qry = $conn->query("SELECT *, CONCAT(firstname, ' ', lastname) AS name FROM faculty_list WHERE id = '$faculty_id' AND department_id = '$department_id'");
-if ($qry->num_rows > 0) {
-    $faculty = $qry->fetch_assoc();
-    foreach ($faculty as $k => $v) {
-        $$k = $v;
-    }
-    // Display faculty details
-} else {
-    echo "<h4>You do not have permission to view this faculty.</h4>";
-    exit;
+if(isset($_GET['id'])){
+	$qry = $conn->query("SELECT *,concat(firstname,' ',lastname) as name FROM faculty_list where id = ".$_GET['id'])->fetch_array();
+foreach($qry as $k => $v){
+	$$k = $v;
+}
 }
 ?>
-
 <div class="container-fluid">
 	<div class="card card-widget widget-user shadow">
       <div class="widget-user-header bg-dark">
@@ -44,6 +34,9 @@ if ($qry->num_rows > 0) {
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 </div>
 <style>
+	.container-fluid{
+    color: black;
+  }
 	#uni_modal .modal-footer{
 		display: none
 	}
