@@ -57,7 +57,7 @@ class Action
             if ($login == 1 || $login == 2) {
                 $stmt->bind_param("sss", ...$params);
             } else{
-                $stmt->bind_param("sis", ...$params);
+                $stmt->bind_param("sss", ...$params);
             }
 
             $stmt->execute();
