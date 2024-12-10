@@ -395,7 +395,7 @@ $average_remarks = get_remarks($combined_total_rating);
     <div class="content-container">
         <!-- Header Section -->
         <div class="header-section">
-            <h2 class="mb-4">Evaluation Summary</h2>
+            <h2 class="mb-4">Faculty Performance Evaluation Students Evaluation</h2>
             <button class="btn btn-sm btn-success no-print mb-3" onclick="window.print()" aria-label="Print Evaluation Summary">
                 <i class="fas fa-print"></i> Print
             </button>
