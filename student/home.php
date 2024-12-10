@@ -71,6 +71,7 @@ $restriction = $stmt->get_result();
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS for Modern Styling -->
+     
     <style>
         /* Root Variables for Theme Colors */
         :root {
@@ -338,12 +339,14 @@ $restriction = $stmt->get_result();
     </div>
 
     <!-- Bootstrap JS and dependencies (Popper.js) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <!-- Optional: Include jQuery if needed for other functionalities -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Custom JS (if any) -->
     <script>
-        // Example: Tooltip Initialization (if needed)
+    
+
+    
         $(function () {
             $('[data-bs-toggle="tooltip"]').tooltip()
         })
