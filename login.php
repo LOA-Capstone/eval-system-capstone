@@ -46,7 +46,6 @@ if (isset($_SESSION['login_id']))
           <div class="input-group mb-3">
           <input type="text" name="identifier" required placeholder="">
 <label for="identifier">Email or School ID</label>
-
             <div class="input-iconiess">
               <span class="fas fa-envelope input-icon"></span>
             </div>
