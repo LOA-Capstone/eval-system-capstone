@@ -34,6 +34,9 @@ foreach($qry as $k => $v){
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 </div>
 <style>
+	.container-fluid{
+    color: black;
+  }
 	#uni_modal .modal-footer{
 		display: none
 	}

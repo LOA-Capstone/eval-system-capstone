@@ -38,6 +38,9 @@ $class = $classes->num_rows > 0 ? $classes->fetch_array()['class'] : 'N/A';
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 </div>
 <style>
+  .container-fluid{
+    color: black;
+  }
 	#uni_modal .modal-footer{
 		display: none
 	}
