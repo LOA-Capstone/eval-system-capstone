@@ -1,4 +1,8 @@
 <?php 
+
+// Database connection (ensure you have established the $conn variable)
+require_once 'db_connect.php'; // Update this path as necessary
+
 // Enable detailed error reporting (remove in production)
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
@@ -59,13 +63,43 @@ $stmt->execute();
 // Get the result
 $restriction = $stmt->get_result();
 
-// If restrictions are found, optionally set default selection
+// Initialize the $all_done variable
+$all_done = 1; // Assume all done initially
+
+// Check if there are restrictions
 if($restriction->num_rows > 0){
-    if(empty($rid)){
-        $row = $restriction->fetch_assoc();
-        $rid = $row['id'];
-        $faculty_id = $row['fid'];
-        $subject_id = $row['sid'];
+    // Iterate through the restrictions to check evaluation status
+    while($row = $restriction->fetch_assoc()){
+        if($row['is_evaluated'] == 0){
+            $all_done = 0; // Found at least one not evaluated
+            break;
+        }
+    }
+
+    // Reset the result pointer for later use in the sidebar
+    $restriction->data_seek(0);
+
+    // If no restrictions are pending, set $rid to empty
+    if($all_done == 1){
+        $rid = '';
+        $faculty_id = '';
+        $subject_id = '';
+    } else {
+        // If $rid was empty and there are pending evaluations, set to first pending
+        if(empty($rid)){
+            while($row = $restriction->fetch_assoc()){
+                if($row['is_evaluated'] == 0){
+                    $rid = $row['id'];
+                    $faculty_id = $row['fid'];
+                    $subject_id = $row['sid'];
+                    $teacherName = ucwords($row['faculty']);
+                    $subjectName = htmlspecialchars($row['subject']);
+                    break;
+                }
+            }
+            // Reset again for sidebar
+            $restriction->data_seek(0);
+        }
     }
 }
 
@@ -74,7 +108,7 @@ $error = null;
 
 // Handle Sentiment Analysis AJAX Request
 if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
-    $comment = $_POST['comment'];
+    $comment = $_POST['comment'] ?? '';
     if (!empty(trim($comment))) {
         // Escape the comment to prevent command injection
         $escapedComment = escapeshellarg($comment);
@@ -108,7 +142,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
 <html lang="en">
 <head>
     <!-- Your existing head content -->
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Evaluation Page</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -121,6 +160,10 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
             --light-color: #f8f9fa;
             --dark-color: #212529;
             --font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
         }
 
         .card-header {
@@ -229,12 +272,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
         }
 
         .rating-cell {
-    cursor: pointer;
-}
+            cursor: pointer;
+        }
 
-.rating-cell:hover {
-    background-color: rgba(13, 110, 253, 0.1); /* Light blue background on hover */
-}
+        .rating-cell:hover {
+            background-color: rgba(13, 110, 253, 0.1); /* Light blue background on hover */
+        }
 
     </style>
 </head>
@@ -249,11 +292,13 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
                     $restriction->data_seek(0);
                     $initialLoad = true;
                     while($row = $restriction->fetch_array()):
-                        // Set default selected restriction if not set
-                        if($initialLoad && empty($rid)){
+                        // Set default selected restriction if not set and not all done
+                        if($initialLoad && empty($rid) && $all_done == 0){
                             $rid = $row['id'];
                             $faculty_id = $row['fid'];
                             $subject_id = $row['sid'];
+                            $teacherName = ucwords($row['faculty']);
+                            $subjectName = htmlspecialchars($row['subject']);
                             $initialLoad = false;
                         }
 
@@ -274,12 +319,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
                     ?>
                         <a 
                            class="<?= $itemClasses ?>" 
-                           href="<?= $isEvaluated ? '#' : "index.php?page=evaluate&rid={$row['id']}&sid={$row['sid']}&fid={$row['fid']}&teacher_name=" . urlencode(ucwords($row['faculty'])) . "&subject=" . urlencode($row['subject']) ?>"
+                           href="<?= $isEvaluated ? '#' : "index.php?page=evaluate&rid=".urlencode($row['id'])."&sid=".urlencode($row['sid'])."&fid=".urlencode($row['fid'])."&teacher_name=" . urlencode(ucwords($row['faculty'])) . "&subject=" . urlencode($row['subject']) ?>"
                            <?= $isEvaluated ? 'aria-disabled="true" tabindex="-1" data-bs-toggle="tooltip" title="You have already evaluated this faculty."' : '' ?>
                         >
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <strong><?= ucwords($row['faculty']) ?></strong>
+                                    <strong><?= htmlspecialchars(ucwords($row['faculty'])) ?></strong>
                                     <br>
                                     <small class="text-muted">(<?= htmlspecialchars($row["code"]) ?>) <?= htmlspecialchars($row['subject']) ?></small>
                                 </div>
@@ -299,7 +344,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white">
                         <h5 class="mb-0">
-                            Evaluation Questionnaire for Academic: <?= $_SESSION['academic']['year'] . ' ' . ordinal_suffix($_SESSION['academic']['semester']) ?>
+                            Evaluation Questionnaire for Academic: <?= htmlspecialchars($_SESSION['academic']['year']) . ' ' . ordinal_suffix(htmlspecialchars($_SESSION['academic']['semester'])) ?>
                         </h5>
                         <div class="card-tools">
                             <button class="btn btn-light btn-sm" form="manage-evaluation">
@@ -313,11 +358,11 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
                             <p class="mb-0">5 = Strongly Agree, 4 = Agree, 3 = Neutral, 2 = Disagree, 1 = Strongly Disagree</p>
                         </fieldset>
                         <form id="manage-evaluation" method="POST" action="">
-                            <input type="hidden" name="class_id" value="<?= $_SESSION['login_class_id'] ?>">
-                            <input type="hidden" name="faculty_id" value="<?= $faculty_id ?>">
-                            <input type="hidden" name="restriction_id" value="<?= $rid ?>">
-                            <input type="hidden" name="subject_id" value="<?= $subject_id ?>">
-                            <input type="hidden" name="academic_id" value="<?= $_SESSION['academic']['id'] ?>">
+                            <input type="hidden" name="class_id" value="<?= htmlspecialchars($_SESSION['login_class_id']) ?>">
+                            <input type="hidden" name="faculty_id" value="<?= htmlspecialchars($faculty_id) ?>">
+                            <input type="hidden" name="restriction_id" value="<?= htmlspecialchars($rid) ?>">
+                            <input type="hidden" name="subject_id" value="<?= htmlspecialchars($subject_id) ?>">
+                            <input type="hidden" name="academic_id" value="<?= htmlspecialchars($_SESSION['academic']['id']) ?>">
                             
                             <?php 
                                 $criteriaStmt = $conn->prepare("SELECT * FROM criteria_list WHERE id IN (
@@ -351,13 +396,13 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
                                         ?>
                                         <tr>
                                             <td><?= htmlspecialchars($qrow['question']) ?>
-                                                <input type="hidden" name="qid[]" value="<?= $qrow['id'] ?>">
+                                                <input type="hidden" name="qid[]" value="<?= htmlspecialchars($qrow['id']) ?>">
                                             </td>
                                             <?php for($c=1;$c<=5;$c++): ?>
                                                 <td class="text-center rating-cell">
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="radio" name="rate[<?= $qrow['id'] ?>]" id="q<?= $qrow['id'] ?>_<?= $c ?>" value="<?= $c ?>">
-                                                        <label class="form-check-label" for="q<?= $qrow['id'] ?>_<?= $c ?>"></label>
+                                                        <input class="form-check-input" type="radio" name="rate[<?= htmlspecialchars($qrow['id']) ?>]" id="q<?= htmlspecialchars($qrow['id']) ?>_<?= $c ?>" value="<?= $c ?>">
+                                                        <label class="form-check-label" for="q<?= htmlspecialchars($qrow['id']) ?>_<?= $c ?>"></label>
                                                     </div>
                                                 </td>
                                             <?php endfor; ?>
@@ -402,18 +447,17 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
         </div>
     </div>
 
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Your existing CSS styles are already included above -->
-    
-    <!-- jQuery and Bootstrap JS for interactivity -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Include Bootstrap JS for tooltips -->
+    <!-- Bootstrap JS and dependencies (Popper.js) -->
 
+    <!-- jQuery for interactivity -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- SweetAlert2 for alerts -->
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     $(document).ready(function(){
-        const status = '<?= $_SESSION['academic']['status'] ?>';
-        const folder = '<?= $_SESSION['login_view_folder'] ?>';
+        const status = '<?= htmlspecialchars($_SESSION['academic']['status']) ?>';
+        const folder = '<?= htmlspecialchars($_SESSION['login_view_folder']) ?>';
+        const allDone = <?= $all_done ?>; // 1 if all done, 0 otherwise
 
         if (status == 0) {
             uni_modal("", folder + "not_started.php");
@@ -427,7 +471,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
             }, 5000);
         }
 
-        if (<?= empty($rid) ? 1 : 0 ?> == 1) {
+        if (allDone == 1) { // Check the allDone variable
             uni_modal("", folder + "done.php");
             setTimeout(function() {
                 window.location.href = "./index.php";
@@ -435,7 +479,10 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
         }
 
         // Initialize Bootstrap tooltips
-        $('[data-bs-toggle="tooltip"]').tooltip();
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
 
         // Make entire cell clickable to select the radio button
         $('.rating-cell').click(function(e){
@@ -539,7 +586,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
                         var resultHtml = `
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="card-title">Sentiment Analysis Result:</h5>
+                                    <h5 class="card-title">Sentiment Analysis Result</h5>
+                                    <p>:</p>
                                     <p><strong>Sentiment:</strong> ${sentiment}</p>
                                     <p><strong>Polarity:</strong> ${score}</p>
                                     <p><strong>Subjectivity:</strong> ${subjectivity}</p>
@@ -605,11 +653,51 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
         $('input[name^="rate["]').change(function(){
             calculateScore();
         });
+
+        // Placeholder functions for start_load and end_load
+        function start_load(){
+            // Implement your loading indicator logic here
+            // For example, show a spinner
+            $('body').append('<div id="loading-overlay" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:9999;"><div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-light" role="status"><span class="visually-hidden">Loading...</span></div></div></div>');
+        }
+
+        function end_load(){
+            // Remove the loading indicator
+            $('#loading-overlay').remove();
+        }
+
+        // Placeholder function for uni_modal
+        function uni_modal(title, url){
+            // Implement your modal logic here
+            // For example, using Bootstrap's modal
+            // Create modal HTML if not exists
+            if($('#uni_modal').length == 0){
+                $('body').append(`
+                    <div class="modal fade" id="uni_modal" tabindex="-1" aria-labelledby="uni_modal_label" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="uni_modal_label">${title}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <!-- Content loaded via AJAX -->
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                `);
+            } else {
+                $('#uni_modal .modal-title').html(title);
+                $('#uni_modal .modal-body').html('');
+            }
+
+            // Load content via AJAX
+            $('#uni_modal .modal-body').load(url, function(){
+                $('#uni_modal').modal('show');
+            });
+        }
     });
-</script>
-
-
-    <!-- Include SweetAlert2 for alerts (if not already included) -->
-    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    </script>
 </body>
 </html>

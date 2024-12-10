@@ -165,8 +165,9 @@ if(isset($_GET['id'])){
 <script>
     $(document).ready(function(){
         let initialValues = {};
-        // Store initial values of the fields to check for changes
-        $('#manage-academic input[required], #manage-academic select[required]').each(function() {
+
+        // Store initial values of all relevant fields to check for changes
+        $('#manage-academic input, #manage-academic select').each(function() {
             initialValues[$(this).attr('name')] = $(this).val().trim();
         });
 
@@ -177,7 +178,7 @@ if(isset($_GET['id'])){
             let isValid = true;
             let noChangesMade = true;
 
-            // Check if any required fields are empty
+            // Validate required fields
             $('#manage-academic input[required], #manage-academic select[required]').each(function() {
                 const fieldName = $(this).attr('name');
                 const currentValue = $(this).val().trim();
@@ -186,13 +187,24 @@ if(isset($_GET['id'])){
                     isValid = false;
                     $(this).addClass('is-invalid');
                     const errorMessage = '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> All fields are required.</div>';
-                    $('#msg').html(errorMessage);  // Bottom message
+                    $('#msg').html(errorMessage);  // Display error message
                 } else {
                     $(this).removeClass('is-invalid');
                 }
 
+                // Check if any required field has changed
                 if (currentValue !== initialValues[fieldName]) {
-                    noChangesMade = false; // If any field has changed, set this to false
+                    noChangesMade = false;
+                }
+            });
+
+            // Additionally, check non-required fields for changes
+            $('#manage-academic input:not([required]), #manage-academic select:not([required])').each(function() {
+                const fieldName = $(this).attr('name');
+                const currentValue = $(this).val().trim();
+
+                if (currentValue !== initialValues[fieldName]) {
+                    noChangesMade = false;
                 }
             });
 
@@ -203,7 +215,7 @@ if(isset($_GET['id'])){
 
             if (noChangesMade) {
                 const noChangesMessage = '<div class="alert alert-warning"><i class="fa fa-info-circle"></i> No changes were made.</div>';
-                $('#msg').html(noChangesMessage);  // Bottom message
+                $('#msg').html(noChangesMessage);  // Display no changes message
                 end_load();
                 return; // Stop further execution if no changes
             }
@@ -219,14 +231,12 @@ if(isset($_GET['id'])){
                             location.reload();
                         }, 1750);
                     } else if (resp == 2) {
-                        const duplicateMessage = '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Academic year Already exist!</div>';
-                        $('#msg').html(duplicateMessage);  // Bottom message
+                        const duplicateMessage = '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> Academic year Already exists!</div>';
+                        $('#msg').html(duplicateMessage);  // Display duplicate message
                         end_load();
                     }
                 }
             });
         });
     });
-
-
 </script>
