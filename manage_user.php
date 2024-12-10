@@ -22,8 +22,8 @@ $type = array(
 );
 
 // Debugging: Print out the current login type and corresponding table
-echo "Login Type: " . $_SESSION['login_type'] . "<br>";
-echo "Corresponding Table: " . $type[$_SESSION['login_type']] . "<br>";
+// echo "Login Type: " . $_SESSION['login_type'] . "<br>";
+// echo "Corresponding Table: " . $type[$_SESSION['login_type']] . "<br>";
 
 // Check if ID is set in the URL
 if(isset($_GET['id'])){

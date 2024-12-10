@@ -227,6 +227,15 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
                 margin-top: 10px;
             }
         }
+
+        .rating-cell {
+    cursor: pointer;
+}
+
+.rating-cell:hover {
+    background-color: rgba(13, 110, 253, 0.1); /* Light blue background on hover */
+}
+
     </style>
 </head>
 <body>
@@ -345,7 +354,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
                                                 <input type="hidden" name="qid[]" value="<?= $qrow['id'] ?>">
                                             </td>
                                             <?php for($c=1;$c<=5;$c++): ?>
-                                                <td class="text-center">
+                                                <td class="text-center rating-cell">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="rate[<?= $qrow['id'] ?>]" id="q<?= $qrow['id'] ?>_<?= $c ?>" value="<?= $c ?>">
                                                         <label class="form-check-label" for="q<?= $qrow['id'] ?>_<?= $c ?>"></label>
@@ -402,184 +411,203 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
     <!-- Include Bootstrap JS for tooltips -->
 
     <script>
-        $(document).ready(function(){
-            const status = '<?= $_SESSION['academic']['status'] ?>';
-            const folder = '<?= $_SESSION['login_view_folder'] ?>';
+    $(document).ready(function(){
+        const status = '<?= $_SESSION['academic']['status'] ?>';
+        const folder = '<?= $_SESSION['login_view_folder'] ?>';
 
-            if (status == 0) {
-                uni_modal("", folder + "not_started.php");
-                setTimeout(function() {
-                    window.location.href = "./index.php";
-                }, 5000);
-            } else if (status == 2) {
-                uni_modal("", folder + "closed.php");
-                setTimeout(function() {
-                    window.location.href = "./index.php";
-                }, 5000);
+        if (status == 0) {
+            uni_modal("", folder + "not_started.php");
+            setTimeout(function() {
+                window.location.href = "./index.php";
+            }, 5000);
+        } else if (status == 2) {
+            uni_modal("", folder + "closed.php");
+            setTimeout(function() {
+                window.location.href = "./index.php";
+            }, 5000);
+        }
+
+        if (<?= empty($rid) ? 1 : 0 ?> == 1) {
+            uni_modal("", folder + "done.php");
+            setTimeout(function() {
+                window.location.href = "./index.php";
+            }, 5000);
+        }
+
+        // Initialize Bootstrap tooltips
+        $('[data-bs-toggle="tooltip"]').tooltip();
+
+        // Make entire cell clickable to select the radio button
+        $('.rating-cell').click(function(e){
+            // Prevent the default behavior if clicking on the radio button or label
+            if(!$(e.target).is('input, label')){
+                var radioInput = $(this).find('input[type="radio"]');
+                radioInput.prop('checked', true).trigger('change'); // Trigger change event if needed
             }
+        });
 
-            if (<?= empty($rid) ? 1 : 0 ?> == 1) {
-                uni_modal("", folder + "done.php");
-                setTimeout(function() {
-                    window.location.href = "./index.php";
-                }, 5000);
-            }
-
-            // Initialize Bootstrap tooltips
-            $('[data-bs-toggle="tooltip"]').tooltip();
-
-            // Form Submission with Validation
-            $('#manage-evaluation').submit(function(e){
+        // Optional: Keyboard accessibility
+        $('.rating-cell').keypress(function(e){
+            if(e.which === 13 || e.which === 32){ // Enter or Space key
+                var radioInput = $(this).find('input[type="radio"]');
+                radioInput.prop('checked', true).trigger('change');
                 e.preventDefault();
+            }
+        });
 
-                // Validate all questions are answered
-                var allAnswered = true;
-                $('input[name^="rate["]').each(function(){
-                    var name = $(this).attr('name');
-                    if (!$('input[name="'+name+'"]:checked').length) {
-                        allAnswered = false;
-                        return false; // Break loop
-                    }
-                });
+        // Form Submission with Validation
+        $('#manage-evaluation').submit(function(e){
+            e.preventDefault();
 
-                // Validate comment is filled
-                var commentText = $('#comment').val().trim();
-                if (commentText === '') {
+            // Validate all questions are answered
+            var allAnswered = true;
+            $('input[name^="rate["]').each(function(){
+                var name = $(this).attr('name');
+                if (!$('input[name="'+name+'"]:checked').length) {
                     allAnswered = false;
+                    return false; // Break loop
                 }
-
-                if (!allAnswered) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Incomplete Form',
-                        text: 'Please answer all questions and provide your comments.',
-                    });
-                    return false;
-                }
-
-                // AJAX Submission
-                start_load();
-                $.ajax({
-                    url:'ajax.php?action=save_evaluation',
-                    method:'POST',
-                    data:$(this).serialize(),
-                    success:function(resp){
-                        if(resp == 1){
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Evaluation Submitted',
-                                text: 'Your evaluation has been successfully submitted.',
-                                timer: 1500,
-                                showConfirmButton: false
-                            }).then(function() {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Submission Failed',
-                                text: 'There was an error submitting your evaluation. Please try again.',
-                            });
-                        }
-                        end_load();
-                    }
-                });
             });
 
-            // Sentiment Analysis
-            $('#test-sentiment').click(function(){
-                var commentText = $('#comment').val().trim();
-                if(commentText === ''){
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'No Comment Entered',
-                        text: 'Please enter a comment to analyze.',
-                    });
-                    return;
+            // Validate comment is filled
+            var commentText = $('#comment').val().trim();
+            if (commentText === '') {
+                allAnswered = false;
+            }
+
+            if (!allAnswered) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Incomplete Form',
+                    text: 'Please answer all questions and provide your comments.',
+                });
+                return false;
+            }
+
+            // AJAX Submission
+            start_load();
+            $.ajax({
+                url:'ajax.php?action=save_evaluation',
+                method:'POST',
+                data:$(this).serialize(),
+                success:function(resp){
+                    if(resp == 1){
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Evaluation Submitted',
+                            text: 'Your evaluation has been successfully submitted.',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(function() {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Submission Failed',
+                            text: 'There was an error submitting your evaluation. Please try again.',
+                        });
+                    }
+                    end_load();
                 }
-                start_load(); // Show loading indicator
-                $.ajax({
-                    url: 'ajax.php?action=test_sentiment',
-                    method: 'POST',
-                    data: {comment: commentText},
-                    dataType: 'json',
-                    success: function(resp){
-                        if(resp && !resp.error){
-                            var sentiment = resp.sentiment;
-                            var score = parseFloat(resp.score).toFixed(2);
-                            var subjectivity = parseFloat(resp.subjectivity).toFixed(2);
-                            var subjectivity_label = resp.subjectivity_label;
-                            var resultHtml = `
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Sentiment Analysis Result:</h5>
-                                        <p><strong>Sentiment:</strong> ${sentiment}</p>
-                                        <p><strong>Polarity:</strong> ${score}</p>
-                                        <p><strong>Subjectivity:</strong> ${subjectivity}</p>
-                                        <p><strong>Subjectivity Label:</strong> ${subjectivity_label}</p>
-                                    </div>
+            });
+        });
+
+        // Sentiment Analysis
+        $('#test-sentiment').click(function(){
+            var commentText = $('#comment').val().trim();
+            if(commentText === ''){
+                Swal.fire({
+                    icon: 'info',
+                    title: 'No Comment Entered',
+                    text: 'Please enter a comment to analyze.',
+                });
+                return;
+            }
+            start_load(); // Show loading indicator
+            $.ajax({
+                url: 'ajax.php?action=test_sentiment',
+                method: 'POST',
+                data: {comment: commentText},
+                dataType: 'json',
+                success: function(resp){
+                    if(resp && !resp.error){
+                        var sentiment = resp.sentiment;
+                        var score = parseFloat(resp.score).toFixed(2);
+                        var subjectivity = parseFloat(resp.subjectivity).toFixed(2);
+                        var subjectivity_label = resp.subjectivity_label;
+                        var resultHtml = `
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Sentiment Analysis Result:</h5>
+                                    <p><strong>Sentiment:</strong> ${sentiment}</p>
+                                    <p><strong>Polarity:</strong> ${score}</p>
+                                    <p><strong>Subjectivity:</strong> ${subjectivity}</p>
+                                    <p><strong>Subjectivity Label:</strong> ${subjectivity_label}</p>
                                 </div>
-                            `;
-                            $('#sentiment-result').html(resultHtml);
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Analysis Failed',
-                                text: resp.error || 'There was an error performing sentiment analysis.',
-                            });
-                        }
-                    },
-                    error: function(){
+                            </div>
+                        `;
+                        $('#sentiment-result').html(resultHtml);
+                    } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Analysis Failed',
-                            text: 'Unable to perform sentiment analysis at this time.',
+                            text: resp.error || 'There was an error performing sentiment analysis.',
                         });
-                    },
-                    complete: function(){
-                        end_load(); // Hide loading indicator
                     }
-                });
-            });
-
-            // Character Count for Comments
-            const maxChars = 255;
-            $('#charCount').text(`${maxChars} characters remaining`);
-
-            $('#comment').on('input', function(){
-                var charsUsed = $(this).val().length;
-                var charsLeft = maxChars - charsUsed;
-                $('#charCount').text(`${charsLeft} characters remaining`);
-            });
-
-            // Calculate Score (Optional Feature)
-            function calculateScore() {
-                var totalScore = 0;
-                var maxScore = 0;
-
-                // Count the total number of questions
-                var numQuestions = $('input[name^="rate["][value="5"]').length;
-                maxScore = numQuestions * 5;
-
-                // Sum the selected ratings
-                $('input[name^="rate["]:checked').each(function(){
-                    totalScore += parseInt($(this).val());
-                });
-
-                var percentage = (totalScore / maxScore) * 100;
-
-                $('#total-score').text(totalScore);
-                $('#max-score').text(maxScore);
-                $('#percentage-score').text(percentage.toFixed(2) + '%');
-            }
-
-            // Initialize score calculation
-            calculateScore();
-            $('input[name^="rate["]').change(function(){
-                calculateScore();
+                },
+                error: function(){
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Analysis Failed',
+                        text: 'Unable to perform sentiment analysis at this time.',
+                    });
+                },
+                complete: function(){
+                    end_load(); // Hide loading indicator
+                }
             });
         });
-    </script>
+
+        // Character Count for Comments
+        const maxChars = 255;
+        $('#charCount').text(`${maxChars} characters remaining`);
+
+        $('#comment').on('input', function(){
+            var charsUsed = $(this).val().length;
+            var charsLeft = maxChars - charsUsed;
+            $('#charCount').text(`${charsLeft} characters remaining`);
+        });
+
+        // Calculate Score (Optional Feature)
+        function calculateScore() {
+            var totalScore = 0;
+            var maxScore = 0;
+
+            // Count the total number of questions
+            var numQuestions = $('input[name^="rate["][value="5"]').length;
+            maxScore = numQuestions * 5;
+
+            // Sum the selected ratings
+            $('input[name^="rate["]:checked').each(function(){
+                totalScore += parseInt($(this).val());
+            });
+
+            var percentage = (totalScore / maxScore) * 100;
+
+            $('#total-score').text(totalScore);
+            $('#max-score').text(maxScore);
+            $('#percentage-score').text(percentage.toFixed(2) + '%');
+        }
+
+        // Initialize score calculation
+        calculateScore();
+        $('input[name^="rate["]').change(function(){
+            calculateScore();
+        });
+    });
+</script>
+
 
     <!-- Include SweetAlert2 for alerts (if not already included) -->
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
