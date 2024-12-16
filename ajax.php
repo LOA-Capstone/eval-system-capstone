@@ -198,6 +198,40 @@ if ($action == 'save_student') {
 	if ($save)
 		echo $save;
 }
+if ($action == 'save_irregular_student') {
+    $save = $crud->save_irregular_student();
+    if ($save)
+        echo $save;
+}
+
+if ($action == 'get_class_subjects') {
+    $class_id = (int)$_POST['class_id'];
+    $academic_id = (int)$_SESSION['academic']['id'];
+
+    $qry = $conn->query("
+        SELECT r.id as restriction_id, r.academic_id, r.faculty_id, s.id AS subject_id, s.code, s.subject
+        FROM restriction_list r
+        INNER JOIN subject_list s ON s.id = r.subject_id
+        WHERE r.class_id = $class_id AND r.academic_id = $academic_id
+    ");
+
+    $data = array();
+    while ($row = $qry->fetch_assoc()) {
+        $data[] = array(
+            'academic_id' => $row['academic_id'],
+            'faculty_id' => $row['faculty_id'],
+            'subject_id' => $row['subject_id'],
+            'restriction_id' => $row['restriction_id'],
+            'subject_name' => $row['subject'] . " (" . $row['code'] . ")"
+        );
+    }
+
+    echo json_encode(array('status' => 1, 'data' => $data));
+    exit;
+}
+
+
+
 if ($action == 'delete_student') {
 	$save = $crud->delete_student();
 	if ($save)

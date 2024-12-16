@@ -193,6 +193,29 @@
                         </li>
                     </ul>
                 </li>
+
+                <!-- Irregular Students -->
+<li class="nav-item">
+    <a href="#" class="nav-link nav-edit_irregular_student">
+        <i class="nav-icon fa-solid fa-user-graduate"></i>
+        <p>Irregular Students<i class="right fas fa-angle-left"></i></p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="./index.php?page=new_irregular_student" class="nav-link nav-new_irregular_student tree-item">
+                <i class="fas fa-angle-right nav-icon"></i>
+                <p>Add New</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="./index.php?page=irregular_student_list" class="nav-link nav-irregular_student_list tree-item">
+                <i class="fas fa-angle-right nav-icon"></i>
+                <p>List</p>
+            </a>
+        </li>
+    </ul>
+</li>
+
                 <!-- Department Section -->
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link nav-edit_department">

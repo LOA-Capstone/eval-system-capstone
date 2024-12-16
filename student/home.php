@@ -1,4 +1,4 @@
-<?php 
+<?php
 include('db_connect.php');
 
 // Function to add ordinal suffix to numbers
@@ -17,39 +17,70 @@ function ordinal_suffix($num){
 // Array for evaluation status
 $astat = array("Not Yet Started","Started","Closed");
 
-// Fetch evaluation data similar to the Evaluate page
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-// Prepare the SQL statement with placeholders
-$stmt = $conn->prepare("
-    SELECT 
-        r.id, 
-        s.id AS sid, 
-        f.id AS fid, 
-        CONCAT(f.firstname, ' ', f.lastname) AS faculty, 
-        s.code, 
-        s.subject,
-        CASE 
-            WHEN el.evaluation_id IS NOT NULL THEN 1 
-            ELSE 0 
-        END AS is_evaluated
-    FROM restriction_list r 
-    INNER JOIN faculty_list f ON f.id = r.faculty_id 
-    INNER JOIN subject_list s ON s.id = r.subject_id 
-    LEFT JOIN evaluation_list el ON el.restriction_id = r.id 
-        AND el.academic_id = ? 
-        AND el.student_id = ?
-    WHERE r.academic_id = ? 
-      AND r.class_id = ?
-    ORDER BY f.lastname ASC, f.firstname ASC
-");
-
-// Bind parameters to the placeholders
 $academic_id = $_SESSION['academic']['id'];
 $student_id = $_SESSION['login_id'];
-$class_id = $_SESSION['login_class_id'];
 
-$stmt->bind_param("iiii", $academic_id, $student_id, $academic_id, $class_id);
+// Determine student's classification
+$classif_res = $conn->query("SELECT classification FROM student_list WHERE id = $student_id");
+$classification = $classif_res->fetch_assoc()['classification'] ?? 'regular';
+
+if ($classification == 'regular') {
+    // Regular student: use class_id from session
+    $class_id = $_SESSION['login_class_id'];
+    $stmt = $conn->prepare("
+        SELECT 
+            r.id, 
+            s.id AS sid, 
+            f.id AS fid, 
+            CONCAT(f.firstname, ' ', f.lastname) AS faculty, 
+            s.code, 
+            s.subject,
+            CASE 
+                WHEN el.evaluation_id IS NOT NULL THEN 1 
+                ELSE 0 
+            END AS is_evaluated
+        FROM restriction_list r 
+        INNER JOIN faculty_list f ON f.id = r.faculty_id 
+        INNER JOIN subject_list s ON s.id = r.subject_id 
+        LEFT JOIN evaluation_list el ON el.restriction_id = r.id 
+            AND el.academic_id = ? 
+            AND el.student_id = ?
+        WHERE r.academic_id = ? 
+          AND r.class_id = ?
+        ORDER BY f.lastname ASC, f.firstname ASC
+    ");
+    $stmt->bind_param("iiii", $academic_id, $student_id, $academic_id, $class_id);
+
+} else {
+    // Irregular student: fetch subjects from irregular_student_subjects
+    $stmt = $conn->prepare("
+        SELECT 
+            r.id, 
+            s.id AS sid, 
+            f.id AS fid, 
+            CONCAT(f.firstname, ' ', f.lastname) AS faculty, 
+            s.code, 
+            s.subject,
+            CASE 
+                WHEN el.evaluation_id IS NOT NULL THEN 1 
+                ELSE 0 
+            END AS is_evaluated
+        FROM irregular_student_subjects iss
+        INNER JOIN restriction_list r ON r.academic_id = iss.academic_id 
+            AND r.faculty_id = iss.faculty_id 
+            AND r.subject_id = iss.subject_id
+        INNER JOIN faculty_list f ON f.id = r.faculty_id 
+        INNER JOIN subject_list s ON s.id = r.subject_id 
+        LEFT JOIN evaluation_list el ON el.restriction_id = r.id 
+            AND el.academic_id = ?
+            AND el.student_id = ?
+        WHERE iss.student_id = ?
+        ORDER BY f.lastname ASC, f.firstname ASC
+    ");
+    $stmt->bind_param("iii", $academic_id, $student_id, $student_id);
+}
 
 // Execute the statement
 $stmt->execute();
@@ -196,50 +227,48 @@ $restriction = $stmt->get_result();
             left: 0;
             border-radius: 2px;
         }
-        /* Updated Card Styling for Completed Evaluations (Grayish Disabled Look) */
-.card-eval.disabled {
-    background-color: #f8f9fa; /* Light gray background for disabled */
-    border: 1px solid #e0e0e0; /* Soft border to make it look inactive */
-    filter: grayscale(100%); /* Apply grayscale to images or elements to make them look disabled */
-    opacity: 0.7; /* Slightly faded to indicate it's disabled */
-    pointer-events: none; /* Disable interactions */
-}
 
-.card-eval.disabled .card-body {
-    color: #6c757d; /* Muted text for disabled state */
-}
+        .card-eval.disabled {
+            background-color: #f8f9fa; 
+            border: 1px solid #e0e0e0;
+            filter: grayscale(100%);
+            opacity: 0.7;
+            pointer-events: none;
+        }
 
-.card-eval.disabled .status-badge {
-    background-color: #e0e0e0; /* Light gray badge for completed state */
-    color: #6c757d; /* Muted text for badge */
-}
+        .card-eval.disabled .card-body {
+            color: #6c757d;
+        }
 
-.card-eval.disabled .btn-evaluate {
-    background-color: #e0e0e0; /* Disable the button with a light gray color */
-    color: #6c757d; /* Muted text color for button */
-    pointer-events: none; /* Disable button interactions */
-}
+        .card-eval.disabled .status-badge {
+            background-color: #e0e0e0;
+            color: #6c757d;
+        }
 
-.card-eval.disabled:hover {
-    transform: none; /* No hover effect on disabled cards */
-    box-shadow: none; /* Remove shadow to maintain the disabled look */
-}
+        .card-eval.disabled .btn-evaluate {
+            background-color: #e0e0e0;
+            color: #6c757d;
+            pointer-events: none;
+        }
 
-/* Completed Status Badge */
-.badge-completed {
-    background-color: #6c757d; /* Gray color for completed badge */
-    color: #ffffff;
-}
+        .card-eval.disabled:hover {
+            transform: none; 
+            box-shadow: none;
+        }
 
-/* Button for Completed Cards */
-.btn-secondary {
-    background-color: #6c757d; /* Gray button for completed */
-    color: #ffffff;
-}
+        .badge-completed {
+            background-color: #6c757d; 
+            color: #ffffff;
+        }
 
-.btn-secondary:hover {
-    background-color: #5a636b; /* Slightly darker gray on hover */
-}
+        .btn-secondary {
+            background-color: #6c757d; 
+            color: #ffffff;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a636b;
+        }
 
     </style>
 </head>
@@ -298,29 +327,28 @@ $restriction = $stmt->get_result();
                                     $btnText = 'Completed';
                                 }
                         ?>
-                       <div class="col-md-6 col-lg-4">
-    <div class="card card-eval h-100 <?= $isEvaluated ? 'disabled' : '' ?>"> <!-- Apply 'disabled' class for completed evaluations -->
-        <div class="card-body d-flex flex-column">
-            <div>
-                <h5 class="card-title"><?= htmlspecialchars(ucwords($row['faculty'])) ?></h5>
-                <p class="card-text text-muted"><?= htmlspecialchars($row['subject']) ?> (<?= htmlspecialchars($row['code']) ?>)</p>
-            </div>
-            <div class="mt-auto">
-                <span class="status-badge <?= $badgeClass ?>"><?= $badgeText ?></span>
-                <?php if(!$isEvaluated): ?>
-                    <a href="<?= htmlspecialchars($cardLink) ?>" class="btn btn-evaluate <?= $btnClass ?> text-white mt-3">
-                        <i class="<?= $btnIcon ?>"></i> <?= $btnText ?>
-                    </a>
-                <?php else: ?>
-                    <button class="btn btn-evaluate <?= $btnClass ?> text-white mt-3" disabled>
-                        <i class="<?= $btnIcon ?>"></i> <?= $btnText ?>
-                    </button>
-                <?php endif; ?>
-            </div>
-        </div>
-    </div>
-</div>
-
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card card-eval h-100 <?= $isEvaluated ? 'disabled' : '' ?>">
+                                <div class="card-body d-flex flex-column">
+                                    <div>
+                                        <h5 class="card-title"><?= htmlspecialchars(ucwords($row['faculty'])) ?></h5>
+                                        <p class="card-text text-muted"><?= htmlspecialchars($row['subject']) ?> (<?= htmlspecialchars($row['code']) ?>)</p>
+                                    </div>
+                                    <div class="mt-auto">
+                                        <span class="status-badge <?= $badgeClass ?>"><?= $badgeText ?></span>
+                                        <?php if(!$isEvaluated): ?>
+                                            <a href="<?= htmlspecialchars($cardLink) ?>" class="btn btn-evaluate <?= $btnClass ?> text-white mt-3">
+                                                <i class="<?= $btnIcon ?>"></i> <?= $btnText ?>
+                                            </a>
+                                        <?php else: ?>
+                                            <button class="btn btn-evaluate <?= $btnClass ?> text-white mt-3" disabled>
+                                                <i class="<?= $btnIcon ?>"></i> <?= $btnText ?>
+                                            </button>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <?php 
                             endwhile;
                         else:
@@ -338,15 +366,9 @@ $restriction = $stmt->get_result();
         </div>
     </div>
 
-    <!-- Bootstrap JS and dependencies (Popper.js) -->
-    
-    <!-- Optional: Include jQuery if needed for other functionalities -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Custom JS (if any) -->
-    <script>
-    
 
-    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
         $(function () {
             $('[data-bs-toggle="tooltip"]').tooltip()
         })

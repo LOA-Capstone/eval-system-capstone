@@ -762,10 +762,94 @@ class Action
 	function delete_student()
 	{
 		extract($_POST);
-		$delete = $this->db->query("DELETE FROM student_list where id = " . $id);
+		// First remove any entries from irregular_student_subjects related to this student
+		$this->db->query("DELETE FROM irregular_student_subjects WHERE student_id = $id");
+	
+		// Now you can safely delete the student
+		$delete = $this->db->query("DELETE FROM student_list WHERE id = $id");
 		if ($delete)
 			return 1;
+		return 0;
 	}
+	
+
+	function save_irregular_student()
+	{
+		extract($_POST);
+		$classification = 'irregular';
+	
+		$data = " classification='irregular' ";
+		foreach ($_POST as $k => $v) {
+			if (!in_array($k, array('id', 'cpass', 'password', 'classification', 'subjects')) && !is_numeric($k)) {
+				$v = $this->db->real_escape_string($v);
+				$data .= ", $k='$v' ";
+			}
+		}
+	
+		if (!empty($password)) {
+			$password = $this->db->real_escape_string($password);
+			$data .= ", password=md5('$password') ";
+		}
+	
+		// Check duplicates
+		$email = $this->db->real_escape_string($email);
+		$check = $this->db->query("SELECT * FROM student_list WHERE email ='$email' " . (!empty($id) ? " AND id != {$id}" : ''))->num_rows;
+		if ($check > 0) {
+			return 2;
+			exit;
+		}
+	
+		$school_id = $this->db->real_escape_string($school_id);
+		$check = $this->db->query("SELECT * FROM student_list WHERE school_id ='$school_id' " . (!empty($id) ? " AND id != {$id}" : ''))->num_rows;
+		if ($check > 0) {
+			return 3;
+			exit;
+		}
+	
+		if (isset($_FILES['img']) && $_FILES['img']['tmp_name'] != '') {
+			$fname = strtotime(date('y-m-d H:i')) . '_' . $_FILES['img']['name'];
+			$move = move_uploaded_file($_FILES['img']['tmp_name'], 'assets/uploads/' . $fname);
+			if ($move) {
+				$data .= ", avatar = '$fname' ";
+			}
+		}
+	
+		if (empty($id)) {
+			$save = $this->db->query("INSERT INTO student_list SET $data");
+			if ($save) {
+				$id = $this->db->insert_id; // Get the inserted student id
+			}
+		} else {
+			$id = (int)$id;
+			$save = $this->db->query("UPDATE student_list SET $data WHERE id = $id");
+		}
+	
+		if ($save) {
+			// Handle subjects
+			$this->db->query("DELETE FROM irregular_student_subjects WHERE student_id = $id"); // Clear old assignments if editing
+			
+			if (isset($subjects) && count($subjects) > 0) {
+				foreach ($subjects as $rid) {
+					// $rid is restriction_list.id
+					// Fetch faculty_id, subject_id, academic_id from restriction_list
+					$r = $this->db->query("SELECT academic_id, faculty_id, subject_id FROM restriction_list WHERE id = $rid")->fetch_assoc();
+					$aid = $r['academic_id'];
+					$fid = $r['faculty_id'];
+					$sid = $r['subject_id'];
+	
+					$this->db->query("INSERT INTO irregular_student_subjects (student_id, academic_id, faculty_id, subject_id) 
+									  VALUES ($id, $aid, $fid, $sid)");
+				}
+			}
+	
+			return 1; // Success
+		} else {
+			return 0; // Failed
+		}
+	}
+	
+
+
 	function save_task()
 	{
 		extract($_POST);
