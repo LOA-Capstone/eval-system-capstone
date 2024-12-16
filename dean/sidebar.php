@@ -125,12 +125,12 @@
                         <p>Evaluation Report</p>
                     </a>
                 </li>
-                <!-- <li class="nav-item dropdown">
-                    <a href="./index.php?page=batch_upload" class="nav-link nav-batch_upload">
-                        <i class="nav-icon fas fa-upload"></i>
-                        <p>Batch Upload</p>
+                <li class="nav-item dropdown">
+                    <a href="./index.php?page=evaluation_summary" class="nav-link nav-evaluation_summary">
+                        <i class="nav-icon fas fa-chart-bar"></i>
+                        <p>Evaluation Summary</p>
                     </a>
-                </li> -->
+                </li>
 <!-- Department Section -->
 
 
