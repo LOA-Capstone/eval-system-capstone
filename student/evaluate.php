@@ -26,36 +26,69 @@ $subject_id = $_GET['sid'] ?? '';
 $teacherName = $_GET['teacher_name'] ?? '';
 $subjectName = $_GET['subject'] ?? '';
 
-// Prepare the SQL statement with placeholders
-$stmt = $conn->prepare("
-    SELECT 
-        r.id, 
-        s.id AS sid, 
-        f.id AS fid, 
-        CONCAT(f.firstname, ' ', f.lastname) AS faculty, 
-        s.code, 
-        s.subject,
-        CASE 
-            WHEN el.evaluation_id IS NOT NULL THEN 1 
-            ELSE 0 
-        END AS is_evaluated
-    FROM restriction_list r 
-    INNER JOIN faculty_list f ON f.id = r.faculty_id 
-    INNER JOIN subject_list s ON s.id = r.subject_id 
-    LEFT JOIN evaluation_list el ON el.restriction_id = r.id 
-        AND el.academic_id = ? 
-        AND el.student_id = ?
-    WHERE r.academic_id = ? 
-      AND r.class_id = ?
-    ORDER BY f.lastname ASC, f.firstname ASC
-");
-
-// Bind parameters to the placeholders
+// Retrieve session values
 $academic_id = $_SESSION['academic']['id'];
 $student_id = $_SESSION['login_id'];
-$class_id = $_SESSION['login_class_id'];
 
-$stmt->bind_param("iiii", $academic_id, $student_id, $academic_id, $class_id);
+// Determine student's classification
+$classif_res = $conn->query("SELECT classification FROM student_list WHERE id = $student_id");
+$classification = $classif_res->fetch_assoc()['classification'] ?? 'regular';
+
+if ($classification == 'regular') {
+    // Regular student: use class_id from session
+    $class_id = $_SESSION['login_class_id'];
+    $stmt = $conn->prepare("
+        SELECT 
+            r.id, 
+            s.id AS sid, 
+            f.id AS fid, 
+            CONCAT(f.firstname, ' ', f.lastname) AS faculty, 
+            s.code, 
+            s.subject,
+            CASE 
+                WHEN el.evaluation_id IS NOT NULL THEN 1 
+                ELSE 0 
+            END AS is_evaluated
+        FROM restriction_list r 
+        INNER JOIN faculty_list f ON f.id = r.faculty_id 
+        INNER JOIN subject_list s ON s.id = r.subject_id 
+        LEFT JOIN evaluation_list el ON el.restriction_id = r.id 
+            AND el.academic_id = ? 
+            AND el.student_id = ?
+        WHERE r.academic_id = ? 
+          AND r.class_id = ?
+        ORDER BY f.lastname ASC, f.firstname ASC
+    ");
+    $stmt->bind_param("iiii", $academic_id, $student_id, $academic_id, $class_id);
+
+} else {
+    // Irregular student: fetch subjects from irregular_student_subjects
+    $stmt = $conn->prepare("
+        SELECT 
+            r.id, 
+            s.id AS sid, 
+            f.id AS fid, 
+            CONCAT(f.firstname, ' ', f.lastname) AS faculty, 
+            s.code, 
+            s.subject,
+            CASE 
+                WHEN el.evaluation_id IS NOT NULL THEN 1 
+                ELSE 0 
+            END AS is_evaluated
+        FROM irregular_student_subjects iss
+        INNER JOIN restriction_list r ON r.academic_id = iss.academic_id 
+            AND r.faculty_id = iss.faculty_id 
+            AND r.subject_id = iss.subject_id
+        INNER JOIN faculty_list f ON f.id = r.faculty_id 
+        INNER JOIN subject_list s ON s.id = r.subject_id 
+        LEFT JOIN evaluation_list el ON el.restriction_id = r.id 
+            AND el.academic_id = ?
+            AND el.student_id = ?
+        WHERE iss.student_id = ?
+        ORDER BY f.lastname ASC, f.firstname ASC
+    ");
+    $stmt->bind_param("iii", $academic_id, $student_id, $student_id);
+}
 
 // Execute the statement
 $stmt->execute();
@@ -138,6 +171,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'test_sentiment') {
     exit;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
