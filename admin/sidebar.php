@@ -144,17 +144,17 @@
                 <li class="nav-item">
                     <a href="#" class="nav-link nav-edit_faculty">
                         <i class="nav-icon fas fa-user-friends"></i>
-                        <p>Teachers<i class="right fas fa-angle-left"></i></p>
+                        <p>Professors<i class="right fas fa-angle-left"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="./index.php?page=new_faculty" class="nav-link nav-new_faculty tree-item">
+                            <a href="./index.php?page=new_professor" class="nav-link nav-new_faculty tree-item">
                                 <i class="fas fa-angle-right nav-icon"></i>
                                 <p>Add New</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="./index.php?page=faculty_list" class="nav-link nav-faculty_list tree-item">
+                            <a href="./index.php?page=professors" class="nav-link nav-faculty_list tree-item">
                                 <i class="fas fa-angle-right nav-icon"></i>
                                 <p>List</p>
                             </a>
