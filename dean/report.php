@@ -488,13 +488,13 @@ function load_report(faculty_id, subject_id, class_id) {
 
                     // Colors for the bars
                     var barColors = [
-                        '#d73027', // Very Strong (Negative)
-                        '#fc8d59', // Strong (Negative)
-                        '#fee090', // Moderate (Negative)
-                        '#ffffbf', // Neutral
-                        '#e0f3f8', // Moderate (Positive)
-                        '#91bfdb', // Strong (Positive)
-                        '#4575b4' // Very Strong (Positive)
+                        '#4575b4',
+                            '#4575b4',
+                            '#4575b4',
+                            '#4575b4',
+                            '#4575b4',
+                            '#4575b4',
+                            '#4575b4'
                     ];
 
                     var ctxSentiment = document.getElementById('sentimentChart').getContext('2d');
@@ -601,26 +601,26 @@ $('#print-btn').click(function() {
         }, 500);
     }
 });
-	function display_comments(comments) {
-    // Remove existing comments section if it exists
-    $('#comments-section').remove();
+function display_comments(comments) {
+        $('#comments-section').remove();
 
-    // Create a new comments section
-    var commentsHtml = '<div id="comments-section" style="margin-top:20px;">' +
-        '<h4><b>Student Comments:</b></h4>';
+        var commentsHtml = '<div id="comments-section" style="margin-top:20px;">' +
+            '<h4><b>Student Comments:</b></h4>';
 
-    comments.forEach(function(comment) {
-        commentsHtml += '<div class="comment-item" style="border-bottom: 1px solid #ccc; padding: 10px 0;">' +
-            '<p><b>Sentiment:</b> ' + comment.sentiment + '</p>' +
-            '<p><b>Comment:</b> ' + comment.comment + '</p>' +
-            '</div>';
-    });
+        comments.forEach(function(comment) {
+            commentsHtml +=
+                '<div class="comment-item card mb-3">' +
+                '<div class="card-body">' +
+                '<h5 class="card-title">Sentiment: ' + comment.sentiment + '</h5>' +
+                '<p class="card-text">' + comment.comment + '</p>' +
+                '</div>' +
+                '</div>';
+        });
 
-    commentsHtml += '</div>';
+        commentsHtml += '</div>';
 
-    // Append the comments section to the printable area
-    $('#printable').append(commentsHtml);
-}
+        $('#printable').append(commentsHtml);
+    }
 
 </script>
 
@@ -628,24 +628,57 @@ $('#print-btn').click(function() {
     #comments-section {
         margin-top: 20px;
     }
+
     .comment-item {
-        border-bottom: 1px solid #ccc;
-        padding: 10px 0;
-    }
-    .comment-item:last-child {
-        border-bottom: none;
+        border: 1px solid #ccc;
+        border-radius: 5px;
     }
 
-	#sentimentChartContainer {
-    max-width: 800px; /* Adjust this value as needed */
-    margin: 0 auto;
-}
+    .comment-item .card-body {
+        padding: 15px;
+    }
 
-#sentimentChart {
-    width: 100% !important;
-    height: auto !important;
-}
+    .comment-item .card-title {
+        margin-bottom: 10px;
+        font-size: 18px;
+        color: #333;
+    }
 
+    .comment-item .card-text {
+        font-size: 16px;
+        color: #555;
+    }
+
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        #printable, #printable * {
+            visibility: visible;
+        }
+
+        #printable {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+
+        .no-print, .no-print * {
+            display: none !important;
+        }
+    }
+
+    #sentimentChartContainer {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    #sentimentChart {
+        width: 100% !important;
+        height: auto !important;
+    }
 </style>
 <style>
         :root {
