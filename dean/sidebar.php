@@ -112,9 +112,9 @@
 
 
                 <li class="nav-item">
-    <a href="./index.php?page=professors" class="nav-link nav-faculty_list">
+    <a href="./index.php?page=faculty_list" class="nav-link nav-faculty_list">
         <i class="nav-icon fas fa-user-friends"></i>
-        <p>Professors</p>
+        <p>Faculties</p>
     </a>
 </li>
 
