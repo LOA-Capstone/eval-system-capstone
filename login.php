@@ -65,7 +65,7 @@ if (isset($_SESSION['login_id']))
               <input type="radio" id="student" name="login" value="3" checked>
               <label for="student" class="option">STUDENT</label>
               <input type="radio" id="faculty" name="login" value="4">
-              <label for="faculty" class="option">PROFESSOR</label>
+              <label for="faculty" class="option">FACULTY</label>
               <input type="radio" id="admin" name="login" value="1">
               <label for="admin" class="option">ADMIN</label>
               <input type="radio" id="dean" name="login" value="2">

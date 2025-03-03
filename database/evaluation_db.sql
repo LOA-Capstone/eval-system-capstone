@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 20, 2024 at 04:38 PM
+-- Generation Time: Mar 03, 2025 at 04:38 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,8 +43,8 @@ CREATE TABLE `academic_list` (
 INSERT INTO `academic_list` (`id`, `year`, `semester`, `term`, `is_default`, `status`) VALUES
 (5, '2024-2025', 1, 'Midterm', 1, 1),
 (6, '2024-2025', 1, 'Finals', 0, 1),
-(7, '2019-2020', 2, 'Midterm', 0, 2),
-(8, '2025-2026', 1, 'Midterm', 0, 0);
+(8, '2025-2026', 1, 'Midterm', 0, 0),
+(15, '2023-2024', 2, 'Midterm', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -110,38 +110,6 @@ INSERT INTO `class_list` (`id`, `curriculum`, `level`, `section`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `class_subjects`
---
-
-CREATE TABLE `class_subjects` (
-  `class_id` int(11) NOT NULL,
-  `subject_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `class_subjects`
---
-
-INSERT INTO `class_subjects` (`class_id`, `subject_id`) VALUES
-(4, 4),
-(4, 5),
-(4, 6),
-(4, 7),
-(4, 8),
-(5, 4),
-(5, 5),
-(5, 6),
-(5, 7),
-(5, 8),
-(6, 4),
-(6, 5),
-(6, 6),
-(6, 7),
-(6, 8);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `criteria_list`
 --
 
@@ -183,7 +151,15 @@ CREATE TABLE `department_list` (
 
 INSERT INTO `department_list` (`id`, `name`, `description`) VALUES
 (2, 'College of Computer Studies', 'BSIT & BSCS'),
-(3, 'College of Engineering (COE)', 'Bachelor of Science in Computer Engineering & Bachelor of Science in Industrial Engineering');
+(3, 'College of Engineering', 'Bachelor of Science in Computer Engineering & Bachelor of Science in Industrial Engineering'),
+(4, 'College of Accountancy', 'Bachelor of Science in Accountancy '),
+(5, 'College of Criminal Justice', 'Bachelor of Science in Criminology'),
+(6, 'College of Education', 'Bachelor of Science in Elementary Education & Bachelor of Science in Secondary Education'),
+(7, 'College of Arts and Science', 'Bachelor of Science in Psychology'),
+(8, 'College of Customs Administration', 'Bachelor of Science in Customs Administration'),
+(9, 'College of Tourism and Hospitality Management', 'Bachelor of Science in Hospitality Management & Bachelor of Science in Tourism Management'),
+(10, 'College of Real Estate Management', 'Bachelor of Science in Real Estate Management'),
+(11, 'College of Business Administratiion', 'Bachelor of Science in Business Administration');
 
 -- --------------------------------------------------------
 
@@ -2453,7 +2429,687 @@ INSERT INTO `evaluation_answers` (`evaluation_id`, `question_id`, `rate`) VALUES
 (32, 43, 5),
 (32, 44, 5),
 (32, 45, 5),
-(32, 46, 5);
+(32, 46, 5),
+(33, 7, 5),
+(33, 8, 5),
+(33, 9, 5),
+(33, 10, 5),
+(33, 11, 5),
+(33, 12, 5),
+(33, 13, 5),
+(33, 14, 5),
+(33, 15, 5),
+(33, 16, 5),
+(33, 17, 5),
+(33, 18, 5),
+(33, 19, 4),
+(33, 20, 4),
+(33, 21, 4),
+(33, 22, 4),
+(33, 23, 4),
+(33, 24, 4),
+(33, 25, 4),
+(33, 26, 4),
+(33, 27, 4),
+(33, 28, 4),
+(33, 29, 4),
+(33, 30, 4),
+(33, 31, 4),
+(33, 32, 4),
+(33, 33, 4),
+(33, 34, 4),
+(33, 35, 4),
+(33, 36, 4),
+(33, 37, 4),
+(33, 38, 4),
+(33, 39, 4),
+(33, 40, 4),
+(33, 41, 4),
+(33, 42, 4),
+(33, 43, 4),
+(33, 44, 4),
+(33, 45, 4),
+(33, 46, 4),
+(34, 7, 4),
+(34, 8, 5),
+(34, 9, 4),
+(34, 10, 3),
+(34, 11, 4),
+(34, 12, 3),
+(34, 13, 4),
+(34, 14, 3),
+(34, 15, 4),
+(34, 16, 3),
+(34, 17, 4),
+(34, 18, 3),
+(34, 19, 4),
+(34, 20, 4),
+(34, 21, 4),
+(34, 22, 3),
+(34, 23, 4),
+(34, 24, 4),
+(34, 25, 4),
+(34, 26, 4),
+(34, 27, 4),
+(34, 28, 4),
+(34, 29, 4),
+(34, 30, 4),
+(34, 31, 4),
+(34, 32, 4),
+(34, 33, 4),
+(34, 34, 4),
+(34, 35, 4),
+(34, 36, 4),
+(34, 37, 4),
+(34, 38, 4),
+(34, 39, 4),
+(34, 40, 4),
+(34, 41, 3),
+(34, 42, 5),
+(34, 43, 4),
+(34, 44, 4),
+(34, 45, 3),
+(34, 46, 4),
+(35, 7, 5),
+(35, 8, 4),
+(35, 9, 4),
+(35, 10, 4),
+(35, 11, 4),
+(35, 12, 4),
+(35, 13, 3),
+(35, 14, 5),
+(35, 15, 3),
+(35, 16, 4),
+(35, 17, 3),
+(35, 18, 4),
+(35, 19, 3),
+(35, 20, 4),
+(35, 21, 3),
+(35, 22, 4),
+(35, 23, 3),
+(35, 24, 4),
+(35, 25, 5),
+(35, 26, 4),
+(35, 27, 4),
+(35, 28, 4),
+(35, 29, 4),
+(35, 30, 5),
+(35, 31, 5),
+(35, 32, 5),
+(35, 33, 5),
+(35, 34, 5),
+(35, 35, 4),
+(35, 36, 4),
+(35, 37, 4),
+(35, 38, 4),
+(35, 39, 4),
+(35, 40, 4),
+(35, 41, 4),
+(35, 42, 4),
+(35, 43, 4),
+(35, 44, 4),
+(35, 45, 4),
+(35, 46, 4),
+(36, 7, 5),
+(36, 8, 5),
+(36, 9, 5),
+(36, 10, 5),
+(36, 11, 5),
+(36, 12, 5),
+(36, 13, 5),
+(36, 14, 5),
+(36, 15, 5),
+(36, 16, 5),
+(36, 17, 5),
+(36, 18, 5),
+(36, 19, 5),
+(36, 20, 5),
+(36, 21, 5),
+(36, 22, 5),
+(36, 23, 5),
+(36, 24, 5),
+(36, 25, 5),
+(36, 26, 5),
+(36, 27, 5),
+(36, 28, 5),
+(36, 29, 5),
+(36, 30, 5),
+(36, 31, 5),
+(36, 32, 5),
+(36, 33, 5),
+(36, 34, 5),
+(36, 35, 5),
+(36, 36, 5),
+(36, 37, 5),
+(36, 38, 5),
+(36, 39, 5),
+(36, 40, 5),
+(36, 41, 5),
+(36, 42, 5),
+(36, 43, 5),
+(36, 44, 5),
+(36, 45, 5),
+(36, 46, 5),
+(37, 7, 5),
+(37, 8, 4),
+(37, 9, 4),
+(37, 10, 4),
+(37, 11, 5),
+(37, 12, 4),
+(37, 13, 5),
+(37, 14, 4),
+(37, 15, 5),
+(37, 16, 5),
+(37, 17, 5),
+(37, 18, 5),
+(37, 19, 5),
+(37, 20, 5),
+(37, 21, 5),
+(37, 22, 4),
+(37, 23, 5),
+(37, 24, 4),
+(37, 25, 5),
+(37, 26, 4),
+(37, 27, 5),
+(37, 28, 4),
+(37, 29, 5),
+(37, 30, 5),
+(37, 31, 4),
+(37, 32, 5),
+(37, 33, 4),
+(37, 34, 5),
+(37, 35, 5),
+(37, 36, 4),
+(37, 37, 5),
+(37, 38, 4),
+(37, 39, 5),
+(37, 40, 4),
+(37, 41, 4),
+(37, 42, 5),
+(37, 43, 4),
+(37, 44, 5),
+(37, 45, 4),
+(37, 46, 5),
+(38, 7, 1),
+(38, 8, 1),
+(38, 9, 1),
+(38, 10, 1),
+(38, 11, 1),
+(38, 12, 1),
+(38, 13, 1),
+(38, 14, 1),
+(38, 15, 1),
+(38, 16, 1),
+(38, 17, 1),
+(38, 18, 1),
+(38, 19, 1),
+(38, 20, 1),
+(38, 21, 1),
+(38, 22, 1),
+(38, 23, 1),
+(38, 24, 1),
+(38, 25, 1),
+(38, 26, 1),
+(38, 27, 1),
+(38, 28, 1),
+(38, 29, 1),
+(38, 30, 1),
+(38, 31, 1),
+(38, 32, 1),
+(38, 33, 1),
+(38, 34, 1),
+(38, 35, 1),
+(38, 36, 1),
+(38, 37, 1),
+(38, 38, 1),
+(38, 39, 1),
+(38, 40, 1),
+(38, 41, 1),
+(38, 42, 1),
+(38, 43, 1),
+(38, 44, 1),
+(38, 45, 1),
+(38, 46, 1),
+(39, 7, 5),
+(39, 8, 4),
+(39, 9, 5),
+(39, 10, 4),
+(39, 11, 5),
+(39, 12, 4),
+(39, 13, 4),
+(39, 14, 5),
+(39, 15, 4),
+(39, 16, 5),
+(39, 17, 4),
+(39, 18, 5),
+(39, 19, 2),
+(39, 20, 2),
+(39, 21, 2),
+(39, 22, 2),
+(39, 23, 2),
+(39, 24, 2),
+(39, 25, 2),
+(39, 26, 2),
+(39, 27, 2),
+(39, 28, 2),
+(39, 29, 2),
+(39, 30, 2),
+(39, 31, 2),
+(39, 32, 2),
+(39, 33, 2),
+(39, 34, 2),
+(39, 35, 2),
+(39, 36, 2),
+(39, 37, 2),
+(39, 38, 2),
+(39, 39, 2),
+(39, 40, 2),
+(39, 41, 3),
+(39, 42, 3),
+(39, 43, 3),
+(39, 44, 3),
+(39, 45, 3),
+(39, 46, 3),
+(40, 7, 1),
+(40, 8, 2),
+(40, 9, 1),
+(40, 10, 2),
+(40, 11, 2),
+(40, 12, 3),
+(40, 13, 2),
+(40, 14, 2),
+(40, 15, 2),
+(40, 16, 2),
+(40, 17, 2),
+(40, 18, 2),
+(40, 19, 2),
+(40, 20, 2),
+(40, 21, 2),
+(40, 22, 2),
+(40, 23, 2),
+(40, 24, 2),
+(40, 25, 3),
+(40, 26, 3),
+(40, 27, 3),
+(40, 28, 3),
+(40, 29, 3),
+(40, 30, 2),
+(40, 31, 2),
+(40, 32, 2),
+(40, 33, 2),
+(40, 34, 2),
+(40, 35, 2),
+(40, 36, 2),
+(40, 37, 2),
+(40, 38, 2),
+(40, 39, 2),
+(40, 40, 2),
+(40, 41, 3),
+(40, 42, 3),
+(40, 43, 3),
+(40, 44, 3),
+(40, 45, 3),
+(40, 46, 3),
+(41, 7, 1),
+(41, 8, 1),
+(41, 9, 1),
+(41, 10, 1),
+(41, 11, 1),
+(41, 12, 1),
+(41, 13, 1),
+(41, 14, 1),
+(41, 15, 1),
+(41, 16, 1),
+(41, 17, 2),
+(41, 18, 2),
+(41, 19, 2),
+(41, 20, 2),
+(41, 21, 2),
+(41, 22, 2),
+(41, 23, 2),
+(41, 24, 2),
+(41, 25, 3),
+(41, 26, 3),
+(41, 27, 3),
+(41, 28, 3),
+(41, 29, 3),
+(41, 30, 2),
+(41, 31, 2),
+(41, 32, 2),
+(41, 33, 2),
+(41, 34, 2),
+(41, 35, 3),
+(41, 36, 3),
+(41, 37, 3),
+(41, 38, 3),
+(41, 39, 3),
+(41, 40, 3),
+(41, 41, 2),
+(41, 42, 2),
+(41, 43, 2),
+(41, 44, 2),
+(41, 45, 2),
+(41, 46, 2),
+(42, 7, 5),
+(42, 8, 5),
+(42, 9, 5),
+(42, 10, 5),
+(42, 11, 5),
+(42, 12, 5),
+(42, 13, 5),
+(42, 14, 5),
+(42, 15, 5),
+(42, 16, 5),
+(42, 17, 5),
+(42, 18, 5),
+(42, 19, 5),
+(42, 20, 5),
+(42, 21, 5),
+(42, 22, 5),
+(42, 23, 5),
+(42, 24, 5),
+(42, 25, 5),
+(42, 26, 5),
+(42, 27, 5),
+(42, 28, 5),
+(42, 29, 5),
+(42, 30, 5),
+(42, 31, 5),
+(42, 32, 5),
+(42, 33, 5),
+(42, 34, 5),
+(42, 35, 5),
+(42, 36, 5),
+(42, 37, 5),
+(42, 38, 5),
+(42, 39, 5),
+(42, 40, 5),
+(42, 41, 5),
+(42, 42, 5),
+(42, 43, 5),
+(42, 44, 5),
+(42, 45, 5),
+(42, 46, 5),
+(43, 7, 3),
+(43, 8, 3),
+(43, 9, 3),
+(43, 10, 3),
+(43, 11, 3),
+(43, 12, 3),
+(43, 13, 3),
+(43, 14, 3),
+(43, 15, 3),
+(43, 16, 3),
+(43, 17, 3),
+(43, 18, 3),
+(43, 19, 3),
+(43, 20, 4),
+(43, 21, 3),
+(43, 22, 3),
+(43, 23, 3),
+(43, 24, 3),
+(43, 25, 3),
+(43, 26, 3),
+(43, 27, 3),
+(43, 28, 3),
+(43, 29, 3),
+(43, 30, 3),
+(43, 31, 3),
+(43, 32, 3),
+(43, 33, 3),
+(43, 34, 3),
+(43, 35, 4),
+(43, 36, 4),
+(43, 37, 4),
+(43, 38, 4),
+(43, 39, 4),
+(43, 40, 4),
+(43, 41, 3),
+(43, 42, 3),
+(43, 43, 3),
+(43, 44, 3),
+(43, 45, 3),
+(43, 46, 3),
+(44, 7, 5),
+(44, 8, 5),
+(44, 9, 5),
+(44, 10, 5),
+(44, 11, 5),
+(44, 12, 5),
+(44, 13, 4),
+(44, 14, 5),
+(44, 15, 5),
+(44, 16, 4),
+(44, 17, 4),
+(44, 18, 5),
+(44, 19, 5),
+(44, 20, 5),
+(44, 21, 4),
+(44, 22, 5),
+(44, 23, 4),
+(44, 24, 5),
+(44, 25, 5),
+(44, 26, 4),
+(44, 27, 5),
+(44, 28, 4),
+(44, 29, 5),
+(44, 30, 5),
+(44, 31, 4),
+(44, 32, 5),
+(44, 33, 4),
+(44, 34, 5),
+(44, 35, 5),
+(44, 36, 4),
+(44, 37, 5),
+(44, 38, 4),
+(44, 39, 5),
+(44, 40, 4),
+(44, 41, 5),
+(44, 42, 5),
+(44, 43, 4),
+(44, 44, 5),
+(44, 45, 4),
+(44, 46, 5),
+(45, 7, 4),
+(45, 8, 4),
+(45, 9, 4),
+(45, 10, 4),
+(45, 11, 5),
+(45, 12, 3),
+(45, 13, 3),
+(45, 14, 4),
+(45, 15, 4),
+(45, 16, 4),
+(45, 17, 3),
+(45, 18, 3),
+(45, 19, 4),
+(45, 20, 3),
+(45, 21, 4),
+(45, 22, 3),
+(45, 23, 3),
+(45, 24, 3),
+(45, 25, 4),
+(45, 26, 1),
+(45, 27, 1),
+(45, 28, 1),
+(45, 29, 1),
+(45, 30, 2),
+(45, 31, 1),
+(45, 32, 1),
+(45, 33, 1),
+(45, 34, 1),
+(45, 35, 1),
+(45, 36, 1),
+(45, 37, 1),
+(45, 38, 1),
+(45, 39, 1),
+(45, 40, 1),
+(45, 41, 1),
+(45, 42, 1),
+(45, 43, 1),
+(45, 44, 1),
+(45, 45, 1),
+(45, 46, 1),
+(46, 7, 5),
+(46, 8, 4),
+(46, 9, 4),
+(46, 10, 3),
+(46, 11, 3),
+(46, 12, 4),
+(46, 13, 5),
+(46, 14, 5),
+(46, 15, 5),
+(46, 16, 5),
+(46, 17, 5),
+(46, 18, 5),
+(46, 19, 4),
+(46, 20, 4),
+(46, 21, 3),
+(46, 22, 4),
+(46, 23, 4),
+(46, 24, 4),
+(46, 25, 3),
+(46, 26, 4),
+(46, 27, 3),
+(46, 28, 4),
+(46, 29, 3),
+(46, 30, 3),
+(46, 31, 5),
+(46, 32, 4),
+(46, 33, 5),
+(46, 34, 4),
+(46, 35, 3),
+(46, 36, 5),
+(46, 37, 3),
+(46, 38, 3),
+(46, 39, 4),
+(46, 40, 3),
+(46, 41, 3),
+(46, 42, 5),
+(46, 43, 3),
+(46, 44, 4),
+(46, 45, 3),
+(46, 46, 4),
+(47, 7, 2),
+(47, 8, 4),
+(47, 9, 1),
+(47, 10, 1),
+(47, 11, 1),
+(47, 12, 1),
+(47, 13, 1),
+(47, 14, 1),
+(47, 15, 1),
+(47, 16, 1),
+(47, 17, 1),
+(47, 18, 1),
+(47, 19, 1),
+(47, 20, 1),
+(47, 21, 1),
+(47, 22, 1),
+(47, 23, 1),
+(47, 24, 1),
+(47, 25, 1),
+(47, 26, 1),
+(47, 27, 1),
+(47, 28, 1),
+(47, 29, 1),
+(47, 30, 1),
+(47, 31, 1),
+(47, 32, 1),
+(47, 33, 1),
+(47, 34, 1),
+(47, 35, 1),
+(47, 36, 1),
+(47, 37, 1),
+(47, 38, 1),
+(47, 39, 1),
+(47, 40, 1),
+(47, 41, 1),
+(47, 42, 1),
+(47, 43, 1),
+(47, 44, 1),
+(47, 45, 1),
+(47, 46, 1),
+(48, 7, 5),
+(48, 8, 1),
+(48, 9, 1),
+(48, 10, 1),
+(48, 11, 1),
+(48, 12, 1),
+(48, 13, 1),
+(48, 14, 1),
+(48, 15, 1),
+(48, 16, 1),
+(48, 17, 1),
+(48, 18, 1),
+(48, 19, 1),
+(48, 20, 1),
+(48, 21, 1),
+(48, 22, 1),
+(48, 23, 1),
+(48, 24, 1),
+(48, 25, 1),
+(48, 26, 1),
+(48, 27, 1),
+(48, 28, 1),
+(48, 29, 1),
+(48, 30, 1),
+(48, 31, 1),
+(48, 32, 1),
+(48, 33, 1),
+(48, 34, 1),
+(48, 35, 1),
+(48, 36, 1),
+(48, 37, 1),
+(48, 38, 1),
+(48, 39, 1),
+(48, 40, 1),
+(48, 41, 1),
+(48, 42, 1),
+(48, 43, 1),
+(48, 44, 1),
+(48, 45, 1),
+(48, 46, 1),
+(49, 7, 4),
+(49, 8, 4),
+(49, 9, 4),
+(49, 10, 5),
+(49, 11, 4),
+(49, 12, 4),
+(49, 13, 1),
+(49, 14, 1),
+(49, 15, 1),
+(49, 16, 1),
+(49, 17, 1),
+(49, 18, 1),
+(49, 19, 1),
+(49, 20, 1),
+(49, 21, 1),
+(49, 22, 1),
+(49, 23, 1),
+(49, 24, 1),
+(49, 25, 1),
+(49, 26, 1),
+(49, 27, 1),
+(49, 28, 1),
+(49, 29, 1),
+(49, 30, 1),
+(49, 31, 1),
+(49, 32, 1),
+(49, 33, 1),
+(49, 34, 1),
+(49, 35, 1),
+(49, 36, 1),
+(49, 37, 1),
+(49, 38, 1),
+(49, 39, 1),
+(49, 40, 1),
+(49, 41, 1),
+(49, 42, 1),
+(49, 43, 1),
+(49, 44, 1),
+(49, 45, 1),
+(49, 46, 1);
 
 -- --------------------------------------------------------
 
@@ -2465,7 +3121,7 @@ CREATE TABLE `evaluation_comments` (
   `id` int(11) NOT NULL,
   `evaluation_id` int(30) NOT NULL,
   `comment` text NOT NULL,
-  `sentiment` varchar(20) NOT NULL,
+  `sentiment` varchar(30) NOT NULL,
   `polarity` float NOT NULL,
   `subjectivity` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -2475,24 +3131,23 @@ CREATE TABLE `evaluation_comments` (
 --
 
 INSERT INTO `evaluation_comments` (`id`, `evaluation_id`, `comment`, `sentiment`, `polarity`, `subjectivity`) VALUES
-(1, 14, 'Mr. Tuazon is bad at teaching', 'Strong (Negative)', 0.15, 0.666667),
 (2, 15, 'Mr Tuazon is kind good in teaching but he doesn\'t talk that much. He often just use powerpoints to teach but he is still kinda good', 'Strong (Positive)', 0.775, 0.575),
-(3, 16, 'He is a good teacher', 'Strong (Positive)', 0.85, 0.6),
-(5, 18, 'Mr Banag is good at teaching', 'Strong (Positive)', 0.85, 0.6),
 (6, 19, 'He is not good at teaching', 'Moderate (Negative)', 0.325, 0.6),
-(7, 20, 'He is not really good at teaching, he often plays his phone while on class', 'Moderate (Negative)', 0.325, 0.6),
-(8, 21, 'its okay nyek', 'Unknown', 0, 0),
-(9, 22, 'its okay nyek', 'Unknown', 0, 0),
-(10, 23, 'its okay nyek', 'Unknown', 0, 0),
-(11, 24, 'its okay nyek', 'Unknown', 0, 0),
-(12, 25, 'its okay nyek', 'Unknown', 0, 0),
-(13, 26, 'okokokok', 'Unknown', 0, 0),
-(14, 27, 'its good nice teaching', 'Unknown', 0, 0),
-(15, 28, 'k', 'Unknown', 0, 0),
-(16, 29, 'good', 'Unknown', 0, 0),
-(17, 30, 'ok', 'Unknown', 0, 0),
-(18, 31, 'okay good', 'Unknown', 0, 0),
-(19, 32, 'okay good ', 'Unknown', 0, 0);
+(20, 33, 'He is good at teaching', 'Strong (Positive)', 0.85, 0.6),
+(21, 34, 'He is nice at teaching', 'Strong (Positive)', 0.8, 1),
+(22, 35, 'He is so good at teaching', 'Strong (Positive)', 0.85, 0.6),
+(23, 36, 'He is very good at teaching', 'Very Strong (Positive)', 0.955, 0.78),
+(24, 37, 'He is very good at teaching.', 'Very Strong (Positive)', 0.955, 0.78),
+(25, 38, 'i love you sir', 'Strong (Positive)', 0.75, 0.6),
+(26, 39, 'He is bad', 'Strong (Negative)', 0.15, 0.666667),
+(27, 40, 'She so very bad', 'Very Strong (Negative)', 0.045, 0.866667),
+(28, 41, 'Best teacher in the world', 'Very Strong (Positive)', 1, 0.3),
+(31, 44, 'She is very very good at teaching', 'Very Strong (Positive)', 0.955, 0.78),
+(32, 45, 'She is very bad at teaching', 'Very Strong (Negative)', 0.045, 0.866667),
+(33, 46, 'She is very good at teaching', 'Very Strong (Positive)', 0.955, 0.78),
+(34, 47, 'good at teaching', 'Strong (Positive)', 0.85, 0.6),
+(35, 48, 'kinda smart\r\n', 'Moderate (Positive)', 0.607143, 0.642857),
+(36, 49, ' try bad', 'Strong (Negative)', 0.15, 0.666667);
 
 -- --------------------------------------------------------
 
@@ -2521,81 +3176,42 @@ INSERT INTO `evaluation_list` (`evaluation_id`, `academic_id`, `class_id`, `stud
 (3, 3, 1, 3, 1, 1, 8, '2020-12-15 20:18:49'),
 (4, 3, 1, 4, 1, 1, 8, '2024-10-09 15:27:37'),
 (6, 5, 5, 5, 9, 3, 12, '2024-10-14 13:51:27'),
-(13, 5, 5, 7, 5, 4, 15, '2024-10-22 08:43:59'),
-(14, 5, 5, 5, 5, 2, 11, '2024-10-25 20:08:17'),
 (15, 5, 5, 7, 5, 2, 11, '2024-10-25 20:20:13'),
-(16, 5, 5, 5, 8, 6, 16, '2024-11-10 01:13:57'),
-(18, 5, 5, 5, 5, 4, 15, '2024-11-12 18:06:58'),
 (19, 5, 5, 7, 8, 6, 16, '2024-11-12 19:03:38'),
-(20, 6, 5, 5, 6, 2, 19, '2024-11-17 20:11:01'),
-(21, 5, 5, 5, 4, 2, 1, '2024-11-18 12:11:27'),
-(22, 5, 5, 5, 4, 2, 1, '2024-11-18 12:11:36'),
-(23, 5, 5, 5, 4, 2, 1, '2024-11-18 12:11:37'),
-(24, 5, 5, 5, 4, 2, 1, '2024-11-18 12:12:33'),
-(25, 5, 5, 5, 4, 2, 1, '2024-11-18 12:19:08'),
-(26, 5, 5, 5, 8, 8, 5, '2024-11-18 12:20:44'),
-(27, 5, 5, 8, 4, 2, 1, '2024-11-18 20:10:24'),
-(28, 5, 5, 8, 5, 3, 2, '2024-11-18 20:11:23'),
-(29, 5, 5, 5, 5, 3, 2, '2024-11-18 20:13:01'),
-(30, 5, 5, 8, 6, 4, 3, '2024-11-18 22:15:13'),
-(31, 5, 5, 8, 7, 6, 4, '2024-11-18 22:19:50'),
-(32, 5, 5, 8, 8, 8, 5, '2024-11-18 22:22:41');
+(33, 5, 5, 6, 4, 2, 1, '2024-11-22 13:49:31'),
+(34, 5, 5, 6, 5, 3, 2, '2024-11-22 13:50:42'),
+(35, 5, 5, 6, 8, 8, 5, '2024-11-22 13:51:39'),
+(36, 5, 5, 6, 6, 4, 3, '2024-11-22 13:52:18'),
+(37, 5, 5, 6, 7, 6, 4, '2024-11-22 13:55:57'),
+(38, 5, 5, 7, 4, 2, 1, '2024-11-23 15:26:38'),
+(39, 5, 5, 5, 4, 2, 1, '2024-12-03 13:37:08'),
+(40, 5, 5, 5, 5, 3, 2, '2024-12-03 15:07:05'),
+(41, 5, 5, 5, 6, 4, 3, '2024-12-04 15:47:28'),
+(44, 5, 5, 5, 5, 10, 21, '2024-12-11 06:25:48'),
+(45, 5, 5, 5, 6, 4, 25, '2024-12-17 14:55:55'),
+(46, 5, 0, 41, 6, 4, 25, '2024-12-17 14:56:54'),
+(47, 5, 0, 42, 6, 4, 25, '2024-12-17 15:26:24'),
+(48, 5, 5, 32, 6, 4, 25, '2024-12-17 15:33:33'),
+(49, 5, 0, 43, 4, 9, 22, '2024-12-17 20:41:55');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `faculty_batch_upload`
+-- Table structure for table `faculty_batch`
 --
 
-CREATE TABLE `faculty_batch_upload` (
-  `id` int(30) NOT NULL,
+CREATE TABLE `faculty_batch` (
+  `id` int(11) NOT NULL,
   `school_id` varchar(100) NOT NULL,
-  `firstname` varchar(100) NOT NULL,
-  `lastname` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
+  `firstname` varchar(200) NOT NULL,
+  `lastname` varchar(200) NOT NULL,
+  `email` varchar(200) NOT NULL,
+  `department_name` varchar(255) NOT NULL,
+  `department_id` int(11) DEFAULT NULL,
   `password` text NOT NULL,
-  `department_id` int(11) NOT NULL,
-  `department` text NOT NULL
+  `date_created` datetime NOT NULL DEFAULT current_timestamp(),
+  `status` varchar(20) NOT NULL DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `faculty_batch_upload`
---
-
-INSERT INTO `faculty_batch_upload` (`id`, `school_id`, `firstname`, `lastname`, `email`, `password`, `department_id`, `department`) VALUES
-(1, '2880-67', 'Eugene', 'Laureano', 'eugene@gmail.com', '', 2, 'College of Computer Studies');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `faculty_classes`
---
-
-CREATE TABLE `faculty_classes` (
-  `faculty_id` int(11) NOT NULL,
-  `class_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `faculty_classes`
---
-
-INSERT INTO `faculty_classes` (`faculty_id`, `class_id`) VALUES
-(2, 4),
-(2, 5),
-(2, 6),
-(3, 4),
-(3, 5),
-(3, 6),
-(4, 4),
-(4, 5),
-(4, 6),
-(6, 4),
-(6, 5),
-(6, 6),
-(8, 4),
-(8, 5),
-(8, 6);
 
 -- --------------------------------------------------------
 
@@ -2621,33 +3237,38 @@ CREATE TABLE `faculty_list` (
 --
 
 INSERT INTO `faculty_list` (`id`, `school_id`, `firstname`, `lastname`, `email`, `password`, `avatar`, `date_created`, `department_id`, `status`) VALUES
-(2, 'F1001', 'Rodolfo ', 'Malig-on', 'RODOLFOMALIG-ON@gmail.com', '2036c64e6673f7fc8dbeb11de643ca4d', 'no-image-available.png', '2024-10-09 18:04:09', 2, 'Part-time'),
-(3, 'F1002', 'Rosalyn', 'Escudero', 'RosalynEscudero@gmail.com', 'becbba1accf33762141da2348f306eaa', 'no-image-available.png', '2024-10-09 21:43:37', 2, 'Part-time'),
-(4, 'F1003', 'Lilia', 'Dela Cruz', 'LiliaDelaCruz@gmail.com', '2c0c748e5c5f9c126f76540f4fc36a42', 'no-image-available.png', '2024-10-14 14:26:17', 2, 'Full-time'),
-(6, 'F1004', 'Jino ', 'Barrantes', 'JinoBarrantes@gmail.com', '9897a3cfb2bc18a9d8e01f2904620978', 'no-image-available.png', '2024-11-09 02:16:29', 2, 'Full-time'),
-(8, 'F1005', 'Regie', 'Ellana', 'RegieEllan@gmail.com', '0a03624ef2fb43b129d9cdbe74591b6e', 'no-image-available.png', '2024-11-09 18:48:34', 2, 'Full-time');
+(4, 'F1003', 'Lilia', 'Dela Cruz', 'liliadelacruz@gmail.com', 'a51b486c534d1a7d235a0797bcaf937c', 'no-image-available.png', '2024-10-14 14:26:17', 2, 'Full-time'),
+(6, 'F1004', 'Jino ', 'Barrantes', 'jinobarrantes@gmail.com', '9897a3cfb2bc18a9d8e01f2904620978', 'no-image-available.png', '2024-11-09 02:16:29', 2, 'Full-time'),
+(8, 'F1005', 'Regie', 'Ellana', 'regieellana@gmail.com', '0a03624ef2fb43b129d9cdbe74591b6e', 'no-image-available.png', '2024-11-09 18:48:34', 2, 'Full-time'),
+(9, 'F1006', 'Rodolfo', ' Malig-on', 'rodolfomaligon@gmail.com', '2036c64e6673f7fc8dbeb11de643ca4d', 'no-image-available.png', '2024-12-11 04:13:44', 2, 'Full-time'),
+(10, 'F1007', 'Catalina', 'Escobido', 'catalanaescobido@gmail.com', 'b7ebbe3ef36a1462d57ab6fa7a6632c3', 'no-image-available.png', '2024-12-11 04:15:39', 2, 'Full-time'),
+(11, 'F1008', 'Francis', 'Tuazon', 'francistuazon@gmail.com', '914aed51c83f3356509f17fd1d6baa62', 'no-image-available.png', '2024-12-11 05:08:03', 2, 'Full-time'),
+(12, 'F1009', 'Moises', 'Mascarinas', 'moisesmascarinas@gmail.com', 'a4f80546e0e2319d302d5e6fe30af835', 'no-image-available.png', '2024-12-11 05:11:50', 2, 'Full-time'),
+(13, '1234-21', 'Ryke', 'Manalo', 'pogi@gmail.com', '7bd0f1df4e565d15b1f09e7d46ea3840', 'no-image-available.png', '2025-02-01 01:49:50', 2, 'Full-time');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `faculty_subjects`
+-- Table structure for table `irregular_student_subjects`
 --
 
-CREATE TABLE `faculty_subjects` (
+CREATE TABLE `irregular_student_subjects` (
+  `id` int(11) NOT NULL,
+  `student_id` int(11) NOT NULL,
+  `academic_id` int(11) NOT NULL,
   `faculty_id` int(11) NOT NULL,
   `subject_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Dumping data for table `faculty_subjects`
+-- Dumping data for table `irregular_student_subjects`
 --
 
-INSERT INTO `faculty_subjects` (`faculty_id`, `subject_id`) VALUES
-(2, 4),
-(3, 5),
-(4, 6),
-(6, 7),
-(8, 8);
+INSERT INTO `irregular_student_subjects` (`id`, `student_id`, `academic_id`, `faculty_id`, `subject_id`) VALUES
+(11, 43, 5, 9, 4),
+(12, 43, 5, 8, 8),
+(25, 44, 5, 9, 4),
+(26, 44, 5, 10, 5);
 
 -- --------------------------------------------------------
 
@@ -2766,11 +3387,6 @@ CREATE TABLE `restriction_list` (
 --
 
 INSERT INTO `restriction_list` (`id`, `academic_id`, `faculty_id`, `class_id`, `subject_id`) VALUES
-(1, 5, 2, 5, 4),
-(2, 5, 3, 5, 5),
-(3, 5, 4, 5, 6),
-(4, 5, 6, 5, 7),
-(5, 5, 8, 5, 8),
 (6, 6, 2, 5, 4),
 (7, 6, 3, 5, 5),
 (8, 6, 4, 5, 6),
@@ -2785,7 +3401,11 @@ INSERT INTO `restriction_list` (`id`, `academic_id`, `faculty_id`, `class_id`, `
 (17, 8, 3, 5, 5),
 (18, 8, 4, 5, 6),
 (19, 8, 6, 5, 7),
-(20, 8, 8, 5, 8);
+(20, 8, 8, 5, 8),
+(22, 5, 9, 5, 4),
+(23, 5, 10, 5, 5),
+(24, 5, 8, 5, 8),
+(25, 5, 4, 5, 6);
 
 -- --------------------------------------------------------
 
@@ -2812,29 +3432,17 @@ CREATE TABLE `student_batch` (
 --
 
 INSERT INTO `student_batch` (`id`, `school_id`, `firstname`, `lastname`, `email`, `curriculum`, `level`, `section`, `password`, `class_id`, `status`) VALUES
-(41, '123456', 'John', 'Doe', 'john.doe@example.com', 'BSIT', '4', 'A1', 'ad0d11bd1a1f9168051f596588be2a64', 4, 'added'),
-(42, '789012', 'Jane', 'Smith', 'jane.smith@example.com', 'BSCS', '3', 'B2', 'f09d13b408cdd3693aff0dd8c3f7812b', NULL, 'removed');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `student_classes`
---
-
-CREATE TABLE `student_classes` (
-  `student_id` int(11) NOT NULL,
-  `class_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `student_classes`
---
-
-INSERT INTO `student_classes` (`student_id`, `class_id`) VALUES
-(5, 5),
-(6, 5),
-(7, 6),
-(8, 5);
+(45, '431213', 'Jun', 'Roa', 'junroa@gmail.com', 'BSIT', '4', 'A1', '56b490dc0c592370516d068d2c393feb', 4, 'added'),
+(46, '123423', 'Janna', 'Smart', 'janasmart@gmail.com', 'BSCS', '3', 'B2', '5445c80401fe2d072f84f1035a03d709', NULL, 'removed'),
+(48, '131213', 'June', 'Leon', 'junroaleon@gmail.com', 'BSIT', '3', 'A1', '6c494452d1a46b8f9604a96caad82d8a', NULL, 'added'),
+(59, '1312123123d', 'xca', 'ty', 'xcv@gmail.com', 'BSIT', '4', 'A123', '0fbc02926c26cb317708158c7994137c', NULL, 'removed'),
+(60, '123423', 'bnm', 'iop', 'bhmt@gmail.com', 'BSIT', '4', 'A1', '29eeb643399062f442d05d889e5c3831', 4, 'added'),
+(61, '131213', 'xcv', 'tyu', 'xcv@gmail.com', 'BSIT', '4', 'A1', '92f492a94e6ee7cddcd2c0f441d24256', 4, 'removed'),
+(62, '1313', 'xcvz', 'tyuz', 'xcv@gmail.com', 'BSIT', '4', 'A1', 'e06e47063eeee092635462169138e4c8', 4, 'removed'),
+(63, '431213', 'xcvz', 'tyuz', 'xcvz@gmail.com', 'BSIT', '4', 'A1', 'a8652026154a98425d9b326c635c91a1', 4, 'added'),
+(86, '2666-68', 'Zander', 'Nolora', 'nolora@gmail.com', 'BSIT', '4', 'A2', '997948f0a59840fb204e34ae142b24af', 5, 'added'),
+(87, '2666-67', 'Cyrel', 'Henio', 'cyrel@gmail.com', 'BSIT', '4', 'A2', '80a20c44195b42a86a5a32faee02af24', 5, 'removed'),
+(88, '2666-66', 'Judas', 'Simon', 'simon@gmail.com', 'BSIT', '4', 'A1', '944cf7a09e7debf67104a3d8a86710f4', 4, 'added');
 
 -- --------------------------------------------------------
 
@@ -2862,144 +3470,25 @@ CREATE TABLE `student_list` (
   `lastname` varchar(200) NOT NULL,
   `email` varchar(200) NOT NULL,
   `password` text NOT NULL,
-  `class_id` int(30) NOT NULL,
+  `class_id` int(30) DEFAULT NULL,
   `avatar` text NOT NULL DEFAULT 'no-image-available.png',
-  `date_created` datetime NOT NULL DEFAULT current_timestamp()
+  `date_created` datetime NOT NULL DEFAULT current_timestamp(),
+  `classification` enum('regular','irregular') NOT NULL DEFAULT 'regular'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `student_list`
 --
 
-INSERT INTO `student_list` (`id`, `school_id`, `firstname`, `lastname`, `email`, `password`, `class_id`, `avatar`, `date_created`) VALUES
-(5, '2875-23', 'Ivhan', 'Salazar', 'ivhanchris761@gmail.com', 'd97c63b4eae1689cc0ce09882ba50908', 5, '1728469980_EL1_3334.JPG', '2024-10-09 18:33:28'),
-(6, '2880-23', 'Oliver', 'Dela Cruz', 'oliver.delacruz2222@gmail.com', '553fcb594976460e66e32da18a2b6f88', 5, '1728470340_Screenshot 2024-10-09 183924.png', '2024-10-09 18:39:37'),
-(7, '2876-23', 'Xyrel', 'Genio', 'xyrelgenio08@gmail.com', 'b12d567a3b5a014584c5b6a5a8b41735', 4, 'no-image-available.png', '2024-10-22 08:37:49'),
-(8, '1508-21', 'Xzander', 'Nollora', 'Xzandernollora@gmail.com', 'c8003bd07555c83c65aee1393ec40aa4', 5, 'no-image-available.png', '2024-11-18 01:43:20'),
-(11, '123456', 'John', 'Doe', 'john.doe@example.com', 'ad0d11bd1a1f9168051f596588be2a64', 4, 'no-image-available.png', '2024-11-20 15:27:00'),
-(15, '1509-21', 'Reginald', 'Oseo', 'reginaldoseo@gmail.com', '119f9545d7ae989299e0c440bc67cf03', 6, '1732116480_858f09c1523239c63d675e6cba63099f.jpg', '2024-11-20 23:28:49');
-
---
--- Triggers `student_list`
---
-DELIMITER $$
-CREATE TRIGGER `after_student_delete` AFTER DELETE ON `student_list` FOR EACH ROW BEGIN
-    -- Delete corresponding entries in student_subject_teacher
-    DELETE FROM student_subject_teacher
-    WHERE Student_Firstname = OLD.firstname
-    AND Student_Lastname = OLD.lastname
-    AND Class_Section IN (
-        SELECT section
-        FROM class_list
-        WHERE id = OLD.class_id
-    );
-END
-$$
-DELIMITER ;
-DELIMITER $$
-CREATE TRIGGER `after_student_insert` AFTER INSERT ON `student_list` FOR EACH ROW BEGIN
-    DECLARE class_section VARCHAR(255);
-    DECLARE teacher_firstname VARCHAR(255);
-    DECLARE teacher_lastname VARCHAR(255);
-    DECLARE subject_name VARCHAR(255);
-    DECLARE done INT DEFAULT 0;
-
-    -- Cursor for fetching faculty and subjects
-    DECLARE faculty_cursor CURSOR FOR
-        SELECT faculty_list.firstname, faculty_list.lastname, subject_list.subject
-        FROM faculty_classes
-        INNER JOIN faculty_list ON faculty_classes.faculty_id = faculty_list.id
-        INNER JOIN faculty_subjects ON faculty_list.id = faculty_subjects.faculty_id
-        INNER JOIN subject_list ON faculty_subjects.subject_id = subject_list.id
-        WHERE faculty_classes.class_id = NEW.class_id;
-
-    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
-
-    -- Get the section of the student from class_list
-    SELECT section
-    INTO class_section
-    FROM class_list
-    WHERE id = NEW.class_id;
-
-    -- Open the cursor
-    OPEN faculty_cursor;
-
-    faculty_loop: LOOP
-        FETCH faculty_cursor INTO teacher_firstname, teacher_lastname, subject_name;
-        IF done THEN
-            LEAVE faculty_loop;
-        END IF;
-
-        -- Insert data into student_subject_teacher
-        INSERT INTO student_subject_teacher (
-            Student_Firstname,
-            Student_Lastname,
-            Class_Section,
-            Subject_Name,
-            Teacher_Firstname,
-            Teacher_Lastname
-        ) VALUES (
-            NEW.firstname,
-            NEW.lastname,
-            class_section,
-            subject_name,
-            teacher_firstname,
-            teacher_lastname
-        );
-    END LOOP;
-
-    -- Close the cursor
-    CLOSE faculty_cursor;
-END
-$$
-DELIMITER ;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `student_subject_teacher`
---
-
-CREATE TABLE `student_subject_teacher` (
-  `id` int(10) NOT NULL,
-  `Student_Firstname` varchar(255) DEFAULT NULL,
-  `Student_Lastname` varchar(255) DEFAULT NULL,
-  `Class_Section` varchar(255) DEFAULT NULL,
-  `Subject_Name` varchar(255) DEFAULT NULL,
-  `Teacher_Firstname` varchar(255) DEFAULT NULL,
-  `Teacher_Lastname` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `student_subject_teacher`
---
-
-INSERT INTO `student_subject_teacher` (`id`, `Student_Firstname`, `Student_Lastname`, `Class_Section`, `Subject_Name`, `Teacher_Firstname`, `Teacher_Lastname`) VALUES
-(1, 'Ivhan', 'Salazar', 'A2', 'Information Assurance and Security 2', 'Rodolfo ', 'Malig-on'),
-(2, 'Ivhan', 'Salazar', 'A2', 'Social Issues and Professional Practices', 'Rosalyn', 'Escudero'),
-(3, 'Ivhan', 'Salazar', 'A2', 'Philippine Pop Culture', 'Lilia', 'Dela Cruz'),
-(4, 'Ivhan', 'Salazar', 'A2', 'IT Elective 4', 'Jino ', 'Barrantes'),
-(5, 'Ivhan', 'Salazar', 'A2', 'Capstone Project and Research 2', 'Regie', 'Ellana'),
-(6, 'Oliver', 'Dela Cruz', 'A2', 'Information Assurance and Security 2', 'Rodolfo ', 'Malig-on'),
-(7, 'Oliver', 'Dela Cruz', 'A2', 'Social Issues and Professional Practices', 'Rosalyn', 'Escudero'),
-(8, 'Oliver', 'Dela Cruz', 'A2', 'Philippine Pop Culture', 'Lilia', 'Dela Cruz'),
-(9, 'Oliver', 'Dela Cruz', 'A2', 'IT Elective 4', 'Jino ', 'Barrantes'),
-(10, 'Oliver', 'Dela Cruz', 'A2', 'Capstone Project and Research 2', 'Regie', 'Ellana'),
-(11, 'Xyrel', 'Genio', 'A1', 'Information Assurance and Security 2', 'Rodolfo ', 'Malig-on'),
-(12, 'Xyrel', 'Genio', 'A1', 'Social Issues and Professional Practices', 'Rosalyn', 'Escudero'),
-(13, 'Xyrel', 'Genio', 'A1', 'Philippine Pop Culture', 'Lilia', 'Dela Cruz'),
-(14, 'Xyrel', 'Genio', 'A1', 'IT Elective 4', 'Jino ', 'Barrantes'),
-(15, 'Xyrel', 'Genio', 'A1', 'Capstone Project and Research 2', 'Regie', 'Ellana'),
-(16, 'Xzander', 'Nollora', 'A2', 'Information Assurance and Security 2', 'Rodolfo ', 'Malig-on'),
-(17, 'Xzander', 'Nollora', 'A2', 'Social Issues and Professional Practices', 'Rosalyn', 'Escudero'),
-(18, 'Xzander', 'Nollora', 'A2', 'Philippine Pop Culture', 'Lilia', 'Dela Cruz'),
-(19, 'Xzander', 'Nollora', 'A2', 'IT Elective 4', 'Jino ', 'Barrantes'),
-(20, 'Xzander', 'Nollora', 'A2', 'Capstone Project and Research 2', 'Regie', 'Ellana'),
-(41, 'Reginald', 'Oseo', 'A3', 'Information Assurance and Security 2', 'Rodolfo ', 'Malig-on'),
-(42, 'Reginald', 'Oseo', 'A3', 'Social Issues and Professional Practices', 'Rosalyn', 'Escudero'),
-(43, 'Reginald', 'Oseo', 'A3', 'Philippine Pop Culture', 'Lilia', 'Dela Cruz'),
-(44, 'Reginald', 'Oseo', 'A3', 'IT Elective 4', 'Jino ', 'Barrantes'),
-(45, 'Reginald', 'Oseo', 'A3', 'Capstone Project and Research 2', 'Regie', 'Ellana');
+INSERT INTO `student_list` (`id`, `school_id`, `firstname`, `lastname`, `email`, `password`, `class_id`, `avatar`, `date_created`, `classification`) VALUES
+(5, '2875-23', 'Ivhan', 'Salazar', 'ivhanchris761@gmail.com', 'd97c63b4eae1689cc0ce09882ba50908', 5, '1728469980_EL1_3334.JPG', '2024-10-09 18:33:28', 'regular'),
+(7, '2876-23', 'Xyrel', 'Genio', 'xyrelgenio08@gmail.com', 'b12d567a3b5a014584c5b6a5a8b41735', 5, 'no-image-available.png', '2024-10-22 08:37:49', 'regular'),
+(30, '2877-23', 'Devie', 'Pojas', 'deviepojas@gmail.com', 'c1bf65ee53ff40a43b8238d4501ea9f9', 5, 'no-image-available.png', '2024-12-11 06:40:54', 'regular'),
+(31, '2878-23', 'Akira', 'Nieva', 'akiranieva@gmail.com', '22f88b033d70cc8b0838386ce37f10fd', 6, 'no-image-available.png', '2024-12-11 06:45:30', 'regular'),
+(32, '2879-23', 'Jeno', 'Pangilinan', 'jenopangilinan@gmail.com', '658c5298bd772d21476086d0cc9fae94', 5, 'no-image-available.png', '2024-12-11 06:48:05', 'regular'),
+(33, '2880-23', 'Gabriel James', 'Roa', 'gabrielroa@gmail.com', '8833f1325fb6341757b30f6de91487a5', 5, 'no-image-available.png', '2024-12-11 06:51:07', 'regular'),
+(43, '2875-21', 'Ryke', 'Manalo', 'trykemice@gmail.com', '07c85772616b7e6ca0d7d78de1e0e7d5', NULL, 'no-image-available.png', '2024-12-17 20:41:05', 'irregular'),
+(44, '12-2345', 'bumble', 'bee', 'bumblebee@gmail.com', 'fd1152b580d5f1018da55d9018e2e9b8', NULL, 'no-image-available.png', '2025-03-03 23:28:48', 'irregular');
 
 -- --------------------------------------------------------
 
@@ -3023,7 +3512,8 @@ INSERT INTO `subject_list` (`id`, `code`, `subject`, `description`) VALUES
 (5, 'SIPP', 'Social Issues and Professional Practices', 'Exploration of societal challenges and ethical practices in the professional world.'),
 (6, 'PPC', 'Philippine Pop Culture', 'Study of contemporary Philippine culture, media, and entertainment trends.\r\n\r\n'),
 (7, 'IT4', 'IT Elective 4', 'Specialized IT course offering elective topics based on current industry needs.'),
-(8, 'CAPR2', 'Capstone Project and Research 2', 'Application of knowledge to real-world projects, including research and development.');
+(8, 'CAPR2', 'Capstone Project and Research 2', 'Application of knowledge to real-world projects, including research and development.'),
+(12, '106-SIA323', 'Systems Integration and Architechture', 'Study of methodologies and frameworks for integrating and designing complex systems, focusing on hardware, software, and network components.');
 
 -- --------------------------------------------------------
 
@@ -3070,8 +3560,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `firstname`, `lastname`, `email`, `password`, `avatar`, `date_created`, `type`, `department_id`) VALUES
-(1, 'Administrator', '', 'admin@admin.com', '0192023a7bbd73250516f069df18b500', '1607135820_avatar.jpg', '2020-11-26 10:57:04', 1, NULL),
-(3, 'Guidance', 'Salazar', 'guidance@gmail.com', '692f6f113b5f5daf81c5bcbddc62b67e', 'no-image-available.png', '2024-10-27 02:43:58', 2, NULL),
+(1, 'Administrator', 'LOA', 'admin@admin.com', '0192023a7bbd73250516f069df18b500', '1607135820_avatar.jpg', '2020-11-26 10:57:04', 1, 4),
 (5, 'Regie', 'Ellana', 'regie@gmail.com', 'ec11cd0681f59d61a09518527ca7e458', 'no-image-available.png', '2024-11-09 02:15:46', 2, 2);
 
 --
@@ -3103,13 +3592,6 @@ ALTER TABLE `class_list`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `class_subjects`
---
-ALTER TABLE `class_subjects`
-  ADD PRIMARY KEY (`class_id`,`subject_id`),
-  ADD KEY `subject_id` (`subject_id`);
-
---
 -- Indexes for table `criteria_list`
 --
 ALTER TABLE `criteria_list`
@@ -3135,17 +3617,10 @@ ALTER TABLE `evaluation_list`
   ADD PRIMARY KEY (`evaluation_id`);
 
 --
--- Indexes for table `faculty_batch_upload`
+-- Indexes for table `faculty_batch`
 --
-ALTER TABLE `faculty_batch_upload`
+ALTER TABLE `faculty_batch`
   ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `faculty_classes`
---
-ALTER TABLE `faculty_classes`
-  ADD PRIMARY KEY (`faculty_id`,`class_id`),
-  ADD KEY `class_id` (`class_id`);
 
 --
 -- Indexes for table `faculty_list`
@@ -3154,10 +3629,13 @@ ALTER TABLE `faculty_list`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `faculty_subjects`
+-- Indexes for table `irregular_student_subjects`
 --
-ALTER TABLE `faculty_subjects`
-  ADD PRIMARY KEY (`faculty_id`,`subject_id`),
+ALTER TABLE `irregular_student_subjects`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `student_id` (`student_id`),
+  ADD KEY `academic_id` (`academic_id`),
+  ADD KEY `faculty_id` (`faculty_id`),
   ADD KEY `subject_id` (`subject_id`);
 
 --
@@ -3179,13 +3657,6 @@ ALTER TABLE `student_batch`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `student_classes`
---
-ALTER TABLE `student_classes`
-  ADD PRIMARY KEY (`student_id`,`class_id`),
-  ADD KEY `class_id` (`class_id`);
-
---
 -- Indexes for table `student_information`
 --
 ALTER TABLE `student_information`
@@ -3196,12 +3667,6 @@ ALTER TABLE `student_information`
 -- Indexes for table `student_list`
 --
 ALTER TABLE `student_list`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `student_subject_teacher`
---
-ALTER TABLE `student_subject_teacher`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -3230,7 +3695,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `academic_list`
 --
 ALTER TABLE `academic_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `batch_upload`
@@ -3248,7 +3713,7 @@ ALTER TABLE `batch_uploads`
 -- AUTO_INCREMENT for table `class_list`
 --
 ALTER TABLE `class_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `criteria_list`
@@ -3260,31 +3725,37 @@ ALTER TABLE `criteria_list`
 -- AUTO_INCREMENT for table `department_list`
 --
 ALTER TABLE `department_list`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `evaluation_comments`
 --
 ALTER TABLE `evaluation_comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `evaluation_list`
 --
 ALTER TABLE `evaluation_list`
-  MODIFY `evaluation_id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `evaluation_id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
--- AUTO_INCREMENT for table `faculty_batch_upload`
+-- AUTO_INCREMENT for table `faculty_batch`
 --
-ALTER TABLE `faculty_batch_upload`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+ALTER TABLE `faculty_batch`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `faculty_list`
 --
 ALTER TABLE `faculty_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT for table `irregular_student_subjects`
+--
+ALTER TABLE `irregular_student_subjects`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `question_list`
@@ -3296,31 +3767,25 @@ ALTER TABLE `question_list`
 -- AUTO_INCREMENT for table `restriction_list`
 --
 ALTER TABLE `restriction_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `student_batch`
 --
 ALTER TABLE `student_batch`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
 
 --
 -- AUTO_INCREMENT for table `student_list`
 --
 ALTER TABLE `student_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
-
---
--- AUTO_INCREMENT for table `student_subject_teacher`
---
-ALTER TABLE `student_subject_teacher`
-  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT for table `subject_list`
 --
 ALTER TABLE `subject_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `system_settings`
@@ -3332,18 +3797,11 @@ ALTER TABLE `system_settings`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
 --
-
---
--- Constraints for table `class_subjects`
---
-ALTER TABLE `class_subjects`
-  ADD CONSTRAINT `class_subjects_ibfk_1` FOREIGN KEY (`class_id`) REFERENCES `class_list` (`id`),
-  ADD CONSTRAINT `class_subjects_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subject_list` (`id`);
 
 --
 -- Constraints for table `evaluation_comments`
@@ -3352,25 +3810,13 @@ ALTER TABLE `evaluation_comments`
   ADD CONSTRAINT `evaluation_comments_ibfk_1` FOREIGN KEY (`evaluation_id`) REFERENCES `evaluation_list` (`evaluation_id`);
 
 --
--- Constraints for table `faculty_classes`
+-- Constraints for table `irregular_student_subjects`
 --
-ALTER TABLE `faculty_classes`
-  ADD CONSTRAINT `faculty_classes_ibfk_1` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_list` (`id`),
-  ADD CONSTRAINT `faculty_classes_ibfk_2` FOREIGN KEY (`class_id`) REFERENCES `class_list` (`id`);
-
---
--- Constraints for table `faculty_subjects`
---
-ALTER TABLE `faculty_subjects`
-  ADD CONSTRAINT `faculty_subjects_ibfk_1` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_list` (`id`),
-  ADD CONSTRAINT `faculty_subjects_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subject_list` (`id`);
-
---
--- Constraints for table `student_classes`
---
-ALTER TABLE `student_classes`
-  ADD CONSTRAINT `student_classes_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `student_list` (`id`),
-  ADD CONSTRAINT `student_classes_ibfk_2` FOREIGN KEY (`class_id`) REFERENCES `class_list` (`id`);
+ALTER TABLE `irregular_student_subjects`
+  ADD CONSTRAINT `irregular_student_subjects_ibfk_1` FOREIGN KEY (`student_id`) REFERENCES `student_list` (`id`),
+  ADD CONSTRAINT `irregular_student_subjects_ibfk_2` FOREIGN KEY (`academic_id`) REFERENCES `academic_list` (`id`),
+  ADD CONSTRAINT `irregular_student_subjects_ibfk_3` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_list` (`id`),
+  ADD CONSTRAINT `irregular_student_subjects_ibfk_4` FOREIGN KEY (`subject_id`) REFERENCES `subject_list` (`id`);
 
 --
 -- Constraints for table `student_information`
