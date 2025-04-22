@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 03, 2025 at 04:38 PM
+-- Generation Time: Apr 22, 2025 at 06:28 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -3109,7 +3109,47 @@ INSERT INTO `evaluation_answers` (`evaluation_id`, `question_id`, `rate`) VALUES
 (49, 43, 1),
 (49, 44, 1),
 (49, 45, 1),
-(49, 46, 1);
+(49, 46, 1),
+(50, 7, 1),
+(50, 8, 4),
+(50, 9, 5),
+(50, 10, 5),
+(50, 11, 4),
+(50, 12, 2),
+(50, 13, 5),
+(50, 14, 5),
+(50, 15, 4),
+(50, 16, 2),
+(50, 17, 3),
+(50, 18, 2),
+(50, 19, 2),
+(50, 20, 2),
+(50, 21, 2),
+(50, 22, 2),
+(50, 23, 2),
+(50, 24, 2),
+(50, 25, 2),
+(50, 26, 2),
+(50, 27, 1),
+(50, 28, 1),
+(50, 29, 2),
+(50, 30, 1),
+(50, 31, 2),
+(50, 32, 2),
+(50, 33, 3),
+(50, 34, 3),
+(50, 35, 1),
+(50, 36, 2),
+(50, 37, 2),
+(50, 38, 2),
+(50, 39, 2),
+(50, 40, 2),
+(50, 41, 1),
+(50, 42, 2),
+(50, 43, 2),
+(50, 44, 1),
+(50, 45, 1),
+(50, 46, 1);
 
 -- --------------------------------------------------------
 
@@ -3147,7 +3187,8 @@ INSERT INTO `evaluation_comments` (`id`, `evaluation_id`, `comment`, `sentiment`
 (33, 46, 'She is very good at teaching', 'Very Strong (Positive)', 0.955, 0.78),
 (34, 47, 'good at teaching', 'Strong (Positive)', 0.85, 0.6),
 (35, 48, 'kinda smart\r\n', 'Moderate (Positive)', 0.607143, 0.642857),
-(36, 49, ' try bad', 'Strong (Negative)', 0.15, 0.666667);
+(36, 49, ' try bad', 'Strong (Negative)', 0.15, 0.666667),
+(37, 50, 'He is very good', 'Very Strong (Positive)', 0.955, 0.78);
 
 -- --------------------------------------------------------
 
@@ -3192,7 +3233,8 @@ INSERT INTO `evaluation_list` (`evaluation_id`, `academic_id`, `class_id`, `stud
 (46, 5, 0, 41, 6, 4, 25, '2024-12-17 14:56:54'),
 (47, 5, 0, 42, 6, 4, 25, '2024-12-17 15:26:24'),
 (48, 5, 5, 32, 6, 4, 25, '2024-12-17 15:33:33'),
-(49, 5, 0, 43, 4, 9, 22, '2024-12-17 20:41:55');
+(49, 5, 0, 43, 4, 9, 22, '2024-12-17 20:41:55'),
+(50, 5, 5, 5, 8, 8, 24, '2025-04-23 00:02:41');
 
 -- --------------------------------------------------------
 
@@ -3265,10 +3307,11 @@ CREATE TABLE `irregular_student_subjects` (
 --
 
 INSERT INTO `irregular_student_subjects` (`id`, `student_id`, `academic_id`, `faculty_id`, `subject_id`) VALUES
-(11, 43, 5, 9, 4),
-(12, 43, 5, 8, 8),
-(25, 44, 5, 9, 4),
-(26, 44, 5, 10, 5);
+(33, 45, 5, 10, 5),
+(34, 45, 5, 8, 8),
+(35, 43, 5, 9, 4),
+(36, 43, 5, 8, 8),
+(37, 43, 5, 4, 6);
 
 -- --------------------------------------------------------
 
@@ -3488,7 +3531,7 @@ INSERT INTO `student_list` (`id`, `school_id`, `firstname`, `lastname`, `email`,
 (32, '2879-23', 'Jeno', 'Pangilinan', 'jenopangilinan@gmail.com', '658c5298bd772d21476086d0cc9fae94', 5, 'no-image-available.png', '2024-12-11 06:48:05', 'regular'),
 (33, '2880-23', 'Gabriel James', 'Roa', 'gabrielroa@gmail.com', '8833f1325fb6341757b30f6de91487a5', 5, 'no-image-available.png', '2024-12-11 06:51:07', 'regular'),
 (43, '2875-21', 'Ryke', 'Manalo', 'trykemice@gmail.com', '07c85772616b7e6ca0d7d78de1e0e7d5', NULL, 'no-image-available.png', '2024-12-17 20:41:05', 'irregular'),
-(44, '12-2345', 'bumble', 'bee', 'bumblebee@gmail.com', 'fd1152b580d5f1018da55d9018e2e9b8', NULL, 'no-image-available.png', '2025-03-03 23:28:48', 'irregular');
+(45, '12-2345', 'bumble', 'bee', 'bumblebee@gmail.com', '', NULL, 'no-image-available.png', '2025-04-23 00:18:42', 'irregular');
 
 -- --------------------------------------------------------
 
@@ -3731,13 +3774,13 @@ ALTER TABLE `department_list`
 -- AUTO_INCREMENT for table `evaluation_comments`
 --
 ALTER TABLE `evaluation_comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `evaluation_list`
 --
 ALTER TABLE `evaluation_list`
-  MODIFY `evaluation_id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `evaluation_id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `faculty_batch`
@@ -3755,7 +3798,7 @@ ALTER TABLE `faculty_list`
 -- AUTO_INCREMENT for table `irregular_student_subjects`
 --
 ALTER TABLE `irregular_student_subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT for table `question_list`
@@ -3779,7 +3822,7 @@ ALTER TABLE `student_batch`
 -- AUTO_INCREMENT for table `student_list`
 --
 ALTER TABLE `student_list`
-  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` int(30) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `subject_list`
