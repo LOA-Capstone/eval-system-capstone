@@ -23,14 +23,14 @@ if (isset($_GET['id'])) {
 
     // Fetch assigned subjects for this student
     $assigned_subjects = [];
-    $asqry = $conn->query("SELECT iss.*, s.code, s.subject, c.id as class_id, CONCAT(c.curriculum,' ',c.level,' - ',c.section) AS class_name 
+    $asqry = $conn->query("SELECT iss.*, s.code, s.subject, c.id as class_id, CONCAT(c.curriculum,' ',c.level,' - ',c.section) AS class_name, r.id as restriction_id
                            FROM irregular_student_subjects iss
                            INNER JOIN subject_list s ON s.id = iss.subject_id
                            INNER JOIN restriction_list r ON r.academic_id = iss.academic_id AND r.faculty_id = iss.faculty_id AND r.subject_id = iss.subject_id
                            INNER JOIN class_list c ON c.id = r.class_id
                            WHERE iss.student_id = $id");
     while($row = $asqry->fetch_assoc()){
-        $assigned_subjects[] = $row; 
+        $assigned_subjects[] = $row;
     }
 }
 ?>
@@ -116,9 +116,9 @@ if (isset($_GET['id'])) {
                                 <?php foreach($assigned_subjects as $asub): ?>
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <span><?php echo $asub['class_name']." - ".$asub['subject']." (".$asub['code'].")" ?></span>
-                                        <button type="button" class="btn btn-sm btn-danger remove_subject" data-rid="<?php echo $asub['academic_id'] ?>">Remove</button>
+                                        <button type="button" class="btn btn-sm btn-danger remove_subject" data-rid="<?php echo $asub['restriction_id'] ?>">Remove</button>
                                     </li>
-                                    <input type="hidden" name="subjects[]" value="<?php echo $asub['academic_id'].'|'.$asub['faculty_id'].'|'.$asub['subject_id'] ?>">
+                                    <input type="hidden" name="subjects[]" value="<?php echo $asub['restriction_id'] ?>">
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </ul>
@@ -185,6 +185,13 @@ if (isset($_GET['id'])) {
             return;
         }
         var text = $("#subject_select option:selected").text();
+
+        // Check if subject is already assigned
+        var existingSubject = $('#assigned_subjects_list').find('input[name="subjects[]"][value="' + val + '"]');
+        if (existingSubject.length > 0) {
+            alert("Subject already assigned.");
+            return; // Stop if subject already exists
+        }
 
         // Append to the assigned subjects list
         var li = `<li class="list-group-item d-flex justify-content-between align-items-center">
