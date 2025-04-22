@@ -3,6 +3,38 @@
 
 Welcome to the **Comprehensive Student-Faculty Performance Evaluation with Sentiment Analysis** project. 
 
+## Features
+
+This project provides a comprehensive platform for managing and evaluating student and faculty performance, incorporating sentiment analysis for deeper insights.
+
+*   **Role-Based Access Control:**
+    *   **Admin:** Manages academic years, departments, users (admins, deans, faculty, students), classes, subjects, criteria, and evaluation restrictions. Can view evaluation reports and sentiment analysis results.
+    *   **Dean:** Manages faculty within their department, views reports specific to their department.
+    *   **Faculty:** Views their assigned classes and subjects, can view evaluation results concerning them.
+    *   **Student (Regular & Irregular):** Can log in, view assigned subjects/faculty, and submit performance evaluations.
+*   **Academic Setup:**
+    *   Manage Academic Years and set a default active year.
+    *   Manage Departments.
+*   **User Management:**
+    *   Add, edit, and delete Admin, Dean, Faculty, and Student users.
+    *   Support for both **Regular** and **Irregular** students.
+    *   Assign subjects individually to Irregular students.
+    *   Batch upload functionality for students.
+*   **Class and Subject Management:**
+    *   Define Curriculums, Levels, and Sections to create Classes.
+    *   Manage a list of Subjects with codes.
+*   **Evaluation Criteria:**
+    *   Define evaluation criteria with adjustable order.
+    *   Create specific evaluation questions linked to criteria.
+*   **Evaluation Process:**
+    *   Set up Evaluation Restrictions, linking faculty, subjects, and classes for a specific academic year.
+    *   Students evaluate faculty based on defined criteria and questions.
+    *   Evaluation status tracking (evaluated/not evaluated).
+*   **Reporting and Analysis:**
+    *   View detailed evaluation reports per faculty, filterable by class and subject.
+    *   **Sentiment Analysis:** Automatically analyzes student comments using TextBlob to determine sentiment (positive, negative, neutral), providing qualitative insights alongside quantitative scores.
+    *   Visual display of evaluation averages and sentiment distribution.
+*   **Profile Management:** Users can update their profile information and password.
 
 ## Setup and Installation
 

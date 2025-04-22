@@ -181,7 +181,7 @@
     </div>
   </div>
   <div class="main-footer">
-    <strong>Copyright &copy; 2024 <a href="https://lyceumalabang.edu.ph">lyceumalabang.edu.ph</a>.</strong>
+    <strong>Copyright &copy; <?php echo date('Y'); ?> <a href="https://lyceumalabang.edu.ph">lyceumalabang.edu.ph</a>.</strong>
     All rights reserved.
   </div>
   </div>
